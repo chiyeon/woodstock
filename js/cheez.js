@@ -16,9 +16,13 @@ const piece_values = {
     [KING]: 1000
 }
 
-var reverse_array = (array) => {
+const reverse_array = (array) => {
     return array.slice().reverse();
 };
+
+const random_from = (array) => {
+    return array[Math.floor(Math.random() * (array.length - 1))]
+}
 
 const position_tables = {
     [WHITE]: {
@@ -171,16 +175,33 @@ const evaluate_position = (board) => {
 
 const make_cheez_move = (board, game) => {
 
-    let moves = {}
-    let best_move_eval = -99999
-    let best_move = null
+    let moves = []
 
     game.moves().forEach(move => {
         game.move(move)
 
-        if (evaluate_position(game.board()) > best_move_eval) best_move = move
+        moves.push({
+            move,
+            eval: evaluate_position(game.board())
+        })
+
         game.undo()
     })
 
-    game.move(best_move)
+    moves.sort((a, b) => {
+        return b.eval - a.eval
+    })
+
+    let best_move_eval = moves[0].eval
+    let best_moves = []
+
+    for (let i = 0; i < moves.length; i++) {
+        if (moves[i].eval == best_move_eval) {
+            best_moves.push(moves[i])
+        } else {
+            break
+        }
+    }
+
+    game.move(random_from(best_moves))
 }

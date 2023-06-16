@@ -16,13 +16,9 @@ const piece_values = {
     [KING]: 1000
 }
 
-const reverse_array = (array) => {
+var reverse_array = (array) => {
     return array.slice().reverse();
 };
-
-const random_from = (array) => {
-    return array[Math.floor(Math.random() * (array.length - 1))]
-}
 
 const position_tables = {
     [WHITE]: {
@@ -173,35 +169,66 @@ const evaluate_position = (board) => {
     return score;
 }
 
-const make_cheez_move = (board, game) => {
-
-    let moves = []
+const start_minimax = (start_depth, game) => {
+    let best_move_eval = -99999
+    let best_move = null
 
     game.moves().forEach(move => {
         game.move(move)
+        
+        let eval = minimax(start_depth - 1, game, -100000, 100000, false)
+        game.undo()
 
-        moves.push({
-            move,
-            eval: evaluate_position(game.board())
+        if (eval >= best_move_eval) {
+            best_move = move
+            best_move_eval = eval
+        }
+    })
+
+    return best_move
+}
+
+const minimax = (depth, game, alpha, beta, player_sided) => {
+    if (depth == 0) return -evaluate_position(game.board())
+
+    if (player_sided) {
+        let best_move_eval = -99999
+
+        game.moves().forEach(move => {
+            game.move(move)
+
+            best_move_eval = Math.max(best_move_eval, minimax(depth - 1, game, alpha, beta, !player_sided))
+
+            game.undo()
+
+            alpha = Math.max(alpha, best_move_eval)
+
+            if (beta <= alpha) return best_move_eval
         })
 
-        game.undo()
-    })
+        return best_move_eval
+    } else {
+        let best_move_eval = 99999
 
-    moves.sort((a, b) => {
-        return b.eval - a.eval
-    })
+        game.moves().forEach(move => {
+            game.move(move)
 
-    let best_move_eval = moves[0].eval
-    let best_moves = []
+            best_move_eval = Math.min(best_move_eval, minimax(depth - 1, game, alpha, beta, !player_sided))
 
-    for (let i = 0; i < moves.length; i++) {
-        if (moves[i].eval == best_move_eval) {
-            best_moves.push(moves[i])
-        } else {
-            break
-        }
+            game.undo()
+
+            alpha = Math.min(alpha, best_move_eval)
+
+            if (beta <= alpha) return best_move_eval
+        })
+
+        return best_move_eval
     }
+}
 
-    game.move(random_from(best_moves))
+const make_cheez_move = (board, game) => {
+
+    let best_move = start_minimax(3, game)
+
+    if (best_move) game.move(best_move)
 }

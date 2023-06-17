@@ -2,6 +2,7 @@ import { Chess } from "../lib/chess.js"
 
 var game = new Chess()
 var board = null
+var board_flipped = false
 
 // 'w' or 'b'
 var player_color = "w"
@@ -45,8 +46,8 @@ const attempt_move_piece = (source, target) => {
         return "snapback"
     }
 
-    window.setTimeout(() => {
-        perform_best_move(game, player_color)
+    window.setTimeout(async () => {
+        await perform_best_move(game, player_color)
         board.position(game.fen())
     }, 200)
 }
@@ -65,21 +66,26 @@ board = Chessboard("board", {
     onDrop: attempt_move_piece
 })
 
-const set_board = () => {
+const set_board = async () => {
     
     game.reset()
     board.position(game.fen())
 
     if (player_color == "b") {
-        perform_best_move(game, player_color)
+        if (!board_flipped) {
+            board.flip()
+            board_flipped = !board_flipped
+        }
+
+        await perform_random_opening_move(game)
         board.position(game.fen())
-        board.flip()
     }
 }
 
 const toggle_player_color = () => {
     if (player_color == "b") {
         board.flip()
+        board_flipped = !board_flipped
     }
 
     player_color = (player_color == "w" ? "b" : "w")

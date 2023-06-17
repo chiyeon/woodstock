@@ -13,10 +13,12 @@ const piece_values = {
     [BISHOP]: 315,
     [ROOK]: 450,
     [QUEEN]: 950,
-    [KING]: 10000
+    [KING]: 100000
 }
 
 let positions_evaluated = 0
+var openings = []
+var is_opening = true
 
 var reverse_array = (array) => {
     return array.slice().reverse();
@@ -260,7 +262,7 @@ const determine_best_move = (start_depth, game, maximizing_player) => {
 const alphabeta = (game, depth, alpha, beta, maximizing_player) => {
     positions_evaluated++
 
-    if (depth == 0) return (maximizing_player ? 1 : -1) * evaluate_position(game.board())
+    if (depth == 0) return (game.turn() == "b" ? 1 : -1) * evaluate_position(game.board())
 
     /*
      * so theres some commented out code below:
@@ -324,11 +326,84 @@ const alphabeta = (game, depth, alpha, beta, maximizing_player) => {
     }
 }
 
+const load_openings = async () => {
+    let raw_openings = (await (await (fetch("../lib/openings.txt"))).text()).split("\n")
+    let openings = []
+
+    for (let i = 0; i < raw_openings.length; i++) {
+        openings.push(raw_openings[i].split(" "))
+    }
+
+    return openings
+}
+
+const perform_random_opening_move = async (game) => {
+    if (openings.length == 0) openings = await load_openings()
+
+    //console.log(openings[Math.floor(Math.random * (openings.length))])
+    console.log("performing random opening move to start")
+    game.move(openings[Math.floor(Math.random() * openings.length)][0])
+}
+
 const perform_best_move = async (game, player_color) => {
 
     let start_time = performance.now()
-    let best_move = determine_best_move(3, game, player_color == "b")
+    // opening set
+    if (openings.length == 0) openings = await load_openings()
+
+    // even if white, odd if black turn
+    // next_move_index should never be zero
+    let next_move_index = (game.moveNumber() - 1) * 2 + (player_color == "w" ? 1 : 0)
     
+    if (is_opening && next_move_index <= 9) {
+        let found_opener = false
+
+        opening_loop:
+        while (!found_opener) {
+            if (openings.length == 0) {
+                is_opening = false
+                console.log("ran out of openings!")
+                break
+            }
+
+            // pick random opening
+            let i = Math.floor(Math.random() * openings.length)
+
+            if (openings[i].length < next_move_index) {
+                openings.splice(i, 1) // opening doesn't have enough moves to support anyway
+                continue 
+            }
+
+            let history = game.history()
+
+            for (let j = 0; j < history.length; j++) {
+                if (openings[i][j] != history[j]) {
+                    openings.splice(i, 1)
+                    continue opening_loop
+                }
+            }
+
+            console.log(history)
+            console.log(openings[i])
+
+            // if previous move matches opening, send it
+            console.log("doing opening line number " + (i + 1))
+            console.log("playing from opening book")
+            let move = openings[i][next_move_index]
+            if (move) {
+                game.move(move)
+                let time_elapsed = performance.now() - start_time
+
+                $(".stats #time").text("Time Elapsed: " + time_elapsed / 1000 + " seconds")
+                $(".stats #positions").text("Positions Evaluated: " + positions_evaluated)
+                positions_evaluated = 0
+                return
+            }
+        }
+    }
+
+    
+    let best_move = determine_best_move(3, game, player_color == "b")
     let time_elapsed = performance.now() - start_time
 
     $(".stats #time").text("Time Elapsed: " + time_elapsed / 1000 + " seconds")

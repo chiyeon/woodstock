@@ -16,6 +16,8 @@ const piece_values = {
     [KING]: 1000
 }
 
+let positions_evaluated = 0
+
 var reverse_array = (array) => {
     return array.slice().reverse();
 };
@@ -189,6 +191,7 @@ const start_minimax = (start_depth, game) => {
 }
 
 const minimax = (depth, game, alpha, beta, player_sided) => {
+    positions_evaluated++
     if (depth == 0) return -evaluate_position(game.board())
 
     if (player_sided) {
@@ -228,7 +231,13 @@ const minimax = (depth, game, alpha, beta, player_sided) => {
 
 const make_cheez_move = async (board, game) => {
 
+    let start_time = performance.now()
     let best_move = start_minimax(3, game)
+    let time_elapsed = performance.now() - start_time
+
+    $(".stats #time").text("Time Elapsed: " + time_elapsed / 1000 + " seconds")
+    $(".stats #positions").text("Positions Evaluated: " + positions_evaluated)
+    positions_evaluated = 0
 
     if (best_move) game.move(best_move)
 }

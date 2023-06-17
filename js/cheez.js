@@ -217,7 +217,7 @@ const minimax = (depth, game, alpha, beta, player_sided) => {
 
             game.undo()
 
-            alpha = Math.min(alpha, best_move_eval)
+            beta = Math.min(beta, best_move_eval)
 
             if (beta <= alpha) return best_move_eval
         })
@@ -226,7 +226,7 @@ const minimax = (depth, game, alpha, beta, player_sided) => {
     }
 }
 
-const make_cheez_move = (board, game) => {
+const make_cheez_move = async (board, game) => {
 
     let best_move = start_minimax(3, game)
 

@@ -13,7 +13,7 @@
 
 </head>
 <body>
-    <div id="board" style="width: 400px"></div>
+    <div id="board" style="width: 600px"></div>
     <script type="module">
         import { Chess } from "./js/chess.js"
 
@@ -59,7 +59,10 @@
                 return "snapback"
             }
 
-            make_cheez_move(board, game)
+            window.setTimeout(() => {
+                make_cheez_move(board, game)
+                board.position(game.fen())
+            }, 100)
         }
 
         board = Chessboard("board", {

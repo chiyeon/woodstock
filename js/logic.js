@@ -49,6 +49,7 @@ const attempt_move_piece = (source, target) => {
     window.setTimeout(async () => {
         await perform_best_move(game, player_color)
         board.position(game.fen())
+        show_evaluated_position()
     }, 200)
 }
 
@@ -62,6 +63,7 @@ board = Chessboard("board", {
     },
     onSnapEnd: () => {
         board.position(game.fen())
+        show_evaluated_position()
     },
     onDrop: attempt_move_piece
 })
@@ -79,6 +81,7 @@ const set_board = async () => {
 
         await perform_random_opening_move(game)
         board.position(game.fen())
+        show_evaluated_position()
     }
 }
 
@@ -97,10 +100,29 @@ const undo_move = () => {
     game.undo()
     if (game.turn() != player_color) game.undo()
     board.position(game.fen())
+    show_evaluated_position()
+}
+
+//var turn = "b"
+
+const show_evaluated_position = () => {
+    let score = evaluate_position(game)
+    $("#evaluation").text(score + "(+white, -black)")
+
+    // if (!game.isGameOver()) {
+    //     window.setTimeout(async () => {
+    //         await perform_best_move(game, turn)
+    //         turn = (turn == "w" ? "b" : "w")
+    //         board.position(game.fen())
+    //         show_evaluated_position()
+    //     }, 200)
+    // }
 }
 
 $("#undo-button").on("click", () => { undo_move() })
 $("#swap-button").on("click", () => { toggle_player_color() })
+$("#random-button").on("click", () => { if (Math.random() < 0.5) toggle_player_color() })
 $("#reset-button").on("click", () => { set_board() })
 
 set_board()
+show_evaluated_position()

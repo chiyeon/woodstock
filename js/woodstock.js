@@ -10,9 +10,9 @@ const   PAWN = "p",
 const piece_values = {
     [PAWN]: 100,
     [KNIGHT]: 300,
-    [BISHOP]: 315,
-    [ROOK]: 450,
-    [QUEEN]: 950,
+    [BISHOP]: 350,
+    [ROOK]: 475,
+    [QUEEN]: 900,
     [KING]: 100000
 }
 
@@ -184,9 +184,15 @@ const piece_score = (piece, x, y) => {
 }
 
 // evaluates the position where positive = white favor 
-const evaluate_position = (board) => {
+const evaluate_position = (game) => {
+    let board = game.board()
+
     let white_score = 0
     let black_score = 0
+
+    // keep record of number of number of black pieces attacked by white and vice versa
+    let white_attacking_score = 0
+    let black_attacking_score = 0
 
     for (let x = 0; x < 8; x++) {
         for (let y = 0; y < 8; y++) {
@@ -197,17 +203,19 @@ const evaluate_position = (board) => {
             if (piece.color == "w") {
                 white_score = white_score
                             + piece_values[piece.type]
-                            + white_position_table[piece.type][y][x]
+                            + white_position_table[piece.type][x][y]
+                if (game.isAttacked(piece.square, BLACK)) black_attacking_score = blackpiece_values[piece.type]
             } else {
                 black_score = black_score
                             + piece_values[piece.type]
-                            + black_position_table[piece.type][y][x]
+                            + black_position_table[piece.type][x][y]
+                if (game.isAttacked(piece.square, WHITE)) white_attacking_score++
             }
 
         }
     }
     
-    return white_score - black_score
+    return (white_score - black_score) + (white_attacking_score - black_attacking_score)
 }
 
 const compare_moves = (a, b) => {
@@ -247,6 +255,7 @@ const determine_best_move = (start_depth, game, maximizing_player) => {
         game.move(move)
 
         let eval = alphabeta(game, start_depth - 1, -10000, 10000, maximizing_player)
+        //let eval = alpha_beta_max(game, start_depth - 1, -9999999, 9999999)
 
         game.undo()
 
@@ -256,13 +265,15 @@ const determine_best_move = (start_depth, game, maximizing_player) => {
         }
     }
 
+    console.log("determined best move with score " + best_move_eval)
+
     return best_move
 }
 
 const alphabeta = (game, depth, alpha, beta, maximizing_player) => {
     positions_evaluated++
 
-    if (depth == 0) return (game.turn() == "b" ? 1 : -1) * evaluate_position(game.board())
+    if (depth == 0) return (game.turn() == "b" ? 1 : -1) * evaluate_position(game)
 
     /*
      * so theres some commented out code below:
@@ -326,6 +337,52 @@ const alphabeta = (game, depth, alpha, beta, maximizing_player) => {
     }
 }
 
+const alpha_beta_max = (game, depth, alpha, beta) => {
+    if (depth == 0) return -evaluate_position(game)
+
+    let game_moves = game.moves()
+    let scored_moves = score_moves(game.moves({ raw: true }))
+    
+    for (let i = 0; i < game_moves.length; i++) {
+        for (let j = i; j < game_moves.length; j++) {
+            if (scored_moves[j] > scored_moves[i])
+                swap_elements(game_moves, i, j)
+        }
+
+        let move = game_moves[i]
+        game.move(move)
+        let score = alpha_beta_min(game, depth - 1, alpha, beta)
+        game.undo()
+        if (score >= beta) return beta
+        if (score > alpha) alpha = score
+    }
+
+    return alpha
+}
+
+const alpha_beta_min = (game, depth, alpha, beta) => {
+    if (depth == 0) return evaluate_position(game)
+
+    let game_moves = game.moves()
+    let scored_moves = score_moves(game.moves({ raw: true }))
+    
+    for (let i = 0; i < game_moves.length; i++) {
+        for (let j = i; j < game_moves.length; j++) {
+            if (scored_moves[j] > scored_moves[i])
+                swap_elements(game_moves, i, j)
+        }
+
+        let move = game_moves[i]
+        game.move(move)
+        let score = alpha_beta_max(game, depth - 1, alpha, beta)
+        game.undo()
+        if (score <= alpha) return alpha
+        if (score < beta) beta = score
+    }
+
+    return beta
+}
+
 const load_openings = async () => {
     let raw_openings = (await (await (fetch("../lib/openings.txt"))).text()).split("\n")
     let openings = []
@@ -339,8 +396,8 @@ const load_openings = async () => {
 
 const perform_random_opening_move = async (game) => {
     if (openings.length == 0) openings = await load_openings()
-
-    //console.log(openings[Math.floor(Math.random * (openings.length))])
+    
+    is_opening = true
     console.log("performing random opening move to start")
     game.move(openings[Math.floor(Math.random() * openings.length)][0])
 }
@@ -369,7 +426,7 @@ const perform_best_move = async (game, player_color) => {
             // pick random opening
             let i = Math.floor(Math.random() * openings.length)
 
-            if (openings[i].length < next_move_index) {
+            if (openings[i].length <= next_move_index) {
                 openings.splice(i, 1) // opening doesn't have enough moves to support anyway
                 continue 
             }
@@ -383,11 +440,7 @@ const perform_best_move = async (game, player_color) => {
                 }
             }
 
-            console.log(history)
-            console.log(openings[i])
-
             // if previous move matches opening, send it
-            console.log("doing opening line number " + (i + 1))
             console.log("playing from opening book")
             let move = openings[i][next_move_index]
             if (move) {

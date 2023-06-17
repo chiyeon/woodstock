@@ -89,6 +89,7 @@ const toggle_player_color = () => {
 
 const undo_move = () => {
     game.undo()
+    if (game.turn() != player_color) game.undo()
     board.position(game.fen())
 }
 

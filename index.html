@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,78 +9,20 @@
     <link rel="stylesheet" href="css/chessboard-1.0.0.min.css">
     <link rel="stylesheet" href="css/chess-style.css">
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
-    <script src="js/chessboard-1.0.0.min.js"></script>
+    <script src="lib/chessboard-1.0.0.min.js"></script>
     <script src="js/cheez.js"></script>
+    <script src="js/logic.js" type="module"></script>
 
 </head>
+
 <body>
-    <center><div id="board" style="width: 600px"></div></center>
-    <div class="stats">
-        <p id="positions"></p>
-        <p id="time"></p>
-    </div>
-    <script type="module">
-        import { Chess } from "./js/chess.js"
-
-        var game = new Chess()
-        var board = null
-
-        const set_highlight_square = (square, is_highlighted) => {
-            let el = $(`#board .square-${square}`)
-            is_highlighted ? el.addClass("highlighted") : el.removeClass("highlighted")
-        }
-
-        const remove_highlighted_squares = () => {
-            $("#board .square-55d63").removeClass("highlighted")
-        }
-
-        const highlight_possible_moves = (square, piece) => {
-            if (piece[0] == "b") return;
-
-            let moves = game.moves({
-                square: square,
-                verbose: true
-            })
-
-            if (moves.length == 0) return
-
-            moves.forEach(move => {
-                set_highlight_square(move.to, true)
-            })
-        }
-
-        const attempt_move_piece = (source, target) => {
-            if (game.get(source).color == "b") return console.log("attempted to move non-player picee!")
-
-            remove_highlighted_squares()
-
-            try {
-                game.move({
-                    from: source,
-                    to: target,
-                    promotion: "q"
-                })
-            } catch {
-                return "snapback"
-            }
-
-            window.setTimeout(() => {
-                make_cheez_move(board, game)
-                board.position(game.fen())
-            }, 100)
-        }
-
-        board = Chessboard("board", {
-            draggable: true,
-            position: "start",
-            onMouseoutSquare: remove_highlighted_squares,
-            onMouseoverSquare: highlight_possible_moves,
-            onSnapEnd: () => {
-                board.position(game.fen())
-            },
-            onDrop: attempt_move_piece
-        })
-
-    </script>
+    <center>
+        <div id="board" style="width: 600px"></div>
+        <div class="stats">
+            <p id="positions"></p>
+            <p id="time"></p>
+        </div>
+    </center>
 </body>
+
 </html>

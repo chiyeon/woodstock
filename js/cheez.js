@@ -10,10 +10,10 @@ const   PAWN = "p",
 const piece_values = {
     [PAWN]: 10,
     [KNIGHT]: 30,
-    [BISHOP]: 40,
-    [ROOK]: 60,
-    [QUEEN]: 100,
-    [KING]: 1000
+    [BISHOP]: 30,
+    [ROOK]: 50,
+    [QUEEN]: 90,
+    [KING]: 900
 }
 
 let positions_evaluated = 0
@@ -171,8 +171,8 @@ const evaluate_position = (board) => {
     return score;
 }
 
-const start_minimax = (start_depth, game) => {
-    let best_move_eval = -99999
+const start_minimax = (start_depth, game, player_sided) => {
+    let best_move_eval = -9999
     let best_move = null
 
     let game_moves = game.moves()
@@ -182,7 +182,7 @@ const start_minimax = (start_depth, game) => {
 
         game.move(move)
 
-        let eval = minimax(start_depth - 1, game, -100000, 100000, false)
+        let eval = minimax(start_depth - 1, game, -10000, 10000, player_sided)
 
         game.undo()
 
@@ -198,12 +198,12 @@ const start_minimax = (start_depth, game) => {
 const minimax = (depth, game, alpha, beta, player_sided) => {
     positions_evaluated++
 
-    if (depth == 0) return -evaluate_position(game.board())
+    if (depth == 0) return (player_sided ? 1 : -1) * evaluate_position(game.board())
 
     let game_moves = game.moves()
 
     if (player_sided) {
-        let best_move_eval = -99999
+        let best_move_eval = -9999
 
         for (let i = 0; i < game_moves.length; i++)
         {
@@ -219,7 +219,7 @@ const minimax = (depth, game, alpha, beta, player_sided) => {
 
         return best_move_eval
     } else {
-        let best_move_eval = 99999
+        let best_move_eval = 9999
 
         for (let i = 0; i < game_moves.length; i++)
         {
@@ -237,10 +237,10 @@ const minimax = (depth, game, alpha, beta, player_sided) => {
     }
 }
 
-const make_cheez_move = async (board, game) => {
+const make_cheez_move = async (game, player_color) => {
 
     let start_time = performance.now()
-    let best_move = start_minimax(3, game)
+    let best_move = start_minimax(3, game, player_color == "b")
     let time_elapsed = performance.now() - start_time
 
     $(".stats #time").text("Time Elapsed: " + time_elapsed / 1000 + " seconds")

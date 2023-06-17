@@ -45,6 +45,7 @@ const attempt_move_piece = (source, target) => {
     } catch {
         return "snapback"
     }
+    show_evaluated_position()
 
     window.setTimeout(async () => {
         await perform_best_move(game, player_color)
@@ -103,10 +104,10 @@ const undo_move = () => {
     show_evaluated_position()
 }
 
-//var turn = "b"
+var turn = "b"
 
 const show_evaluated_position = () => {
-    let score = evaluate_position(game)
+    let score = evaluate_position(game, game.moves({ raw: true }))
     $("#evaluation").text(score + "(+white, -black)")
 
     // if (!game.isGameOver()) {
@@ -126,3 +127,4 @@ $("#reset-button").on("click", () => { set_board() })
 
 set_board()
 show_evaluated_position()
+//board.flip()

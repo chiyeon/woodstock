@@ -8,12 +8,12 @@ const   PAWN = "p",
         BLACK = "b"
 
 const piece_values = {
-    [PAWN]: 100,
-    [KNIGHT]: 300,
-    [BISHOP]: 350,
-    [ROOK]: 475,
-    [QUEEN]: 900,
-    [KING]: 100000
+    [PAWN]: 1,
+    [KNIGHT]: 3,
+    [BISHOP]: 3,
+    [ROOK]: 5,
+    [QUEEN]: 9,
+    [KING]: 200
 }
 
 let positions_evaluated = 0
@@ -184,7 +184,7 @@ const piece_score = (piece, x, y) => {
 }
 
 // evaluates the position where positive = white favor 
-const evaluate_position = (game) => {
+const evaluate_position = (game, raw_moves) => {
     let board = game.board()
 
     let white_score = 0
@@ -193,6 +193,13 @@ const evaluate_position = (game) => {
     // keep record of number of number of black pieces attacked by white and vice versa
     let white_attacking_score = 0
     let black_attacking_score = 0
+
+    // number of possible mvoes per side
+    let white_mobility = 0,
+        black_mobility = 0
+    
+    let white_bishop_count = 0,
+        black_bishop_count = 0
 
     for (let x = 0; x < 8; x++) {
         for (let y = 0; y < 8; y++) {
@@ -204,18 +211,40 @@ const evaluate_position = (game) => {
                 white_score = white_score
                             + piece_values[piece.type]
                             + white_position_table[piece.type][x][y]
-                if (game.isAttacked(piece.square, BLACK)) black_attacking_score = blackpiece_values[piece.type]
+                if (piece.type == BISHOP) white_bishop_count++
             } else {
                 black_score = black_score
                             + piece_values[piece.type]
                             + black_position_table[piece.type][x][y]
-                if (game.isAttacked(piece.square, WHITE)) white_attacking_score++
+                if (piece.type == BISHOP) black_bishop_count++
             }
 
         }
     }
+
+    for (let i = 0; i < raw_moves.length; i++) {
+        let move = raw_moves[i]
+        if (move.captured) {
+            if (move.color == "w") {
+                white_mobility++
+                white_attacking_score   = white_attacking_score
+                                        + score_move(move)
+            } else {
+                black_mobility++
+                black_attacking_score   = black_attacking_score
+                                        + score_move(move)
+            }
+        }
+    }
+
+    let bishop_bonus = 0
+    if (white_bishop_count == 2) bishop_bonus += 5
+    if (black_bishop_count == 2) bishop_bonus -= 5
     
-    return (white_score - black_score) + (white_attacking_score - black_attacking_score)
+    return (white_score - black_score)
+            + 0.01 * (white_attacking_score - black_attacking_score)
+            + 0.1 * (white_mobility - black_mobility)
+            + bishop_bonus
 }
 
 const compare_moves = (a, b) => {
@@ -273,20 +302,20 @@ const determine_best_move = (start_depth, game, maximizing_player) => {
 const alphabeta = (game, depth, alpha, beta, maximizing_player) => {
     positions_evaluated++
 
-    if (depth == 0) return (game.turn() == "b" ? 1 : -1) * evaluate_position(game)
-
+    
     /*
      * so theres some commented out code below:
-     * rustic-chess online supposes that physically sorting the array is a waste of 
+    * rustic-chess online supposes that physically sorting the array is a waste of 
      * computing power as alpha-beta pruning will remove some of these eventualities meaning
      * we are sorting elements we have no need to sort
      * in my experience (thanks js?) there is no difference, so the
      * code for both will stay.
      */
-
+    
     let game_moves = game.moves()
     //game_moves = game_moves.sort(compare_moves)
     let scored_moves = score_moves(game.moves({ raw: true }))
+    if (depth == 0) return (game.turn() == "b" ? 1 : -1) * evaluate_position(game, scored_moves)
 
     if (maximizing_player) {
         let best_move_eval = -999999
@@ -465,3 +494,4 @@ const perform_best_move = async (game, player_color) => {
 
     if (best_move) game.move(best_move)
 }
+

@@ -8,12 +8,12 @@ const   PAWN = "p",
         BLACK = "b"
 
 const piece_values = {
-    [PAWN]: 10,
-    [KNIGHT]: 30,
-    [BISHOP]: 30,
-    [ROOK]: 45,
-    [QUEEN]: 95,
-    [KING]: 1000
+    [PAWN]: 100,
+    [KNIGHT]: 300,
+    [BISHOP]: 315,
+    [ROOK]: 450,
+    [QUEEN]: 950,
+    [KING]: 10000
 }
 
 let positions_evaluated = 0

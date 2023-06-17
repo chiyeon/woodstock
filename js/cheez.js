@@ -164,7 +164,7 @@ const evaluate_position = (board) => {
 
     for (let x = 0; x < 8; x++) {
         for (let y = 0; y < 8; y++) {
-            score = piece_score(board[x][y], x, y)
+            score += piece_score(board[x][y], x, y)
         }
     }
 
@@ -175,55 +175,63 @@ const start_minimax = (start_depth, game) => {
     let best_move_eval = -99999
     let best_move = null
 
-    game.moves().forEach(move => {
+    let game_moves = game.moves()
+
+    for (let i = 0; i < game_moves.length; i++) {
+        let move = game_moves[i]
+
         game.move(move)
-        
+
         let eval = minimax(start_depth - 1, game, -100000, 100000, false)
+
         game.undo()
 
         if (eval >= best_move_eval) {
             best_move = move
             best_move_eval = eval
         }
-    })
+    }
 
     return best_move
 }
 
 const minimax = (depth, game, alpha, beta, player_sided) => {
     positions_evaluated++
+
     if (depth == 0) return -evaluate_position(game.board())
+
+    let game_moves = game.moves()
 
     if (player_sided) {
         let best_move_eval = -99999
 
-        game.moves().forEach(move => {
+        for (let i = 0; i < game_moves.length; i++)
+        {
+            let move = game_moves[i]
+
             game.move(move)
-
             best_move_eval = Math.max(best_move_eval, minimax(depth - 1, game, alpha, beta, !player_sided))
-
             game.undo()
 
             alpha = Math.max(alpha, best_move_eval)
-
             if (beta <= alpha) return best_move_eval
-        })
+        }
 
         return best_move_eval
     } else {
         let best_move_eval = 99999
 
-        game.moves().forEach(move => {
+        for (let i = 0; i < game_moves.length; i++)
+        {
+            let move = game_moves[i]
+
             game.move(move)
-
             best_move_eval = Math.min(best_move_eval, minimax(depth - 1, game, alpha, beta, !player_sided))
-
             game.undo()
 
             beta = Math.min(beta, best_move_eval)
-
             if (beta <= alpha) return best_move_eval
-        })
+        }
 
         return best_move_eval
     }

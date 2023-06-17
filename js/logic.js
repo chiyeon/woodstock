@@ -46,7 +46,7 @@ const attempt_move_piece = (source, target) => {
     }
 
     window.setTimeout(() => {
-        make_cheez_move(game, player_color)
+        perform_best_move(game, player_color)
         board.position(game.fen())
     }, 200)
 }
@@ -71,7 +71,7 @@ const set_board = () => {
     board.position(game.fen())
 
     if (player_color == "b") {
-        make_cheez_move(game, player_color)
+        perform_best_move(game, player_color)
         board.position(game.fen())
         board.flip()
     }

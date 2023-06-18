@@ -200,6 +200,9 @@ const evaluate_position = (game, raw_moves) => {
     
     let white_bishop_count = 0,
         black_bishop_count = 0
+    
+    let white_double_pawn_count = 0,
+        black_double_pawn_count = 0
 
     for (let x = 0; x < 8; x++) {
         for (let y = 0; y < 8; y++) {
@@ -211,12 +214,30 @@ const evaluate_position = (game, raw_moves) => {
                 white_score = white_score
                             + piece_values[piece.type]
                             + white_position_table[piece.type][x][y]
-                if (piece.type == BISHOP) white_bishop_count++
+                
+                switch(piece.type) {
+                    case BISHOP:
+                        white_bishop_count++;
+                        break;
+                        case PAWN:
+                            // check for "stacked" pawns in front only
+                            if (y < 7 && board[x][y].type == "p" && board[x][y].color == "w") white_double_pawn_count++
+                            break;
+                }
             } else {
                 black_score = black_score
                             + piece_values[piece.type]
                             + black_position_table[piece.type][x][y]
-                if (piece.type == BISHOP) black_bishop_count++
+                
+                switch(piece.type) {
+                    case BISHOP:
+                        black_bishop_count++;
+                        break;
+                    case PAWN:
+                        // check for "stacked" pawns in front only
+                        if (y < 7 && board[x][y].type == "p" && board[x][y].color == "b") black_double_pawn_count++
+                        break;
+                }
             }
 
         }
@@ -242,7 +263,7 @@ const evaluate_position = (game, raw_moves) => {
     if (black_bishop_count == 2) bishop_bonus -= 5
     
     return (white_score - black_score)
-            + 0.01 * (white_attacking_score - black_attacking_score)
+            + 0.1 * (white_attacking_score - black_attacking_score)
             + 0.1 * (white_mobility - black_mobility)
             + bishop_bonus
 }

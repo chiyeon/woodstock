@@ -8,12 +8,12 @@ const   PAWN = "p",
         BLACK = "b"
 
 const piece_values = {
-    [PAWN]: 1,
-    [KNIGHT]: 3,
-    [BISHOP]: 3,
-    [ROOK]: 5,
-    [QUEEN]: 9,
-    [KING]: 200
+    [PAWN]: 10,
+    [KNIGHT]: 30,
+    [BISHOP]: 31,
+    [ROOK]: 45,
+    [QUEEN]: 90,
+    [KING]: 2000
 }
 
 let positions_evaluated = 0
@@ -259,11 +259,11 @@ const evaluate_position = (game, raw_moves) => {
     }
 
     let bishop_bonus = 0
-    if (white_bishop_count == 2) bishop_bonus += 5
-    if (black_bishop_count == 2) bishop_bonus -= 5
+    if (white_bishop_count == 2) bishop_bonus += 20
+    if (black_bishop_count == 2) bishop_bonus -= 20
     
     return (white_score - black_score)
-            + 0.1 * (white_attacking_score - black_attacking_score)
+            + 0.05 * (white_attacking_score - black_attacking_score)
             + 0.1 * (white_mobility - black_mobility)
             + bishop_bonus
 }

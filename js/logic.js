@@ -47,11 +47,23 @@ const attempt_move_piece = (source, target) => {
     }
     show_evaluated_position()
 
+    if (game.isGameOver()) return player_win()
+
     window.setTimeout(async () => {
         await perform_best_move(game, player_color)
         board.position(game.fen())
+
         show_evaluated_position()
+        if (game.isGameOver()) return computer_win()
     }, 200)
+}
+
+const player_win = () => {
+    $("#winner").text("You won!").removeClass("hidden")
+}
+
+const computer_win = () => {
+    $("#winner").text("Woodstock won!").removeClass("hidden")
 }
 
 board = Chessboard("board", {

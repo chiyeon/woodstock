@@ -83,3 +83,19 @@ button {
 button:hover {
     background-color: rgb(109, 84, 63);
 }
+
+.winner {
+    width: fit-content;
+    position: absolute;
+    left: 50%;
+    top: 4%;
+    transform: translate(-50%, -50%);
+}
+
+.winner h2 {
+    text-align: center;
+}
+
+.winner .hidden {
+    opacity: 0;
+}

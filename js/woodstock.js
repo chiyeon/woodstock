@@ -24,15 +24,22 @@ var reverse_array = (array) => {
     return array.slice().reverse();
 };
 
+const eg_white_position_table = {
+    [PAWN]: [
+        0, 0, 0, 0, 0, 0, 0, 0,
+        
+    ]
+}
+
 const white_position_table = {
     [PAWN]: [
         [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0],
-        [5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0],
+        [5.0,  6.0,  5.0,  5.0,  5.0,  6.0,  5.0,  5.0],
         [1.0,  1.0,  2.0,  3.0,  3.0,  2.0,  1.0,  1.0],
         [0.5,  0.5,  1.0,  2.5,  2.5,  1.0,  0.5,  0.5],
         [0.0,  0.0,  0.0,  2.0,  2.0,  0.0,  0.0,  0.0],
         [0.5, -0.5, -1.0,  0.0,  0.0, -1.0, -0.5,  0.5],
-        [0.5,  1.0, 1.0,  -2.0, -2.0,  1.0,  1.0,  0.5],
+        [-2,  1.0, -1.0,  -3.0, -2.0,  1.0,  1.0,  -1],
         [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
     ],
     [KNIGHT]: [
@@ -206,14 +213,14 @@ const evaluate_position = (game, raw_moves) => {
 
     for (let x = 0; x < 8; x++) {
         for (let y = 0; y < 8; y++) {
-            let piece = board[x][y]
+            let piece = board[y][x]
 
             if (!piece) continue
 
             if (piece.color == "w") {
                 white_score = white_score
                             + piece_values[piece.type]
-                            + white_position_table[piece.type][x][y]
+                            + white_position_table[piece.type][y][x]
                 
                 switch(piece.type) {
                     case BISHOP:
@@ -221,13 +228,13 @@ const evaluate_position = (game, raw_moves) => {
                         break;
                         case PAWN:
                             // check for "stacked" pawns in front only
-                            if (y < 7 && board[x][y].type == "p" && board[x][y].color == "w") white_double_pawn_count++
+                            if (y < 7 && board[y][x].type == "p" && board[y][x].color == "w") white_double_pawn_count++
                             break;
                 }
             } else {
                 black_score = black_score
                             + piece_values[piece.type]
-                            + black_position_table[piece.type][x][y]
+                            + black_position_table[piece.type][y][x]
                 
                 switch(piece.type) {
                     case BISHOP:
@@ -235,7 +242,7 @@ const evaluate_position = (game, raw_moves) => {
                         break;
                     case PAWN:
                         // check for "stacked" pawns in front only
-                        if (y < 7 && board[x][y].type == "p" && board[x][y].color == "b") black_double_pawn_count++
+                        if (y < 7 && board[y][x].type == "p" && board[y][x].color == "b") black_double_pawn_count++
                         break;
                 }
             }

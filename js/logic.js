@@ -127,4 +127,4 @@ $("#reset-button").on("click", () => { set_board() })
 
 set_board()
 show_evaluated_position()
-board.flip()
+//board.flip()

@@ -1,45 +1,66 @@
+const test_add = (N, obj) => {
+    for (let i = 0; i < N; i++) {
+        obj[i] = i * i
+    }
 
-const run_array_test_push = (n) => {
-    let arr = []
+    return obj
+}
 
-    for (let i = 0; i < n; i++) {
-        arr.push(i)
+const test_index = (N, obj) => {
+    for (let i = 0; i < N; i++) {
+        let a = obj[i]
+        a += 1
     }
 }
 
-const run_array_test_index = (n, arr) => {
-    for (let i = 0; i < n; i++) {
-        let a = arr[i]
-    }
-}
+const test_obj = (obj, name) => {
+    //console.log("Testing performance of " + name)
 
-const run_array_test = (m, n) => {
-    console.log("testing array of size " + n + " for " + m + " iterations.")
+    let objs = []
+    let o
+    let results = []
+
+    //console.log("testing add")
     let start_time = performance.now()
-    for (let i = 0; i < m; i++) {
-        run_array_test_push(n)
-    }
+    //for (let i = 1; i <= 10; i++) {
+        //for (let j = 0; j < i * 1000; j++) {
+            o = test_add(1000000, obj)
+        //}
+    //}
+    let time = (performance.now() - start_time) / 1000
+    results.push(time)
+    //console.log("took " + time)
 
-    console.log("ADD:\ttook " + (performance.now() - start_time) / 1000 + " seconds")
-
-    let arr = []
-    for (let i = 0; i < m; i++) {
-        arr.push(i)
-    }
-
+    //console.log("testing index")
     start_time = performance.now()
+    //for (let i = 1; i <= 10; i++) {
+        //for (let j = 0; j < i * 1000; j++) {
+            test_index(1000000, o)
+        //}
+    //}
+    time = (performance.now() - start_time) / 1000
+    results.push(time)
+    //console.log("took " + time)
 
-    for (let i = 0; i < m; i++){
-        
-    }
+    return results
 }
 
-const run_performance_test = () => {
-    console.log("running array performance test")
-    for (let i = 0; i < 10; i++) {
-        run_array_test(1000 * i, 1000000)
+const full_test_obj = (N, obj, name) => {
+    let avg_add = 0
+    let avg_index = 0
+    for (let i = 0; i < N; i++) {
+        let res = test_obj(obj, name)
+        avg_add += res[0]
+        avg_index += res[1]
     }
+
+    avg_add /= N
+    avg_index /= N
+
+    console.log("------------------------------")
+    console.log("Adding took an average of " + avg_add + " seconds (N = " + N + ")")
+    console.log("Indexing took an average of " + avg_index + " seconds (N = " + N + ")")
 }
 
-run_performance_test()
-
+full_test_obj(100, [], "array")
+full_test_obj(100, {}, "object")

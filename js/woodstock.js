@@ -185,9 +185,9 @@ const char_to_index = (piece) => {
 
 const piece_score = (piece, x, y) => {
     if (!piece) return 0
-    let score = piece_values[piece.type] + 10 * (piece.color == "w" ? white_position_table[piece.type][y][x] : black_position_table[piece.type][y][x])
+    let score = piece_values[piece.type] + 5 * (piece.color == "w" ? white_position_table[piece.type][y][x] : black_position_table[piece.type][y][x])
     
-    return piece.color == "w" ? score : -score;
+    return score
 }
 
 // evaluates the position where positive = white favor 
@@ -196,6 +196,22 @@ const evaluate_position = (game, raw_moves) => {
 
     let white_score = 0
     let black_score = 0
+
+    // for (let x = 0; x < 8; x++) {
+    //     for (let y = 0; y < 8; y++) {
+    //         let piece = board[y][x]
+
+    //         if (!piece) continue
+
+    //         if (piece.color == "w") {
+    //             white_score += piece_score(piece, x, y)
+    //         } else {
+    //             black_score += piece_score(piece, x, y)
+    //         }
+    //     }
+    // }
+
+    // return white_score - black_score
 
     // keep record of number of number of black pieces attacked by white and vice versa
     let white_attacking_score = 0
@@ -222,29 +238,29 @@ const evaluate_position = (game, raw_moves) => {
                             + piece_values[piece.type]
                             + white_position_table[piece.type][y][x]
                 
-                switch(piece.type) {
-                    case BISHOP:
-                        white_bishop_count++;
-                        break;
-                        case PAWN:
-                            // check for "stacked" pawns in front only
-                            if (y < 7 && board[y][x].type == "p" && board[y][x].color == "w") white_double_pawn_count++
-                            break;
-                }
+                // switch(piece.type) {
+                //     case BISHOP:
+                //         white_bishop_count++;
+                //         break;
+                //         case PAWN:
+                //             // check for "stacked" pawns in front only
+                //             if (y < 7 && board[y][x].type == "p" && board[y][x].color == "w") white_double_pawn_count++
+                //             break;
+                // }
             } else {
                 black_score = black_score
                             + piece_values[piece.type]
                             + black_position_table[piece.type][y][x]
                 
-                switch(piece.type) {
-                    case BISHOP:
-                        black_bishop_count++;
-                        break;
-                    case PAWN:
-                        // check for "stacked" pawns in front only
-                        if (y < 7 && board[y][x].type == "p" && board[y][x].color == "b") black_double_pawn_count++
-                        break;
-                }
+                // switch(piece.type) {
+                //     case BISHOP:
+                //         black_bishop_count++;
+                //         break;
+                //     case PAWN:
+                //         // check for "stacked" pawns in front only
+                //         if (y < 7 && board[y][x].type == "p" && board[y][x].color == "b") black_double_pawn_count++
+                //         break;
+                // }
             }
 
         }
@@ -266,12 +282,12 @@ const evaluate_position = (game, raw_moves) => {
     }
 
     let bishop_bonus = 0
-    if (white_bishop_count == 2) bishop_bonus += 20
-    if (black_bishop_count == 2) bishop_bonus -= 20
+    if (white_bishop_count == 2) bishop_bonus += 10
+    if (black_bishop_count == 2) bishop_bonus -= 10
     
     return (white_score - black_score)
             + 0.05 * (white_attacking_score - black_attacking_score)
-            + 0.1 * (white_mobility - black_mobility)
+            // + 0.1 * (white_mobility - black_mobility)
             + bishop_bonus
 }
 

@@ -24,12 +24,83 @@ var reverse_array = (array) => {
     return array.slice().reverse();
 };
 
-const eg_white_position_table = {
-    [PAWN]: [
-        0, 0, 0, 0, 0, 0, 0, 0,
-        
-    ]
-}
+const white_pawn_table = [
+    [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0],
+    [5.0,  6.0,  5.0,  5.0,  5.0,  6.0,  5.0,  5.0],
+    [1.0,  1.0,  2.0,  3.0,  3.0,  2.0,  1.0,  1.0],
+    [0.5,  0.5,  1.0,  2.5,  2.5,  1.0,  0.5,  0.5],
+    [0.0,  0.0,  0.0,  2.0,  2.0,  0.0,  0.0,  0.0],
+    [0.5, -0.5, -1.0,  0.0,  0.0, -1.0, -0.5,  0.5],
+    [-2,  1.0, -1.0,  -3.0, -2.0,  1.0,  1.0,  -1],
+    [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
+]
+
+const white_knight_table = [
+    [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0],
+    [-4.0, -2.0,  0.0,  0.0,  0.0,  0.0, -2.0, -4.0],
+    [-3.0,  0.0,  1.0,  1.5,  1.5,  1.0,  0.0, -3.0],
+    [-3.0,  0.5,  1.5,  2.0,  2.0,  1.5,  0.5, -3.0],
+    [-3.0,  0.0,  1.5,  2.0,  2.0,  1.5,  0.0, -3.0],
+    [-3.0,  0.5,  1.0,  1.5,  1.5,  1.0,  0.5, -3.0],
+    [-4.0, -2.0,  0.0,  0.5,  0.5,  0.0, -2.0, -4.0],
+    [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0]
+]
+
+const white_bishop_table = [
+    [ -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0],
+        [ -1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0],
+        [ -1.0,  0.0,  0.5,  1.0,  1.0,  0.5,  0.0, -1.0],
+        [ -1.0,  0.5,  0.5,  1.0,  1.0,  0.5,  0.5, -1.0],
+        [ -1.0,  0.0,  1.0,  1.0,  1.0,  1.0,  0.0, -1.0],
+        [ -1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0, -1.0],
+        [ -1.0,  0.5,  0.0,  0.0,  0.0,  0.0,  0.5, -1.0],
+        [ -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0]
+]
+
+const white_rook_table = [
+    [  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0],
+        [  0.5,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  0.5],
+        [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
+        [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
+        [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
+        [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
+        [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
+        [  0.0,   0.0, 0.0,  0.5,  0.5,  0.0,  0.0,  0.0]
+]
+
+const white_queen_table = [
+    [ -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0],
+        [ -1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0],
+        [ -1.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -1.0],
+        [ -0.5,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -0.5],
+        [  0.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -0.5],
+        [ -1.0,  0.5,  0.5,  0.5,  0.5,  0.5,  0.0, -1.0],
+        [ -1.0,  0.0,  0.5,  0.0,  0.0,  0.0,  0.0, -1.0],
+        [ -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0]
+]
+
+const white_king_table = [
+    [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+        [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+        [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+        [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+        [ -2.0, -3.0, -3.0, -4.0, -4.0, -3.0, -3.0, -2.0],
+        [ -1.0, -2.0, -2.0, -2.0, -2.0, -2.0, -2.0, -1.0],
+        [  2.0,  2.0,  0.0,  0.0,  0.0,  0.0,  2.0,  2.0 ],
+        [  2.0,  3.0,  1.0,  0.0,  0.0,  1.0,  3.0,  2.0 ]
+]
+
+const black_pawn_table = reverse_array(white_pawn_table)
+
+const black_knight_table = reverse_array(white_knight_table)
+
+const black_bishop_table = reverse_array(white_bishop_table)
+
+const black_rook_table = reverse_array(white_rook_table)
+
+const black_queen_table = reverse_array(white_queen_table)
+
+const black_king_table = reverse_array(white_king_table)
 
 const white_position_table = {
     [PAWN]: [
@@ -234,9 +305,38 @@ const evaluate_position = (game, raw_moves) => {
             if (!piece) continue
 
             if (piece.color == "w") {
-                white_score = white_score
+                switch(piece.type) {
+                    case PAWN:
+                        white_score = white_score
                             + piece_values[piece.type]
-                            + white_position_table[piece.type][y][x]
+                            + white_pawn_table[y][x]
+                        break
+                    case KNIGHT:
+                        white_score = white_score
+                            + piece_values[piece.type]
+                            + white_knight_table[y][x]
+                        break
+                    case BISHOP:
+                        white_score = white_score
+                            + piece_values[piece.type]
+                            + white_bishop_table[y][x]
+                        break
+                    case ROOK:
+                        white_score = white_score
+                            + piece_values[piece.type]
+                            + white_rook_table[y][x]
+                        break
+                    case QUEEN:
+                        white_score = white_score
+                            + piece_values[piece.type]
+                            + white_queen_table[y][x]
+                        break
+                    case KING:
+                        white_score = white_score
+                            + piece_values[piece.type]
+                            + white_king_table[y][x]
+                        break
+                }
                 
                 // switch(piece.type) {
                 //     case BISHOP:
@@ -248,9 +348,38 @@ const evaluate_position = (game, raw_moves) => {
                 //             break;
                 // }
             } else {
-                black_score = black_score
+                switch(piece.type) {
+                    case PAWN:
+                        black_score = black_score
                             + piece_values[piece.type]
-                            + black_position_table[piece.type][y][x]
+                            + black_pawn_table[y][x]
+                        break
+                    case KNIGHT:
+                        black_score = black_score
+                            + piece_values[piece.type]
+                            + black_knight_table[y][x]
+                        break
+                    case BISHOP:
+                        black_score = black_score
+                            + piece_values[piece.type]
+                            + black_bishop_table[y][x]
+                        break
+                    case ROOK:
+                        black_score = black_score
+                            + piece_values[piece.type]
+                            + black_rook_table[y][x]
+                        break
+                    case QUEEN:
+                        black_score = black_score
+                            + piece_values[piece.type]
+                            + black_queen_table[y][x]
+                        break
+                    case KING:
+                        black_score = black_score
+                            + piece_values[piece.type]
+                            + black_king_table[y][x]
+                        break
+                }
                 
                 // switch(piece.type) {
                 //     case BISHOP:
@@ -286,7 +415,7 @@ const evaluate_position = (game, raw_moves) => {
     if (black_bishop_count == 2) bishop_bonus -= 10
     
     return (white_score - black_score)
-            + 0.05 * (white_attacking_score - black_attacking_score)
+            //+ 0.05 * (white_attacking_score - black_attacking_score)
             // + 0.1 * (white_mobility - black_mobility)
             + bishop_bonus
 }
@@ -478,55 +607,55 @@ const perform_random_opening_move = async (game) => {
 const perform_best_move = async (game, player_color) => {
 
     let start_time = performance.now()
-    // opening set
-    if (openings.length == 0) openings = await load_openings()
+    // // opening set
+    // if (openings.length == 0) openings = await load_openings()
 
-    // even if white, odd if black turn
-    // next_move_index should never be zero
-    let next_move_index = (game.moveNumber() - 1) * 2 + (player_color == "w" ? 1 : 0)
+    // // even if white, odd if black turn
+    // // next_move_index should never be zero
+    // let next_move_index = (game.moveNumber() - 1) * 2 + (player_color == "w" ? 1 : 0)
     
-    if (is_opening && next_move_index <= 9) {
-        let found_opener = false
+    // if (is_opening && next_move_index <= 9) {
+    //     let found_opener = false
 
-        opening_loop:
-        while (!found_opener) {
-            if (openings.length == 0) {
-                is_opening = false
-                console.log("ran out of openings!")
-                break
-            }
+    //     opening_loop:
+    //     while (!found_opener) {
+    //         if (openings.length == 0) {
+    //             is_opening = false
+    //             console.log("ran out of openings!")
+    //             break
+    //         }
 
-            // pick random opening
-            let i = Math.floor(Math.random() * openings.length)
+    //         // pick random opening
+    //         let i = Math.floor(Math.random() * openings.length)
 
-            if (openings[i].length <= next_move_index) {
-                openings.splice(i, 1) // opening doesn't have enough moves to support anyway
-                continue 
-            }
+    //         if (openings[i].length <= next_move_index) {
+    //             openings.splice(i, 1) // opening doesn't have enough moves to support anyway
+    //             continue 
+    //         }
 
-            let history = game.history()
+    //         let history = game.history()
 
-            for (let j = 0; j < history.length; j++) {
-                if (openings[i][j] != history[j]) {
-                    openings.splice(i, 1)
-                    continue opening_loop
-                }
-            }
+    //         for (let j = 0; j < history.length; j++) {
+    //             if (openings[i][j] != history[j]) {
+    //                 openings.splice(i, 1)
+    //                 continue opening_loop
+    //             }
+    //         }
 
-            // if previous move matches opening, send it
-            console.log("playing from opening book")
-            let move = openings[i][next_move_index]
-            if (move) {
-                game.move(move)
-                let time_elapsed = performance.now() - start_time
+    //         // if previous move matches opening, send it
+    //         console.log("playing from opening book")
+    //         let move = openings[i][next_move_index]
+    //         if (move) {
+    //             game.move(move)
+    //             let time_elapsed = performance.now() - start_time
 
-                $(".stats #time").text("Time Elapsed: " + time_elapsed / 1000 + " seconds")
-                $(".stats #positions").text("Positions Evaluated: " + positions_evaluated)
-                positions_evaluated = 0
-                return
-            }
-        }
-    }
+    //             $(".stats #time").text("Time Elapsed: " + time_elapsed / 1000 + " seconds")
+    //             $(".stats #positions").text("Positions Evaluated: " + positions_evaluated)
+    //             positions_evaluated = 0
+    //             return
+    //         }
+    //     }
+    // }
 
     
     let best_move = determine_best_move(3, game, player_color == "b")
@@ -537,5 +666,105 @@ const perform_best_move = async (game, player_color) => {
     positions_evaluated = 0
 
     if (best_move) game.move(best_move)
+}
+
+const evaluate_position_old = (game, raw_moves) => {
+    let board = game.board()
+
+    let white_score = 0
+    let black_score = 0
+
+    // for (let x = 0; x < 8; x++) {
+    //     for (let y = 0; y < 8; y++) {
+    //         let piece = board[y][x]
+
+    //         if (!piece) continue
+
+    //         if (piece.color == "w") {
+    //             white_score += piece_score(piece, x, y)
+    //         } else {
+    //             black_score += piece_score(piece, x, y)
+    //         }
+    //     }
+    // }
+
+    // return white_score - black_score
+
+    // keep record of number of number of black pieces attacked by white and vice versa
+    let white_attacking_score = 0
+    let black_attacking_score = 0
+
+    // number of possible mvoes per side
+    let white_mobility = 0,
+        black_mobility = 0
+    
+    let white_bishop_count = 0,
+        black_bishop_count = 0
+    
+    let white_double_pawn_count = 0,
+        black_double_pawn_count = 0
+
+    for (let x = 0; x < 8; x++) {
+        for (let y = 0; y < 8; y++) {
+            let piece = board[y][x]
+
+            if (!piece) continue
+
+            if (piece.color == "w") {
+                white_score = white_score
+                            + piece_values[piece.type]
+                            + white_position_table[piece.type][y][x]
+                
+                // switch(piece.type) {
+                //     case BISHOP:
+                //         white_bishop_count++;
+                //         break;
+                //         case PAWN:
+                //             // check for "stacked" pawns in front only
+                //             if (y < 7 && board[y][x].type == "p" && board[y][x].color == "w") white_double_pawn_count++
+                //             break;
+                // }
+            } else {
+                black_score = black_score
+                            + piece_values[piece.type]
+                            + black_position_table[piece.type][y][x]
+                
+                // switch(piece.type) {
+                //     case BISHOP:
+                //         black_bishop_count++;
+                //         break;
+                //     case PAWN:
+                //         // check for "stacked" pawns in front only
+                //         if (y < 7 && board[y][x].type == "p" && board[y][x].color == "b") black_double_pawn_count++
+                //         break;
+                // }
+            }
+
+        }
+    }
+
+    for (let i = 0; i < raw_moves.length; i++) {
+        let move = raw_moves[i]
+        if (move.captured) {
+            if (move.color == "w") {
+                white_mobility++
+                white_attacking_score   = white_attacking_score
+                                        + score_move(move)
+            } else {
+                black_mobility++
+                black_attacking_score   = black_attacking_score
+                                        + score_move(move)
+            }
+        }
+    }
+
+    let bishop_bonus = 0
+    if (white_bishop_count == 2) bishop_bonus += 10
+    if (black_bishop_count == 2) bishop_bonus -= 10
+    
+    return (white_score - black_score)
+            + 0.05 * (white_attacking_score - black_attacking_score)
+            // + 0.1 * (white_mobility - black_mobility)
+            + bishop_bonus
 }
 

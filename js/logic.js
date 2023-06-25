@@ -177,7 +177,6 @@ const run_benchmark2 = () => {
 }
 
 const count_bulk_positions = (depth) => {
-    
     if (depth <= 0) return 1
 
     let moves = game.moves()

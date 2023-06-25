@@ -185,7 +185,7 @@ const char_to_index = (piece) => {
 
 const piece_score = (piece, x, y) => {
     if (!piece) return 0
-    let score = piece_values[piece.type] + 5 * (piece.color == "w" ? white_position_table[piece.type][y][x] : black_position_table[piece.type][y][x])
+    let score = piece_values[piece.type] + (piece.color == "w" ? white_position_table[piece.type][y][x] : black_position_table[piece.type][y][x])
     
     return score
 }

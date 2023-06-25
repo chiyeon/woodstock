@@ -607,55 +607,55 @@ const perform_random_opening_move = async (game) => {
 const perform_best_move = async (game, player_color) => {
 
     let start_time = performance.now()
-    // // opening set
-    // if (openings.length == 0) openings = await load_openings()
+    // opening set
+    if (openings.length == 0) openings = await load_openings()
 
-    // // even if white, odd if black turn
-    // // next_move_index should never be zero
-    // let next_move_index = (game.moveNumber() - 1) * 2 + (player_color == "w" ? 1 : 0)
+    // even if white, odd if black turn
+    // next_move_index should never be zero
+    let next_move_index = (game.moveNumber() - 1) * 2 + (player_color == "w" ? 1 : 0)
     
-    // if (is_opening && next_move_index <= 9) {
-    //     let found_opener = false
+    if (is_opening && next_move_index <= 9) {
+        let found_opener = false
 
-    //     opening_loop:
-    //     while (!found_opener) {
-    //         if (openings.length == 0) {
-    //             is_opening = false
-    //             console.log("ran out of openings!")
-    //             break
-    //         }
+        opening_loop:
+        while (!found_opener) {
+            if (openings.length == 0) {
+                is_opening = false
+                console.log("ran out of openings!")
+                break
+            }
 
-    //         // pick random opening
-    //         let i = Math.floor(Math.random() * openings.length)
+            // pick random opening
+            let i = Math.floor(Math.random() * openings.length)
 
-    //         if (openings[i].length <= next_move_index) {
-    //             openings.splice(i, 1) // opening doesn't have enough moves to support anyway
-    //             continue 
-    //         }
+            if (openings[i].length <= next_move_index) {
+                openings.splice(i, 1) // opening doesn't have enough moves to support anyway
+                continue 
+            }
 
-    //         let history = game.history()
+            let history = game.history()
 
-    //         for (let j = 0; j < history.length; j++) {
-    //             if (openings[i][j] != history[j]) {
-    //                 openings.splice(i, 1)
-    //                 continue opening_loop
-    //             }
-    //         }
+            for (let j = 0; j < history.length; j++) {
+                if (openings[i][j] != history[j]) {
+                    openings.splice(i, 1)
+                    continue opening_loop
+                }
+            }
 
-    //         // if previous move matches opening, send it
-    //         console.log("playing from opening book")
-    //         let move = openings[i][next_move_index]
-    //         if (move) {
-    //             game.move(move)
-    //             let time_elapsed = performance.now() - start_time
+            // if previous move matches opening, send it
+            console.log("playing from opening book")
+            let move = openings[i][next_move_index]
+            if (move) {
+                game.move(move)
+                let time_elapsed = performance.now() - start_time
 
-    //             $(".stats #time").text("Time Elapsed: " + time_elapsed / 1000 + " seconds")
-    //             $(".stats #positions").text("Positions Evaluated: " + positions_evaluated)
-    //             positions_evaluated = 0
-    //             return
-    //         }
-    //     }
-    // }
+                $(".stats #time").text("Time Elapsed: " + time_elapsed / 1000 + " seconds")
+                $(".stats #positions").text("Positions Evaluated: " + positions_evaluated)
+                positions_evaluated = 0
+                return
+            }
+        }
+    }
 
     
     let best_move = determine_best_move(3, game, player_color == "b")

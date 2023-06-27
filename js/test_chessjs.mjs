@@ -1,6 +1,6 @@
 import { Chess } from "chess.js"
 
-var game = new Chess()
+var game = new Chess("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -")
 
 const count_bulk_positions = (depth) => {
     if (depth <= 0) return 1
@@ -23,7 +23,6 @@ const measure_count_bulk_positions = (depth) => {
     console.log("Depth: " + depth + "\tNumber of positions: " + count + "\tTime: " + (performance.now() - start_time) + "ms")
 }
 
-measure_count_bulk_positions(1)
-measure_count_bulk_positions(2)
-measure_count_bulk_positions(3)
-measure_count_bulk_positions(4)
+for (let i = 1; i <= 4; i++) {
+    measure_count_bulk_positions(i)
+}

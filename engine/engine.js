@@ -5,6 +5,27 @@ const measure = (func) => {
     console.log("Took " + time + "ms | " + time / 1000 + "s")
 }
 
+const count_bulk_positions = (depth) => {
+    if (depth <= 0) return 1
+
+    let moves = board.moves()
+    let count = 0
+
+    for (let i = 0; i < moves.length; i++) {
+        board.move(moves[i])
+        count += count_bulk_positions(depth - 1)
+        board.undo()
+    }
+
+    return count
+}
+
+const measure_count_bulk_positions = (depth) => {
+    let start_time = performance.now()
+    let count = count_bulk_positions(depth)
+    console.log("Depth: " + depth + "\tNumber of positions: " + count + "\tTime: " + (performance.now() - start_time) + "ms")
+}
+
 class Piece {
     static EMPTY = 0b000
     static PAWN = 0b001
@@ -49,7 +70,7 @@ class Piece {
     static colors_short = {
         [Piece.WHITE]: "w",
         [Piece.BLACK]: "b",
-        [Piece.EMPTY]: " "
+        [Piece.EMPTY]: ""
     }
 
     static get_color = (piece) => {
@@ -352,7 +373,9 @@ class Board {
         // check for no collisions
         let pawn_collisions = BitBoard.get_positions_list(pawn_moves & board_bitboard)
         for (let i = 0; i < pawn_collisions.length; i++) {
-            let col_y = pawn_collisions[i][1]
+            let col = pawn_collisions[i]
+            let col_x = col % 8
+            let col_y = Math.floor(col / 8)
             // check for occupied space + 1 backwards, stops pawns from jumping in home row
             let mask = piece_color == Piece.BLACK
                 ? BitBoard.get_column_segment(x, col_y, col_y + 1)
@@ -376,29 +399,16 @@ class Board {
         let knight_starting_pos = BitBoard.get(x, y)
         let knight_moves = 0n
 
-        if (piece_color == Piece.BLACK) {
-            if (y + 2 < 8 && x + 1 < 8) knight_moves = knight_moves | knight_starting_pos >> 17n
-            if (y + 2 < 8 && x - 1 >= 0) knight_moves = knight_moves | knight_starting_pos >> 15n
-            if (y + 1 < 8 && x + 2 < 8) knight_moves = knight_moves | knight_starting_pos >> 10n
-            if (y + 1 < 8 && x - 2 >= 0) knight_moves = knight_moves | knight_starting_pos >> 6n
-            if (y - 2 >= 0 && x + 1 < 8) knight_moves = knight_moves | knight_starting_pos << 15n
-            if (y - 2 >= 0 && x - 1 >= 0) knight_moves = knight_moves | knight_starting_pos << 17n
-            if (y - 1 >= 0 && x + 2 < 8) knight_moves = knight_moves | knight_starting_pos << 6n
-            if (y - 1 >= 0 && x - 2 >= 0) knight_moves = knight_moves | knight_starting_pos << 10n
-        } else {
-            if (y + 2 < 8 && x + 1 < 8) knight_moves = knight_moves | knight_starting_pos >> -17n
-            if (y + 2 < 8 && x - 1 >= 0) knight_moves = knight_moves | knight_starting_pos >> -15n
-            if (y + 1 < 8 && x + 2 < 8) knight_moves = knight_moves | knight_starting_pos >> -10n
-            if (y + 1 < 8 && x - 2 >= 0) knight_moves = knight_moves | knight_starting_pos >> -6n
-            if (y - 2 >= 0 && x + 1 < 8) knight_moves = knight_moves | knight_starting_pos << -15n
-            if (y - 2 >= 0 && x - 1 >= 0) knight_moves = knight_moves | knight_starting_pos << -17n
-            if (y - 1 >= 0 && x + 2 < 8) knight_moves = knight_moves | knight_starting_pos << -6n
-            if (y - 1 >= 0 && x - 2 >= 0) knight_moves = knight_moves | knight_starting_pos << -10n
-        }
+        if (y + 2 < 8 && x + 1 < 8) knight_moves = knight_moves | knight_starting_pos >> 17n
+        if (y + 2 < 8 && x - 1 >= 0) knight_moves = knight_moves | knight_starting_pos >> 15n
+        if (y + 1 < 8 && x + 2 < 8) knight_moves = knight_moves | knight_starting_pos >> 10n
+        if (y + 1 < 8 && x - 2 >= 0) knight_moves = knight_moves | knight_starting_pos >> 6n
+        if (y - 2 >= 0 && x + 1 < 8) knight_moves = knight_moves | knight_starting_pos << 15n
+        if (y - 2 >= 0 && x - 1 >= 0) knight_moves = knight_moves | knight_starting_pos << 17n
+        if (y - 1 >= 0 && x + 2 < 8) knight_moves = knight_moves | knight_starting_pos << 6n
+        if (y - 1 >= 0 && x - 2 >= 0) knight_moves = knight_moves | knight_starting_pos << 10n
 
-        let knight_positions = knight_moves
-
-        return knight_positions
+        return knight_moves
     }
 
     get_bishop_moves = (x, y, index, piece, board_bitboard, black_bitboard, white_bitboard) => {
@@ -415,8 +425,8 @@ class Board {
         for (let i = 0; i < bishop_collisions.length; i++) {
             // for each collision, remove excess spaces in our mask
             let col = bishop_collisions[i]
-            let col_x = col[0]
-            let col_y = col[1]
+            let col_x = col % 8
+            let col_y = Math.floor(col / 8)
             let col_index = col_x + col_y * 8
             let mask = 0n
 
@@ -453,8 +463,8 @@ class Board {
         for (let i = 0; i < collision_pos.length; i++) {
             // for each collision, remove excess spaces in our mask
             let col = collision_pos[i]
-            let col_x = col[0]
-            let col_y = col[1]
+            let col_x = col % 8
+            let col_y = Math.floor(col / 8)
             let col_index = col_x + col_y * 8
             let mask = 0n
 
@@ -682,10 +692,7 @@ class Board {
                 // mask positions: we can only go where our pieces are NOT
                 let positions = BitBoard.get_positions_list(all_moves_bitboard)
                 for (let j = 0; j < positions.length; j++) {
-                    let pos = positions[j]
-                    let pos_x = pos[0]
-                    let pos_y = pos[1]
-                    moves.push(this.create_move(piece_data.pos, pos_x + pos_y * 8))
+                    moves.push(this.create_move(piece_data.pos, positions[j]))
                 }
             }
         }
@@ -869,33 +876,12 @@ class MoveMasks {
 // })
 
 let board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
-board.print()
-board.moves()
-
-const count_bulk_positions = (depth) => {
-    if (depth <= 0) return 1
-
-    let moves = board.moves()
-    let count = 0
-
-    for (let i = 0; i < moves.length; i++) {
-        board.move(moves[i])
-        count += count_bulk_positions(depth - 1)
-        board.undo()
-    }
-
-    return count
-}
-
-const measure_count_bulk_positions = (depth) => {
-    let start_time = performance.now()
-    let count = count_bulk_positions(depth)
-    console.log("Depth: " + depth + "\tNumber of positions: " + count + "\tTime: " + (performance.now() - start_time) + "ms")
-}
-
+// board.print()
+// board.moves()
+// console.log(board.moves())
 //measure_count_bulk_positions(4)
 
-// for (let i = 1; i <= 4; i++) {
+// for (let i = 1; i <= 5; i++) {
 //     measure_count_bulk_positions(i)
 // }
 

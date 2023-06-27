@@ -69,6 +69,8 @@ class Piece {
     }
 }
 
+
+
 class BitBoard {
     static print = (bit_board) => {
         let bit_board_str = bit_board.toString(2).padStart(64, "0")
@@ -89,22 +91,22 @@ class BitBoard {
     * returns an empty bitboard with the space at x, y filled
     * uses string concattenation. slow?
     */
+
+    /*
+     * alright. wuts going on !
+     *
+     * rather than iterating through each level, we can target the exact bit which must
+     * be changed and set it with bit shifting.
+     * rather than shifting to the left (which will invert our results)
+     * we can start the bit at its most significant point, then shift it right
+     * as many times as we need. 
+     */
     static get_i = (i) => {
-        let out = "0b"
-        for (let j = 0; j < 64; j++) {
-            out += (j == i) ? "1" : "0"
-        }
-        return BigInt(out)
+        return (0b1000000000000000000000000000000000000000000000000000000000000000n >> BigInt(i))
     }
 
     static get = (x, y) => {
-        let out = "0b"
-        for (let i = 0; i < 8; i++) {
-            for (let j = 0; j < 8; j++) {
-                out += (i == y && j == x) ? "1" : "0"
-            }
-        }
-        return BigInt(out)
+        return (0b1000000000000000000000000000000000000000000000000000000000000000n >> BigInt(x + y * 8))
     }
 
     static get_row = (y) => {
@@ -424,19 +426,19 @@ class Board {
             if (y + 2 < 8 && x - 1 >= 0) knight_moves = knight_moves | knight_starting_pos >> 15n
             if (y + 1 < 8 && x + 2 < 8) knight_moves = knight_moves | knight_starting_pos >> 10n
             if (y + 1 < 8 && x - 2 >= 0) knight_moves = knight_moves | knight_starting_pos >> 6n
-            if (y - 2 >= 0 && x + 1 < 8) knight_moves = knight_moves | knight_starting_pos >> 15n
-            if (y - 2 >= 0 && x - 1 >= 0) knight_moves = knight_moves | knight_starting_pos >> 17n
-            if (y - 1 >= 0 && x + 2 < 8) knight_moves = knight_moves | knight_starting_pos >> 6n
-            if (y - 1 >= 0 && x - 2 >= 0) knight_moves = knight_moves | knight_starting_pos >> 10n
+            if (y - 2 >= 0 && x + 1 < 8) knight_moves = knight_moves | knight_starting_pos << 15n
+            if (y - 2 >= 0 && x - 1 >= 0) knight_moves = knight_moves | knight_starting_pos << 17n
+            if (y - 1 >= 0 && x + 2 < 8) knight_moves = knight_moves | knight_starting_pos << 6n
+            if (y - 1 >= 0 && x - 2 >= 0) knight_moves = knight_moves | knight_starting_pos << 10n
         } else {
             if (y + 2 < 8 && x + 1 < 8) knight_moves = knight_moves | knight_starting_pos >> -17n
             if (y + 2 < 8 && x - 1 >= 0) knight_moves = knight_moves | knight_starting_pos >> -15n
             if (y + 1 < 8 && x + 2 < 8) knight_moves = knight_moves | knight_starting_pos >> -10n
             if (y + 1 < 8 && x - 2 >= 0) knight_moves = knight_moves | knight_starting_pos >> -6n
-            if (y - 2 >= 0 && x + 1 < 8) knight_moves = knight_moves | knight_starting_pos >> -15n
-            if (y - 2 >= 0 && x - 1 >= 0) knight_moves = knight_moves | knight_starting_pos >> -17n
-            if (y - 1 >= 0 && x + 2 < 8) knight_moves = knight_moves | knight_starting_pos >> -6n
-            if (y - 1 >= 0 && x - 2 >= 0) knight_moves = knight_moves | knight_starting_pos >> -10n
+            if (y - 2 >= 0 && x + 1 < 8) knight_moves = knight_moves | knight_starting_pos << -15n
+            if (y - 2 >= 0 && x - 1 >= 0) knight_moves = knight_moves | knight_starting_pos << -17n
+            if (y - 1 >= 0 && x + 2 < 8) knight_moves = knight_moves | knight_starting_pos << -6n
+            if (y - 1 >= 0 && x - 2 >= 0) knight_moves = knight_moves | knight_starting_pos << -10n
         }
 
         let knight_positions = knight_moves
@@ -696,7 +698,9 @@ class Board {
             // get a bitboard of the positions of attacking pieces
             let king_attackers_bitboard = 0n
             for (let j = 0; j < king_attackers.length; j++) {
-                king_attackers_bitboard = king_attackers_bitboard | BigInt(1 << (king_attackers[j].index))
+                // start with most significant bit set to 1, then shift right as many times as needed
+                let add_bit = BigInt(0b1000000000000000000000000000000000000000000000000000000000000000n)
+                king_attackers_bitboard = king_attackers_bitboard | (add_bit >> king_attackers[j].index)
             }
 
             BitBoard.print(king_attackers_bitboard)
@@ -785,7 +789,7 @@ class MoveMasks {
 
 // console.log(moves.length)
 
-let board = new Board("8/8/1K6/8/8/4b3/8/8")
+let board = new Board("8/8/8/4K3/8/3n4/8/8")
 board.print()
 let moves
 measure(() => {

@@ -1,3 +1,10 @@
+const measure = (func) => {
+    let start_time = performance.now()
+    func()
+    let time = performance.now() - start_time
+    console.log("Took " + time + "ms | " + time / 1000 + "s")
+}
+
 class Piece {
     static EMPTY = 0b000
     static PAWN = 0b001
@@ -265,6 +272,7 @@ class Board {
         this.history = []
         this.turn = Piece.WHITE
         this.move_masks = new MoveMasks()
+        this.piece_positions = []
 
         this.read_fen_string(starting_position)
     }
@@ -290,7 +298,9 @@ class Board {
 
                 // if is not a number, try to read in as a piece
                 if (isNaN(space_count)) {
-                    this.board.push(Board.fen_dictionary[ch])
+                    let piece = Board.fen_dictionary[ch]
+                    this.board.push(piece)
+                    this.piece_positions[piece] = this.board.length - 1
                     // otherwise skip as many spaces
                 } else {
                     for (let k = 0; k < space_count; k++) {
@@ -328,6 +338,7 @@ class Board {
 
             this.board[move.to] = this.board[move.from]
             this.board[move.from] = Piece.EMPTY
+            this.piece_positions[this.board[move.to]] = move.to
         }
 
         this.update_turn()
@@ -354,11 +365,12 @@ class Board {
         return BigInt(bb)
     }
 
+    // returns 2 bitboards: moves, captures
     get_pawn_moves = (x, y, index, piece, board_bitboard, black_bitboard, white_bitboard) => {
         let pos_bitboard = BitBoard.get(x, y)
         let piece_color = piece & Piece.FILTER_COLOR
         //let piece_type = piece & Piece.FILTER_PIECE
-        let moves = []
+        //let moves = []
         let pawn_moves = ((piece_color == Piece.BLACK ? pos_bitboard >> 8n : pos_bitboard << 8n))
 
         // move double if we are in home rows
@@ -379,36 +391,18 @@ class Board {
             pawn_moves = pawn_moves & ~mask
         }
 
-        let pawn_positions = BitBoard.get_positions_list(pawn_moves)
-
-        for (let i = 0; i < pawn_positions.length; i++) {
-            let col = pawn_positions[i]
-            let col_x = col[0]
-            let col_y = col[1]
-
-            moves.push(this.create_move(index, col_x + col_y * 8))
-        }
-
         // check for capturing diagonally
         let pawn_captures = ((piece_color == Piece.BLACK) ? pos_bitboard >> 9n | pos_bitboard >> 7n : pos_bitboard << 9n | pos_bitboard << 7n)
-        let pawn_capture_collisions = BitBoard.get_positions_list(pawn_captures & board_bitboard & (this.turn == Piece.BLACK ? white_bitboard : black_bitboard))
+        let pawn_capture_collisions = pawn_captures & (this.turn == Piece.BLACK ? white_bitboard : black_bitboard)
 
-        for (let i = 0; i < pawn_capture_collisions.length; i++) {
-            let col = pawn_capture_collisions[i]
-            let col_x = col[0]
-            let col_y = col[1]
-
-            moves.push(this.create_move(index, col_x + col_y * 8))
-        }
-
-        return moves
+        return [pawn_moves, pawn_capture_collisions]
     }
 
     get_knight_moves = (x, y, index, piece, board_bitboard, black_bitboard, white_bitboard) => {
-        let pos_bitboard = BitBoard.get(x, y)
+        //let pos_bitboard = BitBoard.get(x, y)
         let piece_color = piece & Piece.FILTER_COLOR
-        let piece_type = piece & Piece.FILTER_PIECE
-        let moves = []
+        //let piece_type = piece & Piece.FILTER_PIECE
+        //let moves = []
         // calcluate all possible spots
         let knight_starting_pos = BitBoard.get(x, y)
         let knight_moves = 0n
@@ -433,22 +427,16 @@ class Board {
             if (y - 1 >= 0 && x - 2 >= 0) knight_moves = knight_moves | knight_starting_pos >> -10n
         }
 
-        let knight_positions = BitBoard.get_positions_list(knight_moves & ~(piece_color == Piece.BLACK ? black_bitboard : white_bitboard))
+        let knight_positions = knight_moves & ~(piece_color == Piece.BLACK ? black_bitboard : white_bitboard)
 
-        for (let i = 0; i < knight_positions.length; i++) {
-            let pos = knight_positions[i]
-
-            moves.push(this.create_move(index, pos[0] + pos[1] * 8))
-        }
-
-        return moves
+        return knight_positions
     }
 
     get_bishop_moves = (x, y, index, piece, board_bitboard, black_bitboard, white_bitboard) => {
-        let pos_bitboard = BitBoard.get(x, y)
+        //let pos_bitboard = BitBoard.get(x, y)
         let piece_color = piece & Piece.FILTER_COLOR
-        let piece_type = piece & Piece.FILTER_PIECE
-        let moves = []
+        //let piece_type = piece & Piece.FILTER_PIECE
+        //let moves = []
 
         let bishop_moves = this.move_masks.bishop_masks[index]
 
@@ -481,21 +469,13 @@ class Board {
             bishop_moves = bishop_moves & (~mask)
         }
 
-        let bishop_positions = BitBoard.get_positions_list(bishop_moves)
-        for (let i = 0; i < bishop_positions.length; i++) {
-            let col = bishop_positions[i]
-            let col_x = col[0]
-            let col_y = col[1]
-            moves.push(this.create_move(index, col_x + col_y * 8))
-        }
-
-        return moves
+        return bishop_moves
     }
 
     get_rook_moves = (x, y, index, piece, board_bitboard, black_bitboard, white_bitboard) => {
-        let pos_bitboard = BitBoard.get(x, y)
+        //let pos_bitboard = BitBoard.get(x, y)
         let piece_color = piece & Piece.FILTER_COLOR
-        let piece_type = piece & Piece.FILTER_PIECE
+        //let piece_type = piece & Piece.FILTER_PIECE
         let moves = []
 
         let rook_moves = this.move_masks.rook_masks[index]
@@ -520,21 +500,13 @@ class Board {
             rook_moves = rook_moves & (~mask)
         }
 
-        let rook_positions = BitBoard.get_positions_list(rook_moves)
-        for (let i = 0; i < rook_positions.length; i++) {
-            let col = rook_positions[i]
-            let col_x = col[0]
-            let col_y = col[1]
-            moves.push(this.create_move(index, col_x + col_y * 8))
-        }
-
-        return moves
+        return rook_moves
     }
 
     get_queen_moves = (x, y, index, piece, board_bitboard, black_bitboard, white_bitboard) => {
-        let pos_bitboard = BitBoard.get(x, y)
+        //let pos_bitboard = BitBoard.get(x, y)
         let piece_color = piece & Piece.FILTER_COLOR
-        let piece_type = piece & Piece.FILTER_PIECE
+        //let piece_type = piece & Piece.FILTER_PIECE
         let moves = []
 
         let queen_moves = this.move_masks.rook_masks[index] | this.move_masks.bishop_masks[index]
@@ -569,21 +541,13 @@ class Board {
             queen_moves = queen_moves & (~mask)
         }
 
-        let queen_positions = BitBoard.get_positions_list(queen_moves & ~(piece_color == Piece.BLACK ? black_bitboard : white_bitboard))
-        for (let i = 0; i < queen_positions.length; i++) {
-            let col = queen_positions[i]
-            let col_x = col[0]
-            let col_y = col[1]
-            moves.push(this.create_move(index, col_x + col_y * 8))
-        }
-
-        return moves
+        return queen_moves & ~(piece_color == Piece.BLACK ? black_bitboard : white_bitboard)
     }
 
     get_king_moves = (x, y, index, piece, board_bitboard, black_bitboard, white_bitboard) => {
-        let pos_bitboard = BitBoard.get(x, y)
+        //let pos_bitboard = BitBoard.get(x, y)
         let piece_color = piece & Piece.FILTER_COLOR
-        let piece_type = piece & Piece.FILTER_PIECE
+        //let piece_type = piece & Piece.FILTER_PIECE
         let moves = []
 
         let king_start = BitBoard.get(x, y)
@@ -593,73 +557,119 @@ class Board {
             | king_start << 9n
             | king_start >> 7n
             | king_start << 7n
-
-        let king_positions = BitBoard.get_positions_list(king_moves & ~(piece_color == Piece.BLACK ? black_bitboard : white_bitboard))
-
-        for (let i = 0; i < king_positions; i++) {
-            let col = king_positions[i]
-            let col_x = col[0]
-            let col_y = col[1]
-            moves.push(this.create_move(index, col_x + col_y * 8))
-        }
-        return moves
+            | king_start << 1n
+            | king_start >> 1n
+        
+        return king_moves & ~(piece_color == Piece.BLACK ? black_bitboard : white_bitboard)
     }
 
     moves = () => {
         let moves = []
         let board_bitboard = this.get_bitboard()
-        let white_bitboard = this.get_bitboard_of_color(Piece.WHITE)
         let black_bitboard = this.get_bitboard_of_color(Piece.BLACK)
+        let white_bitboard = this.get_bitboard_of_color(Piece.WHITE)
 
         /*
          * plan is for here to calculate possible movements of all pieces, stored in dictionary
          * can be recalled for later
          */
 
+        
+        /* 
+         * store all pieces into these arrays, which contain
+         * the piece in question, its position, and its possible moves as a bitboard
+         */
         let white_pieces = []
-        for (let i = 0; i < 64; i++) {
-            if (this.board[i] != Piece.EMPTY) {
-                let data = {
-                    pos: i,
-                    piece: this.board[i]
+        let black_pieces = []
+        for (let y = 0; y < 8; y++) {
+            for (let x = 0; x < 8; x++) {
+                let i = x + y * 8
+                let piece = this.board[i]
+
+                if (piece != Piece.EMPTY) {
+                    let data = {
+                        pos: i,
+                        piece: this.board[i],
+                    }
+
+                    let move_bitboard
+                    let non_capture_bitboard // only for pawns
+                    switch(piece & Piece.FILTER_PIECE) {
+                        case Piece.PAWN: 
+                            // because pawns dont have the same captures/moves, we separate them
+                            // .move_bitboard is now ONLY CAPTURES
+                            // .non_capture_bitboard is ONLY MOVES
+                            let pawn_moves = this.get_pawn_moves(x, y, i, piece, board_bitboard, black_bitboard, white_bitboard)
+                            non_capture_bitboard = pawn_moves[0]
+                            move_bitboard = pawn_moves[1]
+                            break
+                        case Piece.KNIGHT: move_bitboard = this.get_knight_moves(x, y, i, piece, board_bitboard, black_bitboard, white_bitboard) 
+                            break
+                        case Piece.BISHOP: move_bitboard = this.get_bishop_moves(x, y, i, piece, board_bitboard, black_bitboard, white_bitboard) 
+                            break
+                        case Piece.ROOK: move_bitboard = this.get_rook_moves(x, y, i, piece, board_bitboard, black_bitboard, white_bitboard) 
+                            break
+                        case Piece.QUEEN: move_bitboard = this.get_queen_moves(x, y, i, piece, board_bitboard, black_bitboard, white_bitboard) 
+                            break
+                        case Piece.KING: move_bitboard = this.get_king_moves(x, y, i, piece, board_bitboard, black_bitboard, white_bitboard) 
+                            break
+                    }
+
+                    data.move_bitboard = move_bitboard
+                    if ((piece & Piece.FILTER_PIECE) == Piece.PAWN) {
+                        data.non_capture_bitboard = non_capture_bitboard
+                    }
+
+                    if ((piece & Piece.FILTER_COLOR) == Piece.BLACK) {
+                        black_pieces.push(data)
+                    } else {
+                        white_pieces.push(data)
+                    }
                 }
             }
         }
 
         // check if king is in check
-        let attacked_spaces = 0n
+        // obtain "danger spaces"
+        let attacked_squares = 0n
+        let ally_pieces = (this.turn == Piece.BLACK) ? black_pieces : white_pieces
+        let axis_pieces = (this.turn == Piece.BLACK) ? white_pieces : black_pieces
+        
+        // calculate attacked squares from axis pieces
+        for (let i = 0; i < axis_pieces.length; i++) {
+            attacked_squares = attacked_squares | axis_pieces[i].move_bitboard
+        }
 
+        // now we need to fix the kings' moves to prevent them from walking into attacked squares
 
-        for (let y = 0; y < 8; y++) {
-            for (let x = 0; x < 8; x++) {
-                let index = x + y * 8
-                let piece = this.board[index]
-                if (piece != Piece.EMPTY) {
-                    if ((piece & Piece.FILTER_COLOR) != this.turn) continue
+        for (let i = 0; i < ally_pieces.length; i++) {
+            let piece = ally_pieces[i]
 
-                    switch (piece & Piece.FILTER_PIECE) {
-                        case Piece.PAWN:
-                            moves = moves.concat(this.get_pawn_moves(x, y, index, piece, board_bitboard, black_bitboard, white_bitboard))
-                            break
-                        case Piece.KNIGHT:
-                            moves = moves.concat(this.get_knight_moves(x, y, index, piece, board_bitboard, black_bitboard, white_bitboard))
-                            break
-                        case Piece.BISHOP:
-                            moves = moves.concat(this.get_bishop_moves(x, y, index, piece, board_bitboard, black_bitboard, white_bitboard))
-                            break
-                        case Piece.ROOK:
-                            moves = moves.concat(this.get_rook_moves(x, y, index, piece, board_bitboard, black_bitboard, white_bitboard))
-                            break
-                        case Piece.QUEEN:
-                            moves = moves.concat(this.get_queen_moves(x, y, index, piece, board_bitboard, black_bitboard, white_bitboard))
-                            break
-                        case Piece.KING:
-                            moves = moves.concat(this.get_king_moves(x, y, index, piece, board_bitboard, black_bitboard, white_bitboard))
-                            break
-                    }
-                }
+            if ((piece.piece & Piece.FILTER_PIECE) == Piece.KING) {
+                piece.move_bitboard = piece.move_bitboard & ~attacked_squares
             }
         }
+
+        let in_check = attacked_squares & BitBoard.get_i(this.piece_positions[this.turn | Piece.KING])
+        console.log(in_check ? "King is in check!" : "King is not in check.")
+
+        for (let i = 0; i < ally_pieces.length; i++) {
+            let piece_data = ally_pieces[i]
+            let all_moves_bitboard = piece_data.move_bitboard
+            // if a pawn, also remember to record our captures as well
+            if ((piece_data.piece & Piece.FILTER_PIECE) == Piece.PAWN) {
+                all_moves_bitboard = all_moves_bitboard | piece_data.non_capture_bitboard
+            }
+
+            let positions = BitBoard.get_positions_list(all_moves_bitboard)
+            for (let j = 0; j < positions.length; j++) {
+                let pos = positions[j]
+                let pos_x = pos[0]
+                let pos_y = pos[1]
+                moves.push(this.create_move(piece_data.pos, pos_x + pos_y * 8))
+            }
+        }
+
         return moves
     }
 
@@ -727,7 +737,19 @@ class MoveMasks {
 
 // console.log(moves.length)
 
-let board = new Board()
+let board = new Board("8/1b6/8/2r5/4KR2/6r1/8/3r4")
+board.print()
+let moves
+measure(() => {
+    moves = board.moves()
+})
+
+console.log(moves.length + " moves possible.")
+moves.forEach(move => {
+    board.move(move)
+    board.print()
+    board.undo()
+})
 
 const count_bulk_positions = (depth) => {
     if (depth <= 0) return 1
@@ -750,7 +772,7 @@ const measure_count_bulk_positions = (depth) => {
     console.log("Depth: " + depth + "\tNumber of positions: " + count + "\tTime: " + (performance.now() - start_time) + "ms")
 }
 
-measure_count_bulk_positions(4)
+//measure_count_bulk_positions(4)
 
 // for (let i = 1; i <= 4; i++) {
 //     meausre_count_bulk_positions_new(i)

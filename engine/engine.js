@@ -633,6 +633,7 @@ class Board {
         let attacked_squares = 0n
         // pieces that are attacking the king
         let king_attackers = []
+        let king_attackers_bitboard
         let ally_pieces = (this.turn == Piece.BLACK) ? black_pieces : white_pieces
         let axis_pieces = (this.turn == Piece.BLACK) ? white_pieces : black_pieces
         let king_pos_bitboard = BitBoard.get_i(this.piece_positions[this.turn | Piece.KING])
@@ -643,7 +644,6 @@ class Board {
         for (let i = 0; i < axis_pieces.length; i++) {
             let axis_piece_data = axis_pieces[i]
             attacked_squares = attacked_squares | axis_piece_data.move_bitboard
-            BitBoard.print(axis_piece_data.move_bitboard)
 
             // there is at least ONE person attacking the king
             if (king_pos_bitboard & axis_piece_data.move_bitboard) {
@@ -674,6 +674,15 @@ class Board {
             // first lets filter the attacking spaces to only include the spaces where no pieces are
             blocker_spaces = attacked_squares & ~board_bitboard
 
+            // get a bitboard of the positions of attacking pieces
+            for (let j = 0; j < king_attackers.length; j++) {
+                king_attackers_bitboard = king_attackers_bitboard | BitBoard.get_i(king_attackers[j].index)
+            }
+
+            console.log("there are " + king_attackers.length + " attackers")
+
+            BitBoard.print(king_attackers_bitboard)
+
             /* brainstorm
              *
              * lets think.. a piece can only "block" from sliding pieces. knights, pawns, kings are except.
@@ -695,19 +704,20 @@ class Board {
             // filter our moves: remove invalid (capturing our own pieces) moves
             all_moves_bitboard = all_moves_bitboard & ~((this.turn == Piece.BLACK) ? black_bitboard : white_bitboard)
 
-            // get a bitboard of the positions of attacking pieces
-            let king_attackers_bitboard = 0n
-            for (let j = 0; j < king_attackers.length; j++) {
-                // start with most significant bit set to 1, then shift right as many times as needed
-                let add_bit = BigInt(0b1000000000000000000000000000000000000000000000000000000000000000n)
-                king_attackers_bitboard = king_attackers_bitboard | (add_bit >> king_attackers[j].index)
-            }
-
-            BitBoard.print(king_attackers_bitboard)
-
-            // if we are in check, only consider moves that will block checks or kill lone attackers
+            // if we are in check, only consider moves that will block checks or kill lone attackers for non king pieces
             if (in_check) {
-                all_moves_bitboard = (all_moves_bitboard & blocker_spaces) | (all_moves_bitboard & king_attackers_bitboard)
+                // for kings consider only captures and evades
+                if ((piece_data.piece & Piece.FILTER_PIECE) == Piece.KING) {
+                    all_moves_bitboard = all_moves_bitboard | (all_moves_bitboard & king_attackers_bitboard)
+                } else {
+                    // for other pieces, consider only blocks and captures. again this is only possible if we have 1 attacker
+                    if (king_attackers.length <= 1) {
+                        all_moves_bitboard = (all_moves_bitboard & blocker_spaces) 
+                        | (all_moves_bitboard & king_attackers_bitboard)
+                    } else {
+                        all_moves_bitboard = 0n
+                    }
+                }
             }
 
             if (all_moves_bitboard) {
@@ -789,7 +799,7 @@ class MoveMasks {
 
 // console.log(moves.length)
 
-let board = new Board("8/8/8/4K3/8/3n4/8/8")
+let board = new Board("8/3r4/8/1n6/3K4/8/8/8")
 board.print()
 let moves
 measure(() => {

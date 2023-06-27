@@ -69,9 +69,10 @@ class Piece {
     }
 }
 
-
-
 class BitBoard {
+    /**
+     * prints a valid bitboard
+     */
     static print = (bit_board) => {
         let bit_board_str = bit_board.toString(2).padStart(64, "0")
         let out = ""
@@ -110,15 +111,11 @@ class BitBoard {
     }
 
     static get_row = (y) => {
-        let out = "0b"
-        for (let i = 0; i < 8; i++) {
-            if (i == y) {
-                out += "11111111"
-            } else {
-                out += "00000000"
-            }
-        }
-        return BigInt(out)
+        return (0b1111111100000000000000000000000000000000000000000000000000000000n >> BigInt(y * 8))
+    }
+
+    static get_column = (x) => {
+        return (0b1000000010000000100000001000000010000000100000001000000010000000n >> BigInt(x))
     }
 
     static get_diagonals = (x, y) => {
@@ -128,127 +125,81 @@ class BitBoard {
             | BitBoard.get_diagonal_upwards_right(x, y)
     }
 
-    static get_column = (x) => {
-        let out = "0b"
-        // assemble 'column'
-        let col = ""
-        for (let i = 0; i < 8; i++) {
-            col += i == x ? "1" : "0"
-        }
-
-        for (let j = 0; j < 8; j++) {
-            out += col
-        }
-
-        return BigInt(out)
-    }
-
     // returns a bitboard with a target column segment given (inclusive both)
-    // string concat creation like this is WAY faster than .split .join! (almost 2x as fast!)
     static get_column_segment = (x, y1, y2) => {
-        let out = "0b"
-
-        // assemble 'column'
-        let col = ""
-        for (let i = 0; i < 8; i++) {
-            col += i == x ? "1" : "0"
-        }
-
-        // append column if we are within the y ranges, otherwise empty
-        for (let j = 0; j < 8; j++) {
-            out += (j >= y1 && j <= y2) ? col : "00000000"
-        }
-
-        return BigInt(out)
+        let column = this.get_column(x)
+        // truncate column to proper size
+        column = column >> BigInt((7 - (y2 - y1)) * 8)
+        // move to proper position
+        column = column << BigInt((7 - y2) * 8)
+        return column
     }
 
     static get_row_segment = (y, x1, x2) => {
-        let out = "0b"
-
-        for (let j = 0; j < 8; j++) {
-            if (j != y) {
-                out += "00000000"
-            } else {
-                for (let i = 0; i < 8; i++) {
-                    out += (i >= x1 && i <= x2) ? "1" : "0"
-                }
-            }
-        }
-
-        return BigInt(out)
+        let row = this.get_row(7)
+        // truncate row = proper size
+        row = row >> BigInt(7 - (x2 - x1))
+        // move to proper position
+        row = row << BigInt((7 - x2) + (7 - y) * 8)
+        return row
     }
 
     // for ...downwards_right, ...downwards_left and so on (4 total)
     // we get the diagonal up to the end of the board in the specified direction STARTING AT x, y
 
+    // seems a bit inelegant to find the starting bits like this but
+    // it prevents wrapping... still about 2x faster than old method !
+    //
+    // testing some additional methods (using bit shifting to limit the starting bits)
+    // but performance was about the same
     static get_diagonal_downwards_right = (x, y) => {
-        let start = BitBoard.get(x, y)
-        let out = start
-
-        for (let i = 1; i < 8 - x; i++) {
-            if (y + i >= 8) break
-
-            out = out | out >> 9n
+        let starting_bits = 0n
+        for (let i = 0; i < 7 - x; i++) {
+            starting_bits = (starting_bits >> 9n) | (0b0000000001000000000000000000000000000000000000000000000000000000n)
         }
-
-        return out ^ start
+        return (starting_bits >> BigInt(x + y * 8))
     }
 
     static get_diagonal_downwards_left = (x, y) => {
-        let start = BitBoard.get(x, y)
-        let out = start
-
-        for (let i = 1; i <= x; i++) {
-            if (y + i >= 8) break
-
-            out = out | out >> 7n
+        let starting_bits = 0n
+        for (let i = 0; i < x; i++) {
+            starting_bits = (starting_bits >> 7n) | (0b000000100000000000000000000000000000000000000000000000000000000n)
         }
-
-        return out ^ start
+        return (starting_bits >> BigInt(x + y * 8))
     }
 
     static get_diagonal_upwards_right = (x, y) => {
-        let start = BitBoard.get(x, y)
-        let out = start
-
-        for (let i = 1; i < 8 - x; i++) {
-            if (y - i < 0) break
-
-            out = out | out << 7n
+        let starting_bits = 0n
+        for (let i = 0; i < Math.min(y, (7 - x)); i++) {
+            starting_bits = (starting_bits << 7n) | (0b100000000000000n)
         }
-
-        return out ^ start
+        return (starting_bits >> BigInt(x - (7 - y) * 8))
     }
 
     static get_diagonal_upwards_left = (x, y) => {
-        let start = BitBoard.get(x, y)
-        let out = start
-
-        for (let i = 1; i <= x; i++) {
-            if (y - i < 0) break
-
-            out = out | out << 9n
+        let starting_bits = 0n
+        for (let i = 0; i < Math.min(x, y); i++) {
+            starting_bits = (starting_bits << 9n) | (0b1000000000n)
         }
 
-        return out ^ start
+        return starting_bits << BigInt((7 - x) + (7 - y) * 8)
     }
 
+    // todo count number of bits and use that instead of 64
+
     // returns a list of positions of all 1 bits in a bitboard
+
+    // this string conversion method is actually faster than
+    // my previous math method...
     static get_positions_list = (bitboard) => {
-        if (bitboard == 0n) return []
-
         let bit_board_str = bitboard.toString(2).padStart(64, "0")
-        let pos = []
+        let positions = []
 
-        for (let y = 0; y < 8; y++) {
-            for (let x = 0; x < 8; x++) {
-                if (bit_board_str[y * 8 + x] == "1") {
-                    pos.push([x, y])
-                }
-            }
+        for (let i = 0; i < 64; i++) {
+            if (bit_board_str[i] == "1") positions.push(i)
         }
 
-        return pos
+        return positions
     }
 }
 
@@ -636,7 +587,7 @@ class Board {
         let king_attackers_bitboard = 0n
         let ally_pieces = (this.turn == Piece.BLACK) ? black_pieces : white_pieces
         let axis_pieces = (this.turn == Piece.BLACK) ? white_pieces : black_pieces
-        let king_pos_bitboard = BitBoard.get_i(this.piece_positions[this.turn | Piece.KING])
+        let king_pos_bitboard = BitBoard.get_i(this.piece_positions[this.turn | Piece.KING] || 0n)
         let in_check = false
         let blocker_spaces = 0n
 
@@ -658,7 +609,7 @@ class Board {
             }
         }
 
-        console.log(in_check ? "King is in check!" : "King is not in check.")
+        //console.log(in_check ? "King is in check!" : "King is not in check.")
 
         // now we need to fix the kings' moves to prevent them from walking into attacked squares
 
@@ -682,9 +633,9 @@ class Board {
                 king_attackers_bitboard = king_attackers_bitboard | BitBoard.get_i(king_attackers[j].index)
             }
 
-            console.log("there are " + king_attackers.length + " attackers")
+            //console.log("there are " + king_attackers.length + " attackers")
 
-            BitBoard.print(king_attackers_bitboard)
+            //BitBoard.print(king_attackers_bitboard)
 
             /* brainstorm
              *
@@ -724,6 +675,7 @@ class Board {
             }
 
             if (all_moves_bitboard) {
+                BitBoard.print(all_moves_bitboard)
                 // mask positions: we can only go where our pieces are NOT
                 let positions = BitBoard.get_positions_list(all_moves_bitboard)
                 for (let j = 0; j < positions.length; j++) {
@@ -828,19 +780,94 @@ class MoveMasks {
         return BigInt(out)
     }*/
 
-let board = new Board("8/3r4/8/6R1/3K4/r7/8/8")
-board.print()
-let moves
-measure(() => {
-    moves = board.moves()
-})
+// let board = new Board("8/3r4/8/6R1/3K4/r7/8/8")
+// board.print()
+// let moves
+// measure(() => {
+//     moves = board.moves()
+// })
 
-console.log(moves.length + " moves possible.")
-moves.forEach(move => {
-    board.move(move)
-    board.print()
-    board.undo()
-})
+// console.log(moves.length + " moves possible.")
+// moves.forEach(move => {
+//     board.move(move)
+//     board.print()
+//     board.undo()
+// })
+
+// let board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
+
+// for (let j = 0; j < 8; j++) {
+//     BitBoard.print(BitBoard.get_diagonal_downwards_right(j, j))
+//     BitBoard.print(BitBoard.get_diagonal_downwards_right_old(j, j))
+// }
+
+// BitBoard.print(BitBoard.get_diagonal_upwards_left(1, 1))
+// BitBoard.print(BitBoard.get_diagonal_upwards_left_old(1, 1))
+
+// for (let y = 0; y < 8; y++) {
+//     for (let x = 0; x < 8; x++) {
+//         if (BitBoard.get_diagonal_upwards_left(x, y) != BitBoard.get_diagonal_upwards_left_old(x, y)) console.log("failed!")
+//     }
+// }
+
+// let bb = BitBoard.get(3, 3)
+
+// BitBoard.print(BitBoard.get_diagonal_downwards_left(2, 0))
+
+// console.log("new:")
+// measure(() => {
+//     for (let i = 0; i < 10000; i++) {
+//         for (let y = 0; y < 8; y++) {
+//             for (let x = 0; x < 8; x++) {
+//                 let bb = BitBoard.get(x, y)
+        
+//                 BitBoard.get_positions_list(bb)
+//             }
+//         }
+//     }
+// })
+
+// console.log("old:")
+// measure(() => {
+//     for (let i = 0; i < 10000; i++) {
+//         for (let y = 0; y < 8; y++) {
+//             for (let x = 0; x < 8; x++) {
+//                 let bb = BitBoard.get(x, y)
+        
+//                 BitBoard.get_positions_list_old(bb)
+//             }
+//         }
+//     }
+// })
+
+// console.log("new:")
+// measure(() => {
+//     for (let i = 0; i < 100; i++) {
+//         for (let j = 0; j < 8; j++) {
+//             for (let x = 0; x < 8; x++) {
+//                 for (let y = 0; y < 8; y++) {
+//                     BitBoard.get_column_segment(j, x, y)
+//                 }
+//             }
+//         }
+//     }
+// })
+// console.log("old:")
+// measure(() => {
+//     for (let i = 0; i < 100; i++) {
+//         for (let j = 0; j < 8; j++) {
+//             for (let x = 0; x < 8; x++) {
+//                 for (let y = 0; y < 8; y++) {
+//                     BitBoard.get_column_segment_old(j, x, y)
+//                 }
+//             }
+//         }
+//     }
+// })
+
+let board = new Board("8/8/8/8/3Q4/8/8/8")
+board.print()
+board.moves()
 
 const count_bulk_positions = (depth) => {
     if (depth <= 0) return 1
@@ -866,6 +893,6 @@ const measure_count_bulk_positions = (depth) => {
 //measure_count_bulk_positions(4)
 
 // for (let i = 1; i <= 4; i++) {
-//     meausre_count_bulk_positions_new(i)
+//     measure_count_bulk_positions(i)
 // }
 

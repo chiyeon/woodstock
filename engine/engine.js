@@ -37,7 +37,7 @@ class Piece {
         [Piece.ROOK]: "r",
         [Piece.QUEEN]: "q",
         [Piece.KING]: "k",
-        [Piece.EMPTY]: " "
+        [Piece.EMPTY]: ""
     }
 
     static colors = {
@@ -65,7 +65,9 @@ class Piece {
     }
 
     static get_info_short = (piece) => {
-        return Piece.colors_short[Piece.get_color(piece)] + Piece.names_short[Piece.get_type(piece)]
+        let short_name = Piece.names_short[Piece.get_type(piece)]
+        if ((piece & Piece.FILTER_COLOR) == Piece.WHITE) short_name = short_name.toUpperCase()
+        return short_name
     }
 }
 
@@ -265,13 +267,15 @@ class Board {
     }
 
     print = () => {
-        let board_out = "-----------------------------------------\n"
+        let board_out = ""
 
         for (let y = 0; y < 8; y++) {
             for (let x = 0; x < 8; x++) {
-                board_out += "| " + Piece.get_info_short(this.board[y * 8 + x]) + " "
+                let piece = Piece.get_info_short(this.board[y * 8 + x])
+                
+                board_out += ((piece == "") ? ((x + (y % 2)) % 2 == 1 ? "," : ".") : piece) + " "
             }
-            board_out += "|\n-----------------------------------------\n"
+            board_out += "\n"
         }
 
         console.log(board_out)
@@ -675,7 +679,6 @@ class Board {
             }
 
             if (all_moves_bitboard) {
-                BitBoard.print(all_moves_bitboard)
                 // mask positions: we can only go where our pieces are NOT
                 let positions = BitBoard.get_positions_list(all_moves_bitboard)
                 for (let j = 0; j < positions.length; j++) {
@@ -865,7 +868,7 @@ class MoveMasks {
 //     }
 // })
 
-let board = new Board("8/8/8/8/3Q4/8/8/8")
+let board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
 board.print()
 board.moves()
 

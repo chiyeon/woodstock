@@ -474,7 +474,7 @@ class Board {
 
             // ugh !!!
             // remove the spot from the mask... lets us mark it as able to go there
-            mask = mask ^ BitBoard.get(col_x, col_y)
+            //mask = mask ^ BitBoard.get(col_x, col_y)
 
             bishop_moves = bishop_moves & (~mask)
         }
@@ -501,10 +501,10 @@ class Board {
             let col_index = col_x + col_y * 8
             let mask = 0n
 
-            if (col_y > y) mask = BitBoard.get_column_segment(x, col_y, 7)
-            else if (col_y < y) mask = BitBoard.get_column_segment(x, 0, col_y + 1)
-            else if (col_x > x) mask = BitBoard.get_row_segment(y, col_x, 7)
-            else if (col_x < x) mask = BitBoard.get_row_segment(y, 0, col_x)
+            if (col_y > y) mask = BitBoard.get_column_segment(x, col_y + 1, 7)
+            else if (col_y < y) mask = BitBoard.get_column_segment(x, 0, col_y - 1)
+            else if (col_x > x) mask = BitBoard.get_row_segment(y, col_x + 1, 7)
+            else if (col_x < x) mask = BitBoard.get_row_segment(y, 0, col_x - 1)
 
             rook_moves = rook_moves & (~mask)
         }
@@ -629,7 +629,8 @@ class Board {
         // obtain "danger spaces"
         // again, these danger spaces INCLUDE spaces which pieces are on top of, allied or otherwise
         let attacked_squares = 0n
-        let number_of_pieces_attacking_king = 0
+        // pieces that are attacking the king
+        let king_attackers = []
         let ally_pieces = (this.turn == Piece.BLACK) ? black_pieces : white_pieces
         let axis_pieces = (this.turn == Piece.BLACK) ? white_pieces : black_pieces
         let king_pos_bitboard = BitBoard.get_i(this.piece_positions[this.turn | Piece.KING])
@@ -638,11 +639,16 @@ class Board {
         
         // calculate attacked squares from axis pieces
         for (let i = 0; i < axis_pieces.length; i++) {
-            attacked_squares = attacked_squares | axis_pieces[i].move_bitboard
+            let axis_piece_data = axis_pieces[i]
+            attacked_squares = attacked_squares | axis_piece_data.move_bitboard
+            BitBoard.print(axis_piece_data.move_bitboard)
 
             // there is at least ONE person attacking the king
-            if (king_pos_bitboard & axis_pieces[i].move_bitboard) {
-                number_of_pieces_attacking_king++
+            if (king_pos_bitboard & axis_piece_data.move_bitboard) {
+                king_attackers.push({
+                    piece: axis_piece_data.piece,
+                    index: axis_piece_data.pos
+                })
                 in_check = true
             }
         }
@@ -660,7 +666,7 @@ class Board {
         }
 
 
-        if (in_check && number_of_pieces_attacking_king > 1) {
+        if (in_check && king_attackers.length <= 1) {
             // lets calculate the spaces where allied blocker pieces can goto. in these positions, the king must NOT be in check after the move.
             
             // first lets filter the attacking spaces to only include the spaces where no pieces are
@@ -684,18 +690,31 @@ class Board {
                 all_moves_bitboard = all_moves_bitboard | piece_data.non_capture_bitboard
             }
 
-            // if we are in check, only consider moves that will block checks or kill lone attackers
-            if (in_check) {
-                
+            // filter our moves: remove invalid (capturing our own pieces) moves
+            all_moves_bitboard = all_moves_bitboard & ~((this.turn == Piece.BLACK) ? black_bitboard : white_bitboard)
+
+            // get a bitboard of the positions of attacking pieces
+            let king_attackers_bitboard = 0n
+            for (let j = 0; j < king_attackers.length; j++) {
+                king_attackers_bitboard = king_attackers_bitboard | BigInt(1 << (king_attackers[j].index))
             }
 
-            // mask positions: we can only go where our pieces are NOT
-            let positions = BitBoard.get_positions_list(all_moves_bitboard & ~((this.turn == Piece.BLACK) ? black_bitboard : white_bitboard))
-            for (let j = 0; j < positions.length; j++) {
-                let pos = positions[j]
-                let pos_x = pos[0]
-                let pos_y = pos[1]
-                moves.push(this.create_move(piece_data.pos, pos_x + pos_y * 8))
+            BitBoard.print(king_attackers_bitboard)
+
+            // if we are in check, only consider moves that will block checks or kill lone attackers
+            if (in_check) {
+                all_moves_bitboard = (all_moves_bitboard & blocker_spaces) | (all_moves_bitboard & king_attackers_bitboard)
+            }
+
+            if (all_moves_bitboard) {
+                // mask positions: we can only go where our pieces are NOT
+                let positions = BitBoard.get_positions_list(all_moves_bitboard)
+                for (let j = 0; j < positions.length; j++) {
+                    let pos = positions[j]
+                    let pos_x = pos[0]
+                    let pos_y = pos[1]
+                    moves.push(this.create_move(piece_data.pos, pos_x + pos_y * 8))
+                }
             }
         }
 
@@ -766,7 +785,7 @@ class MoveMasks {
 
 // console.log(moves.length)
 
-let board = new Board("n7/8/8/5p2/4K3/8/8/8")
+let board = new Board("8/8/1K6/8/8/4b3/8/8")
 board.print()
 let moves
 measure(() => {

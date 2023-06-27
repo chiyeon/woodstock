@@ -365,6 +365,18 @@ class Board {
         return BigInt(bb)
     }
 
+    /*
+     * On get_..._moves
+     *
+     * These functions return a BitBoard representing all the spaces which the particular piece at the particular position
+     * can move to. This bit board INCLUDES SOME SPACES THAT IT CANT NECESSARILY MOVE TO. Why?
+     * 
+     * For other calculations, its nice for us to know also which pieces we are attacking, whether friendly or not. Accordingly,
+     * we know that the opponent's pieces we can capture should be in the bit board. our allied pieces should not be in the bitboard.
+     * However, it is still useful for us to know which pieces we are protecting, so it is included in the
+     * returns for this bit board. This CAN AND SHOULD BE FILTERED OUT FOR MOVE GENERATION
+     */
+    
     // returns 2 bitboards: moves, captures
     get_pawn_moves = (x, y, index, piece, board_bitboard, black_bitboard, white_bitboard) => {
         let pos_bitboard = BitBoard.get(x, y)
@@ -393,7 +405,7 @@ class Board {
 
         // check for capturing diagonally
         let pawn_captures = ((piece_color == Piece.BLACK) ? pos_bitboard >> 9n | pos_bitboard >> 7n : pos_bitboard << 9n | pos_bitboard << 7n)
-        let pawn_capture_collisions = pawn_captures & (this.turn == Piece.BLACK ? white_bitboard : black_bitboard)
+        let pawn_capture_collisions = pawn_captures & board_bitboard
 
         return [pawn_moves, pawn_capture_collisions]
     }
@@ -427,7 +439,7 @@ class Board {
             if (y - 1 >= 0 && x - 2 >= 0) knight_moves = knight_moves | knight_starting_pos >> -10n
         }
 
-        let knight_positions = knight_moves & ~(piece_color == Piece.BLACK ? black_bitboard : white_bitboard)
+        let knight_positions = knight_moves
 
         return knight_positions
     }
@@ -450,9 +462,6 @@ class Board {
             let col_y = col[1]
             let col_index = col_x + col_y * 8
             let mask = 0n
-            let target_capturable = (this.board[col_index] & Piece.FILTER_COLOR) == piece_color
-
-            // assuming printed normally:
 
             // lower right
             if (col_y > y && col_x > x) mask = BitBoard.get_diagonal_downwards_right(col_x, col_y)
@@ -464,7 +473,8 @@ class Board {
             else if (col_y < y && col_x < x) mask = BitBoard.get_diagonal_upwards_left(col_x, col_y)
 
             // ugh !!!
-            if (target_capturable) mask = mask ^ BitBoard.get(col_x, col_y)
+            // remove the spot from the mask... lets us mark it as able to go there
+            mask = mask ^ BitBoard.get(col_x, col_y)
 
             bishop_moves = bishop_moves & (~mask)
         }
@@ -490,12 +500,11 @@ class Board {
             let col_y = col[1]
             let col_index = col_x + col_y * 8
             let mask = 0n
-            let target_capturable = (this.board[col_index] & Piece.FILTER_COLOR) == piece_color
 
-            if (col_y > y) mask = BitBoard.get_column_segment(x, target_capturable ? col_y : col_y + 1, 7)
-            else if (col_y < y) mask = BitBoard.get_column_segment(x, 0, target_capturable ? col_y + 1 : col_y - 1)
-            else if (col_x > x) mask = BitBoard.get_row_segment(y, target_capturable ? col_x : col_x + 1, 7)
-            else if (col_x < x) mask = BitBoard.get_row_segment(y, 0, target_capturable ? col_x : col_x - 1)
+            if (col_y > y) mask = BitBoard.get_column_segment(x, col_y, 7)
+            else if (col_y < y) mask = BitBoard.get_column_segment(x, 0, col_y + 1)
+            else if (col_x > x) mask = BitBoard.get_row_segment(y, col_x, 7)
+            else if (col_x < x) mask = BitBoard.get_row_segment(y, 0, col_x)
 
             rook_moves = rook_moves & (~mask)
         }
@@ -504,44 +513,8 @@ class Board {
     }
 
     get_queen_moves = (x, y, index, piece, board_bitboard, black_bitboard, white_bitboard) => {
-        //let pos_bitboard = BitBoard.get(x, y)
-        let piece_color = piece & Piece.FILTER_COLOR
-        //let piece_type = piece & Piece.FILTER_PIECE
-        let moves = []
-
-        let queen_moves = this.move_masks.rook_masks[index] | this.move_masks.bishop_masks[index]
-
-        let queen_collision_positions = BitBoard.get_positions_list(queen_moves & board_bitboard)
-
-        for (let i = 0; i < queen_collision_positions.length; i++) {
-            let col = queen_collision_positions[i]
-            let col_x = col[0]
-            let col_y = col[1]
-            let col_index = col_x + col_y * 8
-            let mask = 0n
-            let target_capturable = (this.board[col_index] & Piece.FILTER_COLOR) == piece_color
-
-            if (col_y > y) mask = BitBoard.get_column_segment(x, target_capturable ? col_y : col_y + 1, 7)
-            else if (col_y < y) mask = BitBoard.get_column_segment(x, 0, target_capturable ? col_y + 1 : col_y - 1)
-            else if (col_x > x) mask = BitBoard.get_row_segment(y, target_capturable ? col_x : col_x + 1, 7)
-            else if (col_x < x) mask = BitBoard.get_row_segment(y, 0, target_capturable ? col_x : col_x - 1)
-
-            // lower right
-            if (col_y > y && col_x > x) mask = BitBoard.get_diagonal_downwards_right(col_x, col_y)
-            // lower left
-            else if (col_y > y && col_x < x) mask = BitBoard.get_diagonal_downwards_left(col_x, col_y)
-            // upper right
-            else if (col_y < y && col_x > x) mask = BitBoard.get_diagonal_upwards_right(col_x, col_y)
-            // uper left
-            else if (col_y < y && col_x < x) mask = BitBoard.get_diagonal_upwards_left(col_x, col_y)
-
-            // ugh !!!
-            if (target_capturable) mask = mask ^ BitBoard.get(col_x, col_y)
-
-            queen_moves = queen_moves & (~mask)
-        }
-
-        return queen_moves & ~(piece_color == Piece.BLACK ? black_bitboard : white_bitboard)
+        return this.get_rook_moves(x, y, index, piece, board_bitboard, black_bitboard, white_bitboard)
+            | this.get_bishop_moves(x, y, index, piece, board_bitboard, black_bitboard, white_bitboard)
     }
 
     get_king_moves = (x, y, index, piece, board_bitboard, black_bitboard, white_bitboard) => {
@@ -560,7 +533,7 @@ class Board {
             | king_start << 1n
             | king_start >> 1n
         
-        return king_moves & ~(piece_color == Piece.BLACK ? black_bitboard : white_bitboard)
+        return king_moves
     }
 
     moves = () => {
@@ -629,16 +602,52 @@ class Board {
             }
         }
 
+        /*
+         * plan for checks
+         * 
+         * when pieces have their moves calculated, we trim as normal and such, except we do NOT MASK EXISTING BOARD PIECES
+         * so all moves INCLUDE pieces that are in the way (not necessarily that they can pass through them, but captures or
+         * allied pieces that are blocking are "counted" in the bitboard)
+         * 
+         * This just gives us more freedom to calculate which moves are safe (for example, a king cant capture a piece that is checking
+         * him if the piece is protected by another piece)
+         * 
+         * of course, for move generation, we can simply AND it with the mask or NOT of whichever bitboard we need (for capturing moves,
+         * & with the opposite side)
+         * 
+         * this covers being checked by pieces and capturing checking pieces, but this doesnt cover some things, like blocking or pins.
+         * I imagine there are 2 main scenarios: 
+         *  1. a piece that is pinned cannot move to block
+         *  2. a piece with valid moves towards a particular spot that can block is a block
+         * 
+         * i suppose the natural thing to do would be to calculate a "blocking_spaces" bitboard, of spaces that are valid blocks.
+         * this bit board should NOT include spaces that would only block one attacker if 2 different angles were attacked for example.
+         * it should be a board such that any unpinned piece moving into any of those squares should be a valid move
+         */
+
         // check if king is in check
         // obtain "danger spaces"
+        // again, these danger spaces INCLUDE spaces which pieces are on top of, allied or otherwise
         let attacked_squares = 0n
+        let number_of_pieces_attacking_king = 0
         let ally_pieces = (this.turn == Piece.BLACK) ? black_pieces : white_pieces
         let axis_pieces = (this.turn == Piece.BLACK) ? white_pieces : black_pieces
+        let king_pos_bitboard = BitBoard.get_i(this.piece_positions[this.turn | Piece.KING])
+        let in_check = false
+        let blocker_spaces = 0n
         
         // calculate attacked squares from axis pieces
         for (let i = 0; i < axis_pieces.length; i++) {
             attacked_squares = attacked_squares | axis_pieces[i].move_bitboard
+
+            // there is at least ONE person attacking the king
+            if (king_pos_bitboard & axis_pieces[i].move_bitboard) {
+                number_of_pieces_attacking_king++
+                in_check = true
+            }
         }
+
+        console.log(in_check ? "King is in check!" : "King is not in check.")
 
         // now we need to fix the kings' moves to prevent them from walking into attacked squares
 
@@ -650,8 +659,22 @@ class Board {
             }
         }
 
-        let in_check = attacked_squares & BitBoard.get_i(this.piece_positions[this.turn | Piece.KING])
-        console.log(in_check ? "King is in check!" : "King is not in check.")
+
+        if (in_check && number_of_pieces_attacking_king > 1) {
+            // lets calculate the spaces where allied blocker pieces can goto. in these positions, the king must NOT be in check after the move.
+            
+            // first lets filter the attacking spaces to only include the spaces where no pieces are
+            blocker_spaces = attacked_squares & ~board_bitboard
+
+            /* brainstorm
+             *
+             * lets think.. a piece can only "block" from sliding pieces. knights, pawns, kings are except.
+             * sliding/diagonal pieces can only attack from one of 8 directions.
+             * 
+             * we can also only block from ONE direction. so if we are attacked with more than one direction, we simply cannot block.
+             * so if number_of_pieces_attacking_king is greater than 1, its gg
+             */
+        }
 
         for (let i = 0; i < ally_pieces.length; i++) {
             let piece_data = ally_pieces[i]
@@ -661,7 +684,13 @@ class Board {
                 all_moves_bitboard = all_moves_bitboard | piece_data.non_capture_bitboard
             }
 
-            let positions = BitBoard.get_positions_list(all_moves_bitboard)
+            // if we are in check, only consider moves that will block checks or kill lone attackers
+            if (in_check) {
+                
+            }
+
+            // mask positions: we can only go where our pieces are NOT
+            let positions = BitBoard.get_positions_list(all_moves_bitboard & ~((this.turn == Piece.BLACK) ? black_bitboard : white_bitboard))
             for (let j = 0; j < positions.length; j++) {
                 let pos = positions[j]
                 let pos_x = pos[0]
@@ -737,7 +766,7 @@ class MoveMasks {
 
 // console.log(moves.length)
 
-let board = new Board("8/1b6/8/2r5/4KR2/6r1/8/3r4")
+let board = new Board("n7/8/8/5p2/4K3/8/8/8")
 board.print()
 let moves
 measure(() => {

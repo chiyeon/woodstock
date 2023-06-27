@@ -633,12 +633,14 @@ class Board {
         let attacked_squares = 0n
         // pieces that are attacking the king
         let king_attackers = []
-        let king_attackers_bitboard
+        let king_attackers_bitboard = 0n
         let ally_pieces = (this.turn == Piece.BLACK) ? black_pieces : white_pieces
         let axis_pieces = (this.turn == Piece.BLACK) ? white_pieces : black_pieces
         let king_pos_bitboard = BitBoard.get_i(this.piece_positions[this.turn | Piece.KING])
         let in_check = false
         let blocker_spaces = 0n
+
+        // we must also capture squares that are able to be "blocked"
         
         // calculate attacked squares from axis pieces
         for (let i = 0; i < axis_pieces.length; i++) {
@@ -651,6 +653,7 @@ class Board {
                     piece: axis_piece_data.piece,
                     index: axis_piece_data.pos
                 })
+                blocker_spaces = blocker_spaces | axis_piece_data.move_bitboard
                 in_check = true
             }
         }
@@ -672,7 +675,7 @@ class Board {
             // lets calculate the spaces where allied blocker pieces can goto. in these positions, the king must NOT be in check after the move.
             
             // first lets filter the attacking spaces to only include the spaces where no pieces are
-            blocker_spaces = attacked_squares & ~board_bitboard
+            blocker_spaces = blocker_spaces & ~board_bitboard
 
             // get a bitboard of the positions of attacking pieces
             for (let j = 0; j < king_attackers.length; j++) {
@@ -799,7 +802,33 @@ class MoveMasks {
 
 // console.log(moves.length)
 
-let board = new Board("8/3r4/8/1n6/3K4/8/8/8")
+// console.log("Testing string concatenation vs bit shifting bit board instantiation")
+// console.log("testing string concatenation")
+// measure(() => {
+//     for (let i = 0; i < 10000; i++) {
+//         for (let j = 0; j < 64; j++) {
+//             BitBoard.old_get_i(j)
+//         }
+//     }
+// })
+// console.log("testing bit shifting")
+// measure(() => {
+//     for (let i = 0; i < 10000; i++) {
+//         for (let j = 0; j < 64; j++) {
+//             BitBoard.get_i(j)
+//         }
+//     }
+// })
+
+/*static old_get_i = (i) => {
+        let out = "0b"
+        for (let j = 0; j < 64; j++) {
+            out += (j == i) ? "1" : "0"
+        }
+        return BigInt(out)
+    }*/
+
+let board = new Board("8/3r4/8/6R1/3K4/r7/8/8")
 board.print()
 let moves
 measure(() => {

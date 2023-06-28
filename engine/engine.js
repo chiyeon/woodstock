@@ -849,8 +849,11 @@ class Board {
             // if the king is in LINE of an attack (not in check) record the attack on the king
             if (axis_piece_data.king_exception && (king_pos_bitboard & axis_piece_data.king_exception)) {
                 // check also: only add if ONE piece is pinned, not more than one
-                let king_exception_ray_no_current_piece = (~BitBoard.get_i(axis_piece_data.pos) & axis_piece_data.king_exception)
-                if (!(king_exception_ray_no_current_piece & board_bitboard))
+
+                // remove the king from the king exception
+                let king_exception_truncated = (~king_pos_bitboard & axis_piece_data.king_exception)
+                let pinned_pieces = BitBoard.get_positions_list(king_exception_truncated & board_bitboard)
+                if (pinned_pieces.length == 1)
                     attacks_on_king.push(axis_piece_data.king_exception)
             }
 
@@ -946,7 +949,7 @@ class Board {
 
                     // this piece is pinned! restrict our movement
                     if (BitBoard.get_i(piece_data.pos) & attack) {
-                        all_moves_bitboard = attack & ~((this.turn == Piece.BLACK) ? black_bitboard : white_bitboard)
+                        all_moves_bitboard = all_moves_bitboard & attack & ~((this.turn == Piece.BLACK) ? black_bitboard : white_bitboard)
                     }
                 }
             }
@@ -1297,7 +1300,7 @@ class MoveMasks {
 //     }
 // })
 
-let board = new Board("8/1p2q3/8/2B5/1K6/8/8/8")
+let board = new Board("8/1p6/8/K1P4r/8/8/8/8")
 board.move(board.create_move(9, 25))
 board.update_turn()
 board.print()

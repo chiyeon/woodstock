@@ -13,7 +13,7 @@ const count_bulk_positions = (depth) => {
 
     for (let i = 0; i < moves.length; i++) {
         board.move(moves[i])
-        board.print()
+        //board.print()
         count += count_bulk_positions(depth - 1)
         board.undo()
     }
@@ -1206,7 +1206,7 @@ class MoveMasks {
 //     }
 // })
 
-let board = new Board("8/1K6/8/3Q4/4b3/r1N5/8/1r6")
+let board = new Board("r2qkb1r/ppp1pppp/2n2n2/1B1p4/4P1b1/2N2N2/PPPP1PPP/R1BQK2R")
 board.print()
 
 //board.print_positions()

@@ -517,7 +517,6 @@ class Board {
                 }
             }
         }
-        
 
         // normally here we'd concern ourselves with separating directions of movement,
         // but pawn attacks cannot be blocked so its okay!
@@ -849,7 +848,10 @@ class Board {
             
             // if the king is in LINE of an attack (not in check) record the attack on the king
             if (axis_piece_data.king_exception && (king_pos_bitboard & axis_piece_data.king_exception)) {
-                attacks_on_king.push(axis_piece_data.king_exception)
+                // check also: only add if ONE piece is pinned, not more than one
+                let king_exception_ray_no_current_piece = (~BitBoard.get_i(axis_piece_data.pos) & axis_piece_data.king_exception)
+                if (!(king_exception_ray_no_current_piece & board_bitboard))
+                    attacks_on_king.push(axis_piece_data.king_exception)
             }
 
             // add all attacking moves to attacked squares
@@ -974,6 +976,7 @@ class Board {
 
             if (all_moves_bitboard) {
                 let positions = BitBoard.get_positions_list(all_moves_bitboard)
+                BitBoard.print(all_moves_bitboard)
                 for (let j = 0; j < positions.length; j++) {
                     let flags = [] // no flag by default
 
@@ -1270,7 +1273,7 @@ class MoveMasks {
 //     }
 // })
 
-let board = new Board("r7/8/8/4b3/Q7/2Q5/3n4/K7")
+let board = new Board("8/8/2b5/8/4P3/8/6B1/7K")
 board.print()
 // board.move(board.create_move(36, 28))
 // board.move(board.create_move(11, 27))

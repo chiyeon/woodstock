@@ -13,7 +13,6 @@ const count_bulk_positions = (depth) => {
 
     for (let i = 0; i < moves.length; i++) {
         board.move(moves[i])
-        console.log(moves[i].flags)
         board.print()
         count += count_bulk_positions(depth - 1)
         board.undo()
@@ -672,8 +671,8 @@ class Board {
         if (x > 0) movement |= starting_position << 1n
         if (x < 7) movement |= starting_position >> 1n
         if (y > 0) movement |= starting_position << 8n
-        if (y > 0 && x < 7) movement |= starting_position << 9n
-        if (y > 0 && x > 0) movement |= starting_position << 7n
+        if (y > 0 && x > 0) movement |= starting_position << 9n
+        if (y > 0 && x < 7) movement |= starting_position << 7n
 
         movements = [movement]
 
@@ -946,7 +945,6 @@ class Board {
                     // this piece is pinned! restrict our movement
                     if (BitBoard.get_i(piece_data.pos) & attack) {
                         all_moves_bitboard = attack & ~((this.turn == Piece.BLACK) ? black_bitboard : white_bitboard)
-                        console.log("i am pin.")
                     }
                 }
             }

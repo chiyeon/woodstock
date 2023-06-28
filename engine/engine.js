@@ -789,11 +789,16 @@ class Board {
 
         // we must also capture squares that are able to be "blocked"
 
-        let pinned_movement = 0n
+        let pinned_directions = []
         
         // calculate attacked squares from axis pieces
         for (let i = 0; i < axis_pieces.length; i++) {
             let axis_piece_data = axis_pieces[i]
+            
+            // if the king is in LINE of an attack (not in check) record the pinned space
+            if (axis_piece_data.king_exception && (king_pos_bitboard & axis_piece_data.king_exception)) {
+                pinned_directions.push(axis_piece_data.king_exception)
+            }
 
             // add all attacking moves to attacked squares
             for (let j = 0; j < axis_piece_data.move_bitboards.length; j++) {
@@ -802,11 +807,6 @@ class Board {
                 attacked_squares = attacked_squares | direction_of_attack
                 //BitBoard.print(direction_of_attack)
                 // check if that direction of attack is checking the king
-
-                // if the king is in LINE of an attack (not in check) record the pinned space
-                if (axis_piece_data.king_exception && (king_pos_bitboard & axis_piece_data.king_exception)) {
-                    pinned_movement = pinned_movement | axis_piece_data.king_exception
-                }
 
                 if (king_pos_bitboard & direction_of_attack) {                    
                     king_attackers.push({
@@ -886,10 +886,19 @@ class Board {
             // filter our moves: remove invalid (capturing our own pieces) moves
             all_moves_bitboard = all_moves_bitboard & ~((this.turn == Piece.BLACK) ? black_bitboard : white_bitboard)
            
-            // if we are in line of pins, restrict our movement to that
-            if (pinned_movement & BitBoard.get_i(piece_data.pos)) {
-                all_moves_bitboard = pinned_movement & ~((this.turn == Piece.BLACK) ? black_bitboard : white_bitboard)
+            if ((piece_data.piece & Piece.FILTER_PIECE) != Piece.KING) {
+                // if we are in line of pins, restrict our movement to that
+                for (let j = 0; j < pinned_directions.length; j++) {
+                    let pinned_movement = pinned_directions[j]
+
+                    if (pinned_movement & BitBoard.get_i(piece_data.pos)) {
+                        all_moves_bitboard = pinned_movement & ~((this.turn == Piece.BLACK) ? black_bitboard : white_bitboard)
+                    }
+                }
             }
+
+            // TODO:
+            // checks mostly okay. problems seen so far are: pinned pieces can move to block out of check.
 
             // if we are in check, only consider moves that will block checks or kill lone attackers for non king pieces
             if (in_check) {
@@ -1197,7 +1206,7 @@ class MoveMasks {
 //     }
 // })
 
-let board = new Board("K4q2/8/2R5/8/4b3/8/8/8")
+let board = new Board("8/1K6/8/3Q4/4b3/r1N5/8/1r6")
 board.print()
 
 //board.print_positions()

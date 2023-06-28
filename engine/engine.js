@@ -1022,13 +1022,13 @@ class Board {
                                 let ally_pawn_pos_bitboard = BitBoard.get_i(piece_data.pos)
 
                                 // prevent en passant when pinned diagonally
-                                // for (let k = 0; k < axis_pieces.length; k++) {
-                                //     let axis_piece_data = axis_pieces[k]
-                                //     // our pawn is in an attacking line/pinned!
-                                //     if (axis_piece_data.king_exception && axis_piece_data.king_exception & ally_pawn_pos_bitboard) {
-                                //         break
-                                //     }
-                                // }
+                                for (let k = 0; k < axis_pieces.length; k++) {
+                                    let axis_piece_data = axis_pieces[k]
+                                    // our pawn is in an attacking line/pinned!
+                                    if (axis_piece_data.king_exception && axis_piece_data.king_exception & ally_pawn_pos_bitboard) {
+                                        break
+                                    }
+                                }
 
                                 flags.push(EN_PASSANT)
                                 // // check for row sliding first
@@ -1300,8 +1300,8 @@ class MoveMasks {
 //     }
 // })
 
-let board = new Board("8/1p6/8/K1P4r/8/8/8/8")
-board.move(board.create_move(9, 25))
+let board = new Board("8/4p3/8/3P4/4K3/8/8/8")
+board.move(board.create_move(12, 28))
 board.update_turn()
 board.print()
 // board.move(board.create_move(36, 28))

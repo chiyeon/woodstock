@@ -13,7 +13,7 @@ const count_bulk_positions = (depth) => {
 
     for (let i = 0; i < moves.length; i++) {
         board.move(moves[i])
-        //board.print()
+        board.print()
         count += count_bulk_positions(depth - 1)
         board.undo()
     }
@@ -26,6 +26,7 @@ const CASTLE_KINGSIDE = 2
 const KING_FIRST_MOVE = 3
 const ROOK_QUEEN_FIRST_MOVE = 4
 const ROOK_KING_FIRST_MOVE = 5
+const EN_PASSANT = 6
 
 const measure_count_bulk_positions = (depth) => {
     let start_time = performance.now()
@@ -329,11 +330,18 @@ class Board {
         let board_out = ""
 
         for (let y = 0; y < 8; y++) {
+            board_out += (8 - y) + " | "
             for (let x = 0; x < 8; x++) {
                 let num = x + y * 8
-                board_out += (num < 10) ? " " + num : num
+                board_out += ((num < 10) ? " " + num : num) + "   "
             }
-            board_out += "\n"
+            board_out += " \n  |"
+            if (y != 7) board_out += "\n"
+            else board_out += "---------------------------------------\n     "
+        }
+
+        for (let i = 0; i < 8; i++) {
+            board_out += String.fromCharCode(("a".charCodeAt(0) + i)) + "    "
         }
 
         console.log(board_out)
@@ -393,6 +401,13 @@ class Board {
                         this.board[move.to - 2] = Piece.EMPTY
                         this.board[move.from - 1] = (Piece.ROOK | this.turn)
                         this.piece_positions[this.board[move.from - 1]] = move.from - 1
+                        break
+                    case EN_PASSANT:
+                        // capture da piece
+                        let captured_pawn_position = move.to + (this.turn == Piece.BLACK ? -8 : 8)
+
+                        move.captured = this.board[captured_pawn_position]
+                        this.board[captured_pawn_position] = Piece.EMPTY
                         break
                 }
             }
@@ -486,8 +501,23 @@ class Board {
          * Now we must check for capture collisions
          */
 
-        // possible captures = capture spaces AND enemy positions
-        captures = captures & axis_bitboard
+        // possible captures/protections = captures AND all pieces
+        captures = captures & board_bitboard
+
+        // check for en passant
+        if (this.history.length != 0) {
+            let last_move = this.history[this.history.length - 1]
+            if (last_move && (last_move.piece & Piece.FILTER_PIECE) == Piece.PAWN && Math.abs(last_move.from - last_move.to) >= 16) {
+                // left side en passant
+                if (index - last_move.to == 1) {
+                    captures = captures | ((piece_color == Piece.BLACK) ? starting_position >> 7n : starting_position << 9n)
+                } else if(index - last_move.to == -1) {
+                    // right side
+                    captures = captures | ((piece_color == Piece.BLACK) ? starting_position >> 9n : starting_position << 7n)
+                }
+            }
+        }
+        
 
         // normally here we'd concern ourselves with separating directions of movement,
         // but pawn attacks cannot be blocked so its okay!
@@ -952,6 +982,14 @@ class Board {
                                 flags.push(ROOK_KING_FIRST_MOVE)
                             }
                             break
+                        case Piece.PAWN:
+                            // filter out movement only spaces: we are concerned with captures
+                            let only_movement_spaces = BitBoard.get_column(piece_data.pos % 8)
+
+                            // if we are capturing an empty space, we must be doing en passant!
+                            if (this.board[positions[j]] == Piece.EMPTY && (BitBoard.get_i(positions[j]) & ~only_movement_spaces)) {
+                                flags.push(EN_PASSANT)
+                            }
                     }
 
                     moves.push(this.create_move(piece_data.pos, positions[j], flags))
@@ -991,6 +1029,10 @@ class Board {
                     case ROOK_QUEEN_FIRST_MOVE:
                         this.game_info[this.turn].has_left_rook_moved = false
                         break
+                    case EN_PASSANT:
+                        // recorded it as captured for record keeping purposes. now thats its gone, bye bye    
+                        this.board[(this.turn == Piece.BLACK ? last_move.to - 8 : last_move.to + 8)] = last_move.captured
+                        last_move.captured = Piece.EMPTY
                 }
             }
 
@@ -1206,14 +1248,25 @@ class MoveMasks {
 //     }
 // })
 
-let board = new Board("r2qkb1r/ppp1pppp/2n2n2/1B1p4/4P1b1/2N2N2/PPPP1PPP/R1BQK2R")
+let board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
 board.print()
+// board.move(board.create_move(36, 28))
+// board.move(board.create_move(11, 27))
+// board.print()
+
+// let moves = board.moves()
+
+// moves.forEach(m => {
+//     board.move(m)
+//     board.print()
+//     board.undo()
+// })
 
 //board.print_positions()
 // board.moves()
 // console.log(board.moves())
-measure_count_bulk_positions(1)
-// for (let i = 1; i <= 5; i++) {
+measure_count_bulk_positions(3)
+// for (let i = 1; i <= 3; i++) {
 //     measure_count_bulk_positions(i)
 // }
 

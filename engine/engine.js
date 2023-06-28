@@ -5,7 +5,7 @@ const measure = (func) => {
     console.log("Took " + time + "ms | " + time / 1000 + "s")
 }
 
-const count_bulk_positions = (depth) => {
+const count_bulk_positions = (depth, print_positions) => {
     if (depth <= 0) return 1
 
     let moves = board.moves()
@@ -13,7 +13,7 @@ const count_bulk_positions = (depth) => {
 
     for (let i = 0; i < moves.length; i++) {
         board.move(moves[i])
-        board.print()
+        if (print_positions) board.print()
         count += count_bulk_positions(depth - 1)
         board.undo()
     }
@@ -28,9 +28,9 @@ const ROOK_QUEEN_FIRST_MOVE = 4
 const ROOK_KING_FIRST_MOVE = 5
 const EN_PASSANT = 6
 
-const measure_count_bulk_positions = (depth) => {
+const measure_count_bulk_positions = (depth, print_positions = false) => {
     let start_time = performance.now()
-    let count = count_bulk_positions(depth)
+    let count = count_bulk_positions(depth, print_positions)
     console.log("Depth: " + depth + "\tNumber of positions: " + count + "\tTime: " + (performance.now() - start_time) + "ms")
 }
 
@@ -976,7 +976,6 @@ class Board {
 
             if (all_moves_bitboard) {
                 let positions = BitBoard.get_positions_list(all_moves_bitboard)
-                BitBoard.print(all_moves_bitboard)
                 for (let j = 0; j < positions.length; j++) {
                     let flags = [] // no flag by default
 
@@ -1012,8 +1011,33 @@ class Board {
                             let only_movement_spaces = BitBoard.get_column(piece_data.pos % 8)
 
                             // if we are capturing an empty space, we must be doing en passant!
-                            if (this.board[positions[j]] == Piece.EMPTY && (BitBoard.get_i(positions[j]) & ~only_movement_spaces)) {
+                            let capture_square_bitboard = BitBoard.get_i(positions[j])
+                            if (this.board[positions[j]] == Piece.EMPTY && (capture_square_bitboard & ~only_movement_spaces)) {
+                                // lets check though.. will the king be in danger?
+                                // we can do it slow way... because en passant is so rare anyways
+
+                                let ally_pawn_pos_bitboard = BitBoard.get_i(piece_data.pos)
+
+                                // prevent en passant when pinned diagonally
+                                // for (let k = 0; k < axis_pieces.length; k++) {
+                                //     let axis_piece_data = axis_pieces[k]
+                                //     // our pawn is in an attacking line/pinned!
+                                //     if (axis_piece_data.king_exception && axis_piece_data.king_exception & ally_pawn_pos_bitboard) {
+                                //         break
+                                //     }
+                                // }
+
                                 flags.push(EN_PASSANT)
+                                // // check for row sliding first
+                                // let danger_row = BitBoard.get_row(Math.floor(piece_data.pos / 8))
+
+                                // let king_pos = BitBoard.get_positions_list(king_pos_bitboard)[0] || 0
+                                // let danger_diagonals = this.move_masks.bishop_masks[king_pos].directions
+                                // // bitboard with the en passant row set to what it would be WITHOUT th eking position
+                                // let potential_move_board_bitboard = board_bitboard & ~(capture_square_bitboard | BitBoard.get_i(piece_data.pos) | king_pos_bitboard)
+                                
+                                // let potential_attackers = potential_move_board_bitboard & axis_bitboard
+
                             }
                     }
 
@@ -1273,7 +1297,9 @@ class MoveMasks {
 //     }
 // })
 
-let board = new Board("8/8/2b5/8/4P3/8/6B1/7K")
+let board = new Board("8/1p2q3/8/2B5/1K6/8/8/8")
+board.move(board.create_move(9, 25))
+board.update_turn()
 board.print()
 // board.move(board.create_move(36, 28))
 // board.move(board.create_move(11, 27))
@@ -1290,7 +1316,7 @@ board.print()
 //board.print_positions()
 // board.moves()
 // console.log(board.moves())
-measure_count_bulk_positions(1)
+measure_count_bulk_positions(1, true)
 // for (let i = 1; i <= 3; i++) {
 //     measure_count_bulk_positions(i)
 // }

@@ -13,6 +13,7 @@ const count_bulk_positions = (depth) => {
 
     for (let i = 0; i < moves.length; i++) {
         board.move(moves[i])
+        console.log(moves[i].flags)
         board.print()
         count += count_bulk_positions(depth - 1)
         board.undo()
@@ -572,25 +573,25 @@ class Board {
 
             if (col_y > y && col_x < x) {
                 if ((this.board[col] & Piece.FILTER_PIECE) == Piece.KING) {
-                    king_exception = movements[0]
+                    king_exception = mask.directions[0]
                 }
                 movements[0] = movements[0] & ~BitBoard.get_diagonal_downwards_left(col_x, col_y)
             }
             else if (col_y < y && col_x < x) {
                 if ((this.board[col] & Piece.FILTER_PIECE) == Piece.KING) {
-                    king_exception = movements[1]
+                    king_exception = mask.directions[1]
                 }
                 movements[1] = movements[1] & ~BitBoard.get_diagonal_upwards_left(col_x, col_y)
             }
             else if (col_y > y && col_x > x) {
                 if ((this.board[col] & Piece.FILTER_PIECE) == Piece.KING) {
-                    king_exception = movements[2]
+                    king_exception = mask.directions[2]
                 }
                 movements[2] = movements[2] & ~BitBoard.get_diagonal_downwards_right(col_x, col_y)
             }
             else if (col_y < y && col_x > x) {
                 if ((this.board[col] & Piece.FILTER_PIECE) == Piece.KING) {
-                    king_exception = movements[3]
+                    king_exception = mask.directions[3]
                 }
                 movements[3] = movements[3] & ~BitBoard.get_diagonal_upwards_right(col_x, col_y)
             }
@@ -620,25 +621,25 @@ class Board {
 
             if (col_y > y) {
                 if ((this.board[col] & Piece.FILTER_PIECE) == Piece.KING) {
-                    king_exception = movements[0]
+                    king_exception = mask.directions[0]
                 }
                 movements[0] = movements[0] & ~BitBoard.get_column_segment(x, col_y + 1, 7)
             }
             else if (col_y < y) {
                 if ((this.board[col] & Piece.FILTER_PIECE) == Piece.KING) {
-                    king_exception = movements[1]
+                    king_exception = mask.directions[1]
                 }
                 movements[1] = movements[1] & ~BitBoard.get_column_segment(x, 0, col_y - 1)
             }
             else if (col_x > x) {
                 if ((this.board[col] & Piece.FILTER_PIECE) == Piece.KING) {
-                    king_exception = movements[2]
+                    king_exception = mask.directions[2]
                 }
                 movements[2] = movements[2] & ~BitBoard.get_row_segment(y, col_x + 1, 7)
             }
             else if (col_x < x) {
                 if ((this.board[col] & Piece.FILTER_PIECE) == Piece.KING) {
-                    king_exception = movements[3]
+                    king_exception = mask.directions[3]
                 }
                 movements[3] = movements[3] & ~BitBoard.get_row_segment(y, 0, col_x - 1)
             }
@@ -665,20 +666,33 @@ class Board {
         let movements = []
         let movement = 0n
 
-        if (y < 8) movement |= starting_position >> 8n
-        if (y < 8 && x < 8) movement |= starting_position >> 9n
-        if (y < 8 && x > 0) movement |= starting_position >> 7n
+        if (y < 7) movement |= starting_position >> 8n
+        if (y < 7 && x < 7) movement |= starting_position >> 9n
+        if (y < 7 && x > 0) movement |= starting_position >> 7n
         if (x > 0) movement |= starting_position << 1n
-        if (x < 8) movement |= starting_position >> 1n
+        if (x < 7) movement |= starting_position >> 1n
         if (y > 0) movement |= starting_position << 8n
-        if (y > 0 && x < 8) movement |= starting_position << 9n
+        if (y > 0 && x < 7) movement |= starting_position << 9n
         if (y > 0 && x > 0) movement |= starting_position << 7n
 
         movements = [movement]
 
         // check for castling
         if (!this.game_info[this.turn].has_king_moved) {
-            if (!this.game_info[this.turn].has_left_rook_moved && this.board[56] == (this.turn | Piece.ROOK)) {
+            // basic checks are:
+            // if the rook hasnt moved & is in its proper position
+            // and the king is in its proepr position
+
+            if (!this.game_info[this.turn].has_left_rook_moved
+                && (
+                    (this.turn == Piece.WHITE && this.board[56] == (this.turn | Piece.ROOK))
+                    || (this.turn == Piece.BLACK && this.board[0] == (this.turn | Piece.ROOK))
+                )
+                && (
+                    (this.turn == Piece.WHITE && this.board[60] == (this.turn | Piece.KING))
+                    || (this.turn == Piece.BLACK && this.board[4] == (this.turn | Piece.KING))
+                )
+            ) {
                 let left_castle_check = (starting_position << 1n) | (starting_position << 2n) | (starting_position << 3n)
                 if ((left_castle_check & board_bitboard) == 0n) {
                     // if there are no obstructions, add castling to our moves
@@ -686,7 +700,16 @@ class Board {
                 }
             }
 
-            if (!this.game_info[this.turn].has_right_rook_moved && this.board[63] == (this.turn | Piece.ROOK)) {
+            if (!this.game_info[this.turn].has_right_rook_moved 
+                && (
+                    (this.turn == Piece.WHITE && this.board[63] == (this.turn | Piece.ROOK))
+                    || (this.turn == Piece.BLACK && this.board[7] == (this.turn | Piece.ROOK))
+                )
+                && (
+                    (this.turn == Piece.WHITE && this.board[60] == (this.turn | Piece.KING))
+                    || (this.turn == Piece.BLACK && this.board[4] == (this.turn | Piece.KING))
+                )
+            ) {
                 let right_castle_check = (starting_position >> 1n) | (starting_position >> 2n)
                 if ((right_castle_check & board_bitboard) == 0n) {
                     // if there are no obstructions, add castling to our moves
@@ -819,15 +842,15 @@ class Board {
 
         // we must also capture squares that are able to be "blocked"
 
-        let pinned_directions = []
+        let attacks_on_king = []
         
         // calculate attacked squares from axis pieces
         for (let i = 0; i < axis_pieces.length; i++) {
             let axis_piece_data = axis_pieces[i]
             
-            // if the king is in LINE of an attack (not in check) record the pinned space
+            // if the king is in LINE of an attack (not in check) record the attack on the king
             if (axis_piece_data.king_exception && (king_pos_bitboard & axis_piece_data.king_exception)) {
-                pinned_directions.push(axis_piece_data.king_exception)
+                attacks_on_king.push(axis_piece_data.king_exception)
             }
 
             // add all attacking moves to attacked squares
@@ -917,12 +940,13 @@ class Board {
             all_moves_bitboard = all_moves_bitboard & ~((this.turn == Piece.BLACK) ? black_bitboard : white_bitboard)
            
             if ((piece_data.piece & Piece.FILTER_PIECE) != Piece.KING) {
-                // if we are in line of pins, restrict our movement to that
-                for (let j = 0; j < pinned_directions.length; j++) {
-                    let pinned_movement = pinned_directions[j]
+                for (let j = 0; j < attacks_on_king.length; j++) {
+                    let attack = attacks_on_king[j]
 
-                    if (pinned_movement & BitBoard.get_i(piece_data.pos)) {
-                        all_moves_bitboard = pinned_movement & ~((this.turn == Piece.BLACK) ? black_bitboard : white_bitboard)
+                    // this piece is pinned! restrict our movement
+                    if (BitBoard.get_i(piece_data.pos) & attack) {
+                        all_moves_bitboard = attack & ~((this.turn == Piece.BLACK) ? black_bitboard : white_bitboard)
+                        console.log("i am pin.")
                     }
                 }
             }
@@ -1248,7 +1272,7 @@ class MoveMasks {
 //     }
 // })
 
-let board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
+let board = new Board("r7/8/8/4b3/Q7/2Q5/3n4/K7")
 board.print()
 // board.move(board.create_move(36, 28))
 // board.move(board.create_move(11, 27))
@@ -1265,7 +1289,7 @@ board.print()
 //board.print_positions()
 // board.moves()
 // console.log(board.moves())
-measure_count_bulk_positions(3)
+measure_count_bulk_positions(1)
 // for (let i = 1; i <= 3; i++) {
 //     measure_count_bulk_positions(i)
 // }

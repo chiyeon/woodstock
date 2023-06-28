@@ -979,6 +979,7 @@ class Board {
 
             if (all_moves_bitboard) {
                 let positions = BitBoard.get_positions_list(all_moves_bitboard)
+                positions_eval:
                 for (let j = 0; j < positions.length; j++) {
                     let flags = [] // no flag by default
 
@@ -1019,28 +1020,20 @@ class Board {
                                 // lets check though.. will the king be in danger?
                                 // we can do it slow way... because en passant is so rare anyways
 
+                                
                                 let ally_pawn_pos_bitboard = BitBoard.get_i(piece_data.pos)
-
-                                // prevent en passant when pinned diagonally
+                                //let axis_pawn_pos_
+                                
+                                // prevent en passant when pinned
                                 for (let k = 0; k < axis_pieces.length; k++) {
                                     let axis_piece_data = axis_pieces[k]
                                     // our pawn is in an attacking line/pinned!
                                     if (axis_piece_data.king_exception && axis_piece_data.king_exception & ally_pawn_pos_bitboard) {
-                                        break
+                                        continue positions_eval
                                     }
                                 }
 
                                 flags.push(EN_PASSANT)
-                                // // check for row sliding first
-                                // let danger_row = BitBoard.get_row(Math.floor(piece_data.pos / 8))
-
-                                // let king_pos = BitBoard.get_positions_list(king_pos_bitboard)[0] || 0
-                                // let danger_diagonals = this.move_masks.bishop_masks[king_pos].directions
-                                // // bitboard with the en passant row set to what it would be WITHOUT th eking position
-                                // let potential_move_board_bitboard = board_bitboard & ~(capture_square_bitboard | BitBoard.get_i(piece_data.pos) | king_pos_bitboard)
-                                
-                                // let potential_attackers = potential_move_board_bitboard & axis_bitboard
-
                             }
                     }
 
@@ -1300,7 +1293,7 @@ class MoveMasks {
 //     }
 // })
 
-let board = new Board("8/4p3/8/3P4/4K3/8/8/8")
+let board = new Board("6b1/4p3/8/3P4/2K5/8/8/8")
 board.move(board.create_move(12, 28))
 board.update_turn()
 board.print()

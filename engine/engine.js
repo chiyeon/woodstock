@@ -5,6 +5,13 @@ const measure = (func) => {
     console.log("Took " + time + "ms | " + time / 1000 + "s")
 }
 
+let stats = {
+    castles: 0,
+    captures: 0,
+    ep: 0,
+    checks: 0
+}
+
 const count_bulk_positions = (depth, print_positions) => {
     if (depth <= 0) return 1
 
@@ -79,7 +86,7 @@ const measure_count_bulk_positions = (depth, print_positions = false) => {
     console.log("Depth: " + depth + "\tNumber of positions: " + count + "\tTime: " + (performance.now() - start_time) + "ms")
 }
 
-class Piece {
+export class Piece {
     static EMPTY = 0b000
     static PAWN = 0b001
     static KNIGHT = 0b010
@@ -145,7 +152,7 @@ class Piece {
     }
 }
 
-class BitBoard {
+export class BitBoard {
     /**
      * prints a valid bitboard
      */
@@ -279,7 +286,7 @@ class BitBoard {
     }
 }
 
-class Board {
+export class Board {
     // could be more elegant but this might be fastest ?
     static fen_dictionary = {
         "p": Piece.BLACK | Piece.PAWN,
@@ -1100,6 +1107,11 @@ class Board {
 
                     //BitBoard.print(all_moves_bitboard)
 
+                    if (in_check) stats.checks++
+                    if (flags.includes(EN_PASSANT)) stats.ep++
+                    if (flags.includes(CASTLE_KINGSIDE) || flags.includes(CASTLE_QUEENSIDE)) stats.castles++
+                    if (this.board[positions[j]] != Piece.EMPTY) stats.captures++
+
                     moves.push(this.create_move(piece_data.pos, positions[j], flags))
                 }
             }
@@ -1356,10 +1368,10 @@ class MoveMasks {
 //     }
 // })
 
-let board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
+// let board = new Board()
 // board.move(board.create_move(12, 28))
 // board.update_turn()
-board.print()
+// board.print()
 // board.move(board.create_move(36, 28))
 // board.move(board.create_move(11, 27))
 // board.print()
@@ -1375,9 +1387,17 @@ board.print()
 //board.print_positions()
 // board.moves()
 // console.log(board.moves())
-for (let i = 1; i <= 4; i++) {
-    measure_count_bulk_positions(i)
-}
+// for (let i = 1; i <= 4; i++) {
+//     measure_count_bulk_positions(i)
+//     console.log(stats)
+//     stats = {
+//         checks: 0,
+//         ep: 0,
+//         castles: 0,
+//         captures: 0
+//     }
+// }
+
 
 // const get_chess_pos_to_index_table = () => {
 //     let letters = ["a", "b", "c", "d", "e", "f", "g", "h"]

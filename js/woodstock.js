@@ -1,19 +1,12 @@
-const   PAWN = "p",
-        KNIGHT = "n",
-        BISHOP = "b",
-        ROOK = "r",
-        QUEEN = "q",
-        KING = "k",
-        WHITE = "w",
-        BLACK = "b"
+import { Piece } from "../engine/engine.js"
 
 const piece_values = {
-    [PAWN]: 10,
-    [KNIGHT]: 30,
-    [BISHOP]: 31,
-    [ROOK]: 45,
-    [QUEEN]: 90,
-    [KING]: 2000
+    [Piece.PAWN]: 10,
+    [Piece.KNIGHT]: 30,
+    [Piece.BISHOP]: 31,
+    [Piece.ROOK]: 45,
+    [Piece.QUEEN]: 90,
+    [Piece.KING]: 2000
 }
 
 let positions_evaluated = 0
@@ -21,73 +14,73 @@ var openings = []
 var is_opening = true
 
 var reverse_array = (array) => {
-    return array.slice().reverse();
+    return array.reverse();
 };
 
-const white_pawn_table = [
-    [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0],
-    [5.0,  6.0,  5.0,  5.0,  5.0,  6.0,  5.0,  5.0],
-    [1.0,  1.0,  2.0,  3.0,  3.0,  2.0,  1.0,  1.0],
-    [0.5,  0.5,  1.0,  2.5,  2.5,  1.0,  0.5,  0.5],
-    [0.0,  0.0,  0.0,  2.0,  2.0,  0.0,  0.0,  0.0],
-    [0.5, -0.5, -1.0,  0.0,  0.0, -1.0, -0.5,  0.5],
-    [-2,  1.0, -1.0,  -3.0, -2.0,  1.0,  1.0,  -1],
-    [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
+var white_pawn_table = [
+    0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+    5.0,  6.0,  5.0,  5.0,  5.0,  6.0,  5.0,  5.0,
+    1.0,  1.0,  2.0,  3.0,  3.0,  2.0,  1.0,  1.0,
+    0.5,  0.5,  1.0,  2.5,  2.5,  1.0,  0.5,  0.5,
+    0.0,  0.0,  0.0,  2.0,  2.0,  0.0,  0.0,  0.0,
+    0.5, -0.5, -1.0,  0.0,  0.0, -1.0, -0.5,  0.5,
+    -2,  1.0, -1.0,  -3.0, -2.0,  1.0,  1.0,  -1,
+    0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0
 ]
 
-const white_knight_table = [
-    [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0],
-    [-4.0, -2.0,  0.0,  0.0,  0.0,  0.0, -2.0, -4.0],
-    [-3.0,  0.0,  1.0,  1.5,  1.5,  1.0,  0.0, -3.0],
-    [-3.0,  0.5,  1.5,  2.0,  2.0,  1.5,  0.5, -3.0],
-    [-3.0,  0.0,  1.5,  2.0,  2.0,  1.5,  0.0, -3.0],
-    [-3.0,  0.5,  1.0,  1.5,  1.5,  1.0,  0.5, -3.0],
-    [-4.0, -2.0,  0.0,  0.5,  0.5,  0.0, -2.0, -4.0],
-    [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0]
+var white_knight_table = [
+    -5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0,
+    -4.0, -2.0,  0.0,  0.0,  0.0,  0.0, -2.0, -4.0,
+    -3.0,  0.0,  1.0,  1.5,  1.5,  1.0,  0.0, -3.0,
+    -3.0,  0.5,  1.5,  2.0,  2.0,  1.5,  0.5, -3.0,
+    -3.0,  0.0,  1.5,  2.0,  2.0,  1.5,  0.0, -3.0,
+    -3.0,  0.5,  1.0,  1.5,  1.5,  1.0,  0.5, -3.0,
+    -4.0, -2.0,  0.0,  0.5,  0.5,  0.0, -2.0, -4.0,
+    -5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0
 ]
 
-const white_bishop_table = [
-    [ -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0],
-        [ -1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0],
-        [ -1.0,  0.0,  0.5,  1.0,  1.0,  0.5,  0.0, -1.0],
-        [ -1.0,  0.5,  0.5,  1.0,  1.0,  0.5,  0.5, -1.0],
-        [ -1.0,  0.0,  1.0,  1.0,  1.0,  1.0,  0.0, -1.0],
-        [ -1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0, -1.0],
-        [ -1.0,  0.5,  0.0,  0.0,  0.0,  0.0,  0.5, -1.0],
-        [ -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0]
+var white_bishop_table = [
+     -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0,
+     -1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0,
+     -1.0,  0.0,  0.5,  1.0,  1.0,  0.5,  0.0, -1.0,
+     -1.0,  0.5,  0.5,  1.0,  1.0,  0.5,  0.5, -1.0,
+     -1.0,  0.0,  1.0,  1.0,  1.0,  1.0,  0.0, -1.0,
+     -1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0, -1.0,
+     -1.0,  0.5,  0.0,  0.0,  0.0,  0.0,  0.5, -1.0,
+     -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0
 ]
 
-const white_rook_table = [
-    [  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0],
-        [  0.5,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  0.5],
-        [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
-        [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
-        [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
-        [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
-        [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
-        [  0.0,   0.0, 0.0,  0.5,  0.5,  0.0,  0.0,  0.0]
+var white_rook_table = [
+     0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+     0.5,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  0.5,
+    -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5,
+    -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5,
+    -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5,
+    -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5,
+    -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5,
+     0.0,   0.0, 0.0,  0.5,  0.5,  0.0,  0.0,  0.0
 ]
 
-const white_queen_table = [
-    [ -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0],
-        [ -1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0],
-        [ -1.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -1.0],
-        [ -0.5,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -0.5],
-        [  0.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -0.5],
-        [ -1.0,  0.5,  0.5,  0.5,  0.5,  0.5,  0.0, -1.0],
-        [ -1.0,  0.0,  0.5,  0.0,  0.0,  0.0,  0.0, -1.0],
-        [ -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0]
+var white_queen_table = [
+    -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0,
+    -1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0,
+    -1.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -1.0,
+    -0.5,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -0.5,
+     0.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -0.5,
+    -1.0,  0.5,  0.5,  0.5,  0.5,  0.5,  0.0, -1.0,
+    -1.0,  0.0,  0.5,  0.0,  0.0,  0.0,  0.0, -1.0,
+    -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0
 ]
 
-const white_king_table = [
-    [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
-        [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
-        [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
-        [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
-        [ -2.0, -3.0, -3.0, -4.0, -4.0, -3.0, -3.0, -2.0],
-        [ -1.0, -2.0, -2.0, -2.0, -2.0, -2.0, -2.0, -1.0],
-        [  2.0,  2.0,  0.0,  0.0,  0.0,  0.0,  2.0,  2.0 ],
-        [  2.0,  3.0,  1.0,  0.0,  0.0,  1.0,  3.0,  2.0 ]
+var white_king_table = [
+     -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0,
+     -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0,
+     -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0,
+     -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0,
+     -2.0, -3.0, -3.0, -4.0, -4.0, -3.0, -3.0, -2.0,
+     -1.0, -2.0, -2.0, -2.0, -2.0, -2.0, -2.0, -1.0,
+      2.0,  2.0,  0.0,  0.0,  0.0,  0.0,  2.0,  2.0,
+      2.0,  3.0,  1.0,  0.0,  0.0,  1.0,  3.0,  2.0 
 ]
 
 const black_pawn_table = reverse_array(white_pawn_table)
@@ -103,7 +96,7 @@ const black_queen_table = reverse_array(white_queen_table)
 const black_king_table = reverse_array(white_king_table)
 
 const white_position_table = {
-    [PAWN]: [
+    [Piece.PAWN]: [
         [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0],
         [5.0,  6.0,  5.0,  5.0,  5.0,  6.0,  5.0,  5.0],
         [1.0,  1.0,  2.0,  3.0,  3.0,  2.0,  1.0,  1.0],
@@ -113,7 +106,7 @@ const white_position_table = {
         [-2,  1.0, -1.0,  -3.0, -2.0,  1.0,  1.0,  -1],
         [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
     ],
-    [KNIGHT]: [
+    [Piece.KNIGHT]: [
         [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0],
         [-4.0, -2.0,  0.0,  0.0,  0.0,  0.0, -2.0, -4.0],
         [-3.0,  0.0,  1.0,  1.5,  1.5,  1.0,  0.0, -3.0],
@@ -123,7 +116,7 @@ const white_position_table = {
         [-4.0, -2.0,  0.0,  0.5,  0.5,  0.0, -2.0, -4.0],
         [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0]
     ],
-    [BISHOP]: [
+    [Piece.BISHOP]: [
         [ -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0],
         [ -1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0],
         [ -1.0,  0.0,  0.5,  1.0,  1.0,  0.5,  0.0, -1.0],
@@ -133,7 +126,7 @@ const white_position_table = {
         [ -1.0,  0.5,  0.0,  0.0,  0.0,  0.0,  0.5, -1.0],
         [ -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0]
     ],
-    [ROOK]: [
+    [Piece.ROOK]: [
         [  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0],
         [  0.5,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  0.5],
         [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
@@ -143,7 +136,7 @@ const white_position_table = {
         [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
         [  0.0,   0.0, 0.0,  0.5,  0.5,  0.0,  0.0,  0.0]
     ],
-    [QUEEN]: [
+    [Piece.QUEEN]: [
         [ -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0],
         [ -1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0],
         [ -1.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -1.0],
@@ -153,7 +146,7 @@ const white_position_table = {
         [ -1.0,  0.0,  0.5,  0.0,  0.0,  0.0,  0.0, -1.0],
         [ -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0]
     ],
-    [KING]: [
+    [Piece.KING]: [
 
         [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
         [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
@@ -167,7 +160,7 @@ const white_position_table = {
 }
 
 const black_position_table = {
-    [PAWN]: reverse_array([
+    [Piece.PAWN]: reverse_array([
         [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0],
         [5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0],
         [1.0,  1.0,  2.0,  3.0,  3.0,  2.0,  1.0,  1.0],
@@ -177,7 +170,7 @@ const black_position_table = {
         [0.5,  1.0, 1.0,  -2.0, -2.0,  1.0,  1.0,  0.5],
         [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
     ]),
-    [KNIGHT]: reverse_array([
+    [Piece.KNIGHT]: reverse_array([
         [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0],
         [-4.0, -2.0,  0.0,  0.0,  0.0,  0.0, -2.0, -4.0],
         [-3.0,  0.0,  1.0,  1.5,  1.5,  1.0,  0.0, -3.0],
@@ -187,7 +180,7 @@ const black_position_table = {
         [-4.0, -2.0,  0.0,  0.5,  0.5,  0.0, -2.0, -4.0],
         [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0]
     ]),
-    [BISHOP]: reverse_array([
+    [Piece.BISHOP]: reverse_array([
         [ -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0],
         [ -1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0],
         [ -1.0,  0.0,  0.5,  1.0,  1.0,  0.5,  0.0, -1.0],
@@ -197,7 +190,7 @@ const black_position_table = {
         [ -1.0,  0.5,  0.0,  0.0,  0.0,  0.0,  0.5, -1.0],
         [ -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0]
     ]),
-    [ROOK]: reverse_array([
+    [Piece.ROOK]: reverse_array([
         [  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0],
         [  0.5,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  0.5],
         [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
@@ -207,7 +200,7 @@ const black_position_table = {
         [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
         [  0.0,   0.0, 0.0,  0.5,  0.5,  0.0,  0.0,  0.0]
     ]),
-    [QUEEN]: reverse_array([
+    [Piece.QUEEN]: reverse_array([
         [ -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0],
         [ -1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0],
         [ -1.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -1.0],
@@ -217,7 +210,7 @@ const black_position_table = {
         [ -1.0,  0.0,  0.5,  0.0,  0.0,  0.0,  0.0, -1.0],
         [ -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0]
     ]),
-    [KING]: reverse_array([
+    [Piece.KING]: reverse_array([
 
         [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
         [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
@@ -244,27 +237,25 @@ const MVV_LVA_table = [
 
 const char_to_index = (piece) => {
     switch (piece) {
-        case KING: return 0;
-        case QUEEN: return 1;
-        case ROOK: return 2;
-        case BISHOP: return 3;
-        case KNIGHT: return 4;
-        case PAWN: return 5;
+        case Piece.KING: return 0;
+        case Piece.QUEEN: return 1;
+        case Piece.ROOK: return 2;
+        case Piece.BISHOP: return 3;
+        case Piece.KNIGHT: return 4;
+        case Piece.PAWN: return 5;
         default: return 6;
     }
 }
 
 const piece_score = (piece, x, y) => {
     if (!piece) return 0
-    let score = piece_values[piece.type] + (piece.color == "w" ? white_position_table[piece.type][y][x] : black_position_table[piece.type][y][x])
+    let score = piece_values[piece] + ((piece & Piece.FILTER_COLOR) == Piece.WHITE ? white_position_table[piece][y][x] : black_position_table[piece][y][x])
     
     return score
 }
 
 // evaluates the position where positive = white favor 
-const evaluate_position = (game, raw_moves) => {
-    let board = game.board()
-
+const evaluate_position = (board, raw_moves) => {
     let white_score = 0
     let black_score = 0
 
@@ -298,117 +289,116 @@ const evaluate_position = (game, raw_moves) => {
     let white_double_pawn_count = 0,
         black_double_pawn_count = 0
 
-    for (let x = 0; x < 8; x++) {
-        for (let y = 0; y < 8; y++) {
-            let piece = board[y][x]
+    for (let i = 0; i < 64; i++) {
+        let piece = board.board[i]
 
-            if (!piece) continue
+        if (piece == Piece.EMPTY) continue
 
-            if (piece.color == "w") {
-                switch(piece.type) {
-                    case PAWN:
-                        white_score = white_score
-                            + piece_values[piece.type]
-                            + white_pawn_table[y][x]
-                        break
-                    case KNIGHT:
-                        white_score = white_score
-                            + piece_values[piece.type]
-                            + white_knight_table[y][x]
-                        break
-                    case BISHOP:
-                        white_score = white_score
-                            + piece_values[piece.type]
-                            + white_bishop_table[y][x]
-                        break
-                    case ROOK:
-                        white_score = white_score
-                            + piece_values[piece.type]
-                            + white_rook_table[y][x]
-                        break
-                    case QUEEN:
-                        white_score = white_score
-                            + piece_values[piece.type]
-                            + white_queen_table[y][x]
-                        break
-                    case KING:
-                        white_score = white_score
-                            + piece_values[piece.type]
-                            + white_king_table[y][x]
-                        break
-                }
-                
-                // switch(piece.type) {
-                //     case BISHOP:
-                //         white_bishop_count++;
-                //         break;
-                //         case PAWN:
-                //             // check for "stacked" pawns in front only
-                //             if (y < 7 && board[y][x].type == "p" && board[y][x].color == "w") white_double_pawn_count++
-                //             break;
-                // }
-            } else {
-                switch(piece.type) {
-                    case PAWN:
-                        black_score = black_score
-                            + piece_values[piece.type]
-                            + black_pawn_table[y][x]
-                        break
-                    case KNIGHT:
-                        black_score = black_score
-                            + piece_values[piece.type]
-                            + black_knight_table[y][x]
-                        break
-                    case BISHOP:
-                        black_score = black_score
-                            + piece_values[piece.type]
-                            + black_bishop_table[y][x]
-                        break
-                    case ROOK:
-                        black_score = black_score
-                            + piece_values[piece.type]
-                            + black_rook_table[y][x]
-                        break
-                    case QUEEN:
-                        black_score = black_score
-                            + piece_values[piece.type]
-                            + black_queen_table[y][x]
-                        break
-                    case KING:
-                        black_score = black_score
-                            + piece_values[piece.type]
-                            + black_king_table[y][x]
-                        break
-                }
-                
-                // switch(piece.type) {
-                //     case BISHOP:
-                //         black_bishop_count++;
-                //         break;
-                //     case PAWN:
-                //         // check for "stacked" pawns in front only
-                //         if (y < 7 && board[y][x].type == "p" && board[y][x].color == "b") black_double_pawn_count++
-                //         break;
-                // }
+        let piece_type = piece & Piece.FILTER_PIECE
+
+        if ((piece & Piece.FILTER_COLOR) == Piece.WHITE) {
+            switch(piece_type) {
+                case Piece.PAWN:
+                    white_score = white_score
+                        + piece_values[piece_type]
+                        + white_pawn_table[i]
+                    break
+                case Piece.KNIGHT:
+                    white_score = white_score
+                        + piece_values[piece_type]
+                        + white_knight_table[i]
+                    break
+                case Piece.BISHOP:
+                    white_score = white_score
+                        + piece_values[piece_type]
+                        + white_bishop_table[i]
+                    break
+                case Piece.ROOK:
+                    white_score = white_score
+                        + piece_values[piece_type]
+                        + white_rook_table[i]
+                    break
+                case Piece.QUEEN:
+                    white_score = white_score
+                        + piece_values[piece_type]
+                        + white_queen_table[i]
+                    break
+                case Piece.KING:
+                    white_score = white_score
+                        + piece_values[piece_type]
+                        + white_king_table[i]
+                    break
             }
-
+            
+            // switch(piece.type) {
+            //     case BISHOP:
+            //         white_bishop_count++;
+            //         break;
+            //         case PAWN:
+            //             // check for "stacked" pawns in front only
+            //             if (y < 7 && board[y][x].type == "p" && board[y][x].color == "w") white_double_pawn_count++
+            //             break;
+            // }
+        } else {
+            switch(piece_type) {
+                case Piece.PAWN:
+                    black_score = black_score
+                        + piece_values[piece_type]
+                        + black_pawn_table[i]
+                    break
+                case Piece.KNIGHT:
+                    black_score = black_score
+                        + piece_values[piece_type]
+                        + black_knight_table[i]
+                    break
+                case Piece.BISHOP:
+                    black_score = black_score
+                        + piece_values[piece_type]
+                        + black_bishop_table[i]
+                    break
+                case Piece.ROOK:
+                    black_score = black_score
+                        + piece_values[piece_type]
+                        + black_rook_table[i]
+                    break
+                case Piece.QUEEN:
+                    black_score = black_score
+                        + piece_values[piece_type]
+                        + black_queen_table[i]
+                    break
+                case Piece.KING:
+                    black_score = black_score
+                        + piece_values[piece_type]
+                        + black_king_table[i]
+                    break
+            }
+            
+            // switch(piece.type) {
+            //     case BISHOP:
+            //         black_bishop_count++;
+            //         break;
+            //     case PAWN:
+            //         // check for "stacked" pawns in front only
+            //         if (y < 7 && board[y][x].type == "p" && board[y][x].color == "b") black_double_pawn_count++
+            //         break;
+            // }
         }
     }
 
-    for (let i = 0; i < raw_moves.length; i++) {
-        let move = raw_moves[i]
-        if (move.captured) {
-            if (move.color == "w") {
-                white_mobility++
-                white_attacking_score   = white_attacking_score
-                                        + score_move(move)
-            } else {
-                black_mobility++
-                black_attacking_score   = black_attacking_score
-                                        + score_move(move)
-            }
-        }
-    }
+    // for (let i = 0; i < raw_moves.length; i++) {
+    //     let move = raw_moves[i]
+    //     if (move.captured) {
+    //         if (move.color == "w") {
+    //             white_mobility++
+    //             white_attacking_score   = white_attacking_score
+    //                                     + score_move(move)
+    //         } else {
+    //             black_mobility++
+    //             black_attacking_score   = black_attacking_score
+    //                                     + score_move(move)
+    //         }
+    //     }
+    // }
 
     let bishop_bonus = 0
     if (white_bishop_count == 2) bishop_bonus += 10
@@ -425,7 +415,7 @@ const compare_moves = (a, b) => {
 }
 
 const score_move = (move) => {
-    return MVV_LVA_table[char_to_index(move.captured)][char_to_index(move.piece)]
+    return MVV_LVA_table[char_to_index(move.captured & Piece.FILTER_PIECE)][char_to_index(move.piece & Piece.FILTER_PIECE)]
 }
 
 const score_moves = (raw_moves) => {
@@ -444,37 +434,37 @@ const swap_elements = (array, i1, i2) => {
     array[i2] = temp
 }
 
-const determine_best_move = (start_depth, game, maximizing_player) => {
+const determine_best_move = (start_depth, board, maximizing_player) => {
     let best_move_eval = -9999
     let best_move = null
 
-    let game_moves = game.moves()
+    let game_moves = board.moves()
 
     // first loop of min-maxing
     for (let i = 0; i < game_moves.length; i++) {
         let move = game_moves[i]
 
-        game.move(move)
+        board.move(move)
 
-        let eval = alphabeta(game, start_depth - 1, -10000, 10000, maximizing_player)
+        let score = alphabeta(board, start_depth - 1, -10000, 10000, maximizing_player)
         //let eval = alpha_beta_max(game, start_depth - 1, -9999999, 9999999)
 
-        game.undo()
+        board.undo()
 
-        if (eval >= best_move_eval) {
+        if (score >= best_move_eval) {
             best_move = move
-            best_move_eval = eval
+            best_move_eval = score
         }
     }
 
-    console.log("determined best move with score " + best_move_eval)
+    if (best_move) console.log("determined best move with score " + best_move_eval + " at depth " + start_depth)
+    else console.log("Unable to find best move.")
 
     return best_move
 }
 
-const alphabeta = (game, depth, alpha, beta, maximizing_player) => {
+const alphabeta = (board, depth, alpha, beta, maximizing_player) => {
     positions_evaluated++
-
     
     /*
      * so theres some commented out code below:
@@ -485,10 +475,10 @@ const alphabeta = (game, depth, alpha, beta, maximizing_player) => {
      * code for both will stay.
      */
     
-    let game_moves = game.moves()
+    let game_moves = board.moves()
     //game_moves = game_moves.sort(compare_moves)
-    let scored_moves = score_moves(game.moves({ raw: true }))
-    if (depth == 0) return (game.turn() == "b" ? 1 : -1) * evaluate_position(game, scored_moves)
+    let scored_moves = score_moves(board.moves())
+    if (depth == 0) return ((board.turn == Piece.BLACK) ? 1 : -1) * evaluate_position(board, scored_moves)
 
     if (maximizing_player) {
         let best_move_eval = -999999
@@ -504,9 +494,9 @@ const alphabeta = (game, depth, alpha, beta, maximizing_player) => {
 
             let move = game_moves[i]
 
-            game.move(move)
-            best_move_eval = Math.max(best_move_eval, alphabeta(game, depth - 1, alpha, beta, !maximizing_player))
-            game.undo()
+            board.move(move)
+            best_move_eval = Math.max(best_move_eval, alphabeta(board, depth - 1, alpha, beta, !maximizing_player))
+            board.undo()
 
             alpha = Math.max(alpha, best_move_eval)
             if (beta <= alpha) break
@@ -527,9 +517,9 @@ const alphabeta = (game, depth, alpha, beta, maximizing_player) => {
 
             let move = game_moves[i]
 
-            game.move(move)
-            best_move_eval = Math.min(best_move_eval, alphabeta(game, depth - 1, alpha, beta, !maximizing_player))
-            game.undo()
+            board.move(move)
+            best_move_eval = Math.min(best_move_eval, alphabeta(board, depth - 1, alpha, beta, !maximizing_player))
+            board.undo()
 
             beta = Math.min(beta, best_move_eval)
             if (beta <= alpha) break
@@ -604,68 +594,68 @@ const perform_random_opening_move = async (game) => {
     game.move(openings[Math.floor(Math.random() * openings.length)][0])
 }
 
-const perform_best_move = async (game, player_color) => {
+export const perform_best_move = async (board, player_color) => {
 
     let start_time = performance.now()
     // opening set
-    if (openings.length == 0) openings = await load_openings()
+    //if (openings.length == 0) openings = await load_openings()
 
     // even if white, odd if black turn
     // next_move_index should never be zero
-    let next_move_index = (game.moveNumber() - 1) * 2 + (player_color == "w" ? 1 : 0)
+    //let next_move_index = (game.moveNumber() - 1) * 2 + (player_color == "w" ? 1 : 0)
     
-    if (is_opening && next_move_index <= 9) {
-        let found_opener = false
+    // if (is_opening && next_move_index <= 9) {
+    //     let found_opener = false
 
-        opening_loop:
-        while (!found_opener) {
-            if (openings.length == 0) {
-                is_opening = false
-                console.log("ran out of openings!")
-                break
-            }
+    //     opening_loop:
+    //     while (!found_opener) {
+    //         if (openings.length == 0) {
+    //             is_opening = false
+    //             console.log("ran out of openings!")
+    //             break
+    //         }
 
-            // pick random opening
-            let i = Math.floor(Math.random() * openings.length)
+    //         // pick random opening
+    //         let i = Math.floor(Math.random() * openings.length)
 
-            if (openings[i].length <= next_move_index) {
-                openings.splice(i, 1) // opening doesn't have enough moves to support anyway
-                continue 
-            }
+    //         if (openings[i].length <= next_move_index) {
+    //             openings.splice(i, 1) // opening doesn't have enough moves to support anyway
+    //             continue 
+    //         }
 
-            let history = game.history()
+    //         let history = game.history()
 
-            for (let j = 0; j < history.length; j++) {
-                if (openings[i][j] != history[j]) {
-                    openings.splice(i, 1)
-                    continue opening_loop
-                }
-            }
+    //         for (let j = 0; j < history.length; j++) {
+    //             if (openings[i][j] != history[j]) {
+    //                 openings.splice(i, 1)
+    //                 continue opening_loop
+    //             }
+    //         }
 
-            // if previous move matches opening, send it
-            console.log("playing from opening book")
-            let move = openings[i][next_move_index]
-            if (move) {
-                game.move(move)
-                let time_elapsed = performance.now() - start_time
+    //         // if previous move matches opening, send it
+    //         console.log("playing from opening book")
+    //         let move = openings[i][next_move_index]
+    //         if (move) {
+    //             game.move(move)
+    //             let time_elapsed = performance.now() - start_time
 
-                $(".stats #time").text("Time Elapsed: " + time_elapsed / 1000 + " seconds")
-                $(".stats #positions").text("Positions Evaluated: " + positions_evaluated)
-                positions_evaluated = 0
-                return
-            }
-        }
-    }
+    //             $(".stats #time").text("Time Elapsed: " + time_elapsed / 1000 + " seconds")
+    //             $(".stats #positions").text("Positions Evaluated: " + positions_evaluated)
+    //             positions_evaluated = 0
+    //             return
+    //         }
+    //     }
+    // }
 
     
-    let best_move = determine_best_move(3, game, player_color == "b")
+    let best_move = determine_best_move(3, board, player_color == "b")
     let time_elapsed = performance.now() - start_time
 
     $(".stats #time").text("Time Elapsed: " + time_elapsed / 1000 + " seconds")
     $(".stats #positions").text("Positions Evaluated: " + positions_evaluated)
     positions_evaluated = 0
 
-    if (best_move) game.move(best_move)
+    if (best_move) board.move(best_move)
 }
 
 const evaluate_position_old = (game, raw_moves) => {

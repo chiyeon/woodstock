@@ -408,6 +408,18 @@ export class Board {
         }
     }
 
+    highlight_squares = (squares) => {
+        let prev_squares = document.querySelectorAll(".last-move")
+        for (let i = 0; i < prev_squares.length; i++) {
+            prev_squares[i].classList.remove("last-move")
+        }
+
+        for (let i = 0; i < squares.length; i++) {
+            let square = document.getElementById(`sq-${squares[i]}`)
+            square.classList.add("last-move")
+        }
+    }
+
     create_move = (from, to, flags = []) => {
         return {
             from: from,
@@ -581,6 +593,7 @@ export class Board {
         }
 
         this.update_chessboard()
+        this.highlight_squares([move.from, move.to])
         this.update_turn()
     }
 
@@ -1555,19 +1568,19 @@ const compare_chessjs_to_woodstock_position = (woodstock_pos, chessjs_pos) => {
 }
 
 
-let b = new Board({
-    id: "board"
-})
-b.print()
+// let b = new Board({
+//     id: "board"
+// })
+// b.print()
 
-const make_random_move = (board) => {
-    let moves = board.moves()
-    board.move(moves[Math.floor(Math.random() * moves.length)])
-}
+// const make_random_move = (board) => {
+//     let moves = board.moves()
+//     board.move(moves[Math.floor(Math.random() * moves.length)])
+// }
 
-setInterval(() => {
-    make_random_move(b)
-}, 1000)
+// setInterval(() => {
+//     make_random_move(b)
+// }, 1000)
 
 
 // import { Chess } from "../lib/chess.js"

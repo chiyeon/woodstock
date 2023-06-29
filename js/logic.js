@@ -3,7 +3,7 @@ import { Board } from "../engine/engine.js"
 import { perform_best_move } from "./woodstock.js";
 // var game = new Chess()
 
-var board = new Board()
+var board = new Board({ id: "board" })
 var board_flipped = false
 
 // 'w' or 'b'
@@ -16,19 +16,15 @@ const measure = (func) => {
 }
 
 
-for (let i = 0; i < 10; i++) {
-    measure (async () => {
-        board.print()
-        await perform_best_move(board, player_color)
-    })
-}
+// setInterval(async () => {
+//     await perform_best_move(board, player_color)
+// }, 500)
 
 
-
-measure (async () => {
-    await perform_best_move(board, player_color)
-    board.print()
-})
+// measure (async () => {
+//     await perform_best_move(board, player_color)
+//     board.print()
+// })
 
 
 // const set_highlight_square = (square, is_highlighted) => {

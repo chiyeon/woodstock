@@ -21,6 +21,51 @@ const count_bulk_positions = (depth, print_positions) => {
     return count
 }
 
+const get_all_moves_at = (board, depth) => {
+    let moves = board.moves()   
+    
+    if (depth <= 1) return moves
+    let cumulative = []
+
+    for (let i = 0; i < moves.length; i++) {
+        board.move(moves[i])
+        cumulative = cumulative.concat(get_all_moves_at(board, depth - 1))
+        board.undo()
+    }
+
+    return cumulative
+}
+
+const get_all_moves_verbose_at = (board, depth) => {
+    let moves = board.moves({verbose: true})   
+    
+    if (depth <= 1) return moves
+    let cumulative = []
+
+    for (let i = 0; i < moves.length; i++) {
+        board.move(moves[i])
+        cumulative = cumulative.concat(get_all_moves_verbose_at(board, depth - 1))
+        board.undo()
+    }
+
+    return cumulative
+}
+
+const get_all_chessjs_moves_at = (depth) => {
+    let moves = board.moves()
+    
+    if (depth <= 1) return moves
+    let cumulative = []
+
+    for (let i = 0; i < moves.length; i++) {
+        board.move(moves[i])
+        cumulative = cumulative.concat(get_all_moves_at(depth - 1))
+        board.undo()
+    }
+
+    return cumulative
+}
+
 const CASTLE_QUEENSIDE = 1
 const CASTLE_KINGSIDE = 2
 const KING_FIRST_MOVE = 3
@@ -467,14 +512,24 @@ class Board {
             movement = starting_position >> 8n
             if (y == 1) movement = movement | movement >> 8n
 
-            captures = starting_position >> 9n | starting_position >> 7n
+            if (x != 0) {
+                captures = captures | starting_position >> 7n
+            }
+            if (x != 7) {
+                captures = captures | starting_position >> 9n
+            }
 
             axis_bitboard = white_bitboard
         } else {
             movement = starting_position << 8n
             if (y == 6) movement = movement | movement << 8n
             
-            captures = starting_position << 9n | starting_position << 7n
+            if (x != 0) {
+                captures = captures | starting_position << 9n
+            }
+            if (x != 7) {
+                captures = captures | starting_position << 7n
+            }
 
             axis_bitboard = black_bitboard
         }
@@ -509,14 +564,15 @@ class Board {
             let last_move = this.history[this.history.length - 1]
             if (last_move && (last_move.piece & Piece.FILTER_PIECE) == Piece.PAWN && Math.abs(last_move.from - last_move.to) >= 16) {
                 // left side en passant
-                if (index - last_move.to == 1) {
+                if (index - last_move.to == 1 && (index % 8 != 0)) {
                     captures = captures | ((piece_color == Piece.BLACK) ? starting_position >> 7n : starting_position << 9n)
-                } else if(index - last_move.to == -1) {
+                } else if(index - last_move.to == -1 && (index % 8 != 7)) {
                     // right side
                     captures = captures | ((piece_color == Piece.BLACK) ? starting_position >> 9n : starting_position << 7n)
                 }
             }
         }
+
 
         // normally here we'd concern ourselves with separating directions of movement,
         // but pawn attacks cannot be blocked so its okay!
@@ -721,6 +777,11 @@ class Board {
         }
     }
 
+    /*
+     * moves function is in DIRE need of a rewrite. how should moves be calculated?
+     *
+     * first: */
+
     moves = () => {
         let moves = []
         let board_bitboard = this.get_bitboard()
@@ -747,7 +808,7 @@ class Board {
                 if (piece != Piece.EMPTY) {
                     let data = {
                         pos: i,
-                        piece: this.board[i],
+                        piece: piece,
                     }
 
                     let move_bitboards
@@ -860,7 +921,7 @@ class Board {
             // add all attacking moves to attacked squares
             for (let j = 0; j < axis_piece_data.move_bitboards.length; j++) {
                 let direction_of_attack = axis_piece_data.move_bitboards[j]
-
+                
                 attacked_squares = attacked_squares | direction_of_attack
                 //BitBoard.print(direction_of_attack)
                 // check if that direction of attack is checking the king
@@ -1036,6 +1097,8 @@ class Board {
                                 flags.push(EN_PASSANT)
                             }
                     }
+
+                    //BitBoard.print(all_moves_bitboard)
 
                     moves.push(this.create_move(piece_data.pos, positions[j], flags))
                 }
@@ -1293,9 +1356,9 @@ class MoveMasks {
 //     }
 // })
 
-let board = new Board("6b1/4p3/8/3P4/2K5/8/8/8")
-board.move(board.create_move(12, 28))
-board.update_turn()
+let board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
+// board.move(board.create_move(12, 28))
+// board.update_turn()
 board.print()
 // board.move(board.create_move(36, 28))
 // board.move(board.create_move(11, 27))
@@ -1312,8 +1375,98 @@ board.print()
 //board.print_positions()
 // board.moves()
 // console.log(board.moves())
-measure_count_bulk_positions(1, true)
-// for (let i = 1; i <= 3; i++) {
-//     measure_count_bulk_positions(i)
+for (let i = 1; i <= 4; i++) {
+    measure_count_bulk_positions(i)
+}
+
+// const get_chess_pos_to_index_table = () => {
+//     let letters = ["a", "b", "c", "d", "e", "f", "g", "h"]
+//     let numbers = [8, 7, 6, 5, 4, 3, 2, 1]
+//     let table = {}
+
+//     for (let i = 0; i < 8; i++) {
+//         for (let j = 0; j < 8; j++) {
+//             let key = letters[j] + numbers[i]
+//             table[key] = i * 8 + j
+//         }
+//     }
+
+//     return table
 // }
 
+// const position_to_index = get_chess_pos_to_index_table()
+// const piece_str_to_int = {
+//     "p": Piece.PAWN,
+//     "n": Piece.KNIGHT,
+//     "b": Piece.BISHOP,
+//     "r": Piece.ROOK,
+//     "q": Piece.QUEEN,
+//     "k": Piece.KING,
+// }
+
+// const compare_chessjs_to_woodstock_position = (woodstock_pos, chessjs_pos) => {
+//     let chessjs_to = position_to_index[chessjs_pos.to]
+//     let chessjs_from = position_to_index[chessjs_pos.from]
+//     let chessjs_piece = piece_str_to_int[chessjs_pos.piece]
+//     let woodstock_to = woodstock_pos.to
+//     let woodstock_from = woodstock_pos.from
+//     let woodstock_piece = woodstock_pos.piece & Piece.FILTER_PIECE
+
+//     return chessjs_to == woodstock_to 
+//             && chessjs_from == woodstock_from
+//             && chessjs_piece == woodstock_piece
+// }
+
+
+
+// import { Chess } from "../lib/chess.js"
+// let chessjs_board = new Chess()
+// // console.log(chessjs_board.moves({ verbose: true }))
+
+
+// // // console.log(get_chess_pos_to_index_table())
+// let woodstock_moves = get_all_moves_at(board, 3)
+// let chessjs_moves = get_all_moves_verbose_at(chessjs_board, 3)
+
+// console.log("Found " + woodstock_moves.length + " woodstock moves")
+// console.log("Found " + chessjs_moves.length + " actual moves.")
+
+// // get the bad positions
+// let unmatched_positions = []
+// let encountered = new Set([])
+
+// // for (let i = 0; i < 5; i++) {
+// //     board.move(woodstock_moves[i])
+// //     console.log(woodstock_moves[i])
+// //     board.print()
+// //     board.undo()
+// // }
+
+// for (let i = 0; i < woodstock_moves.length; i++) {
+//     let has_matched = false
+//     let pos = woodstock_moves[i]
+
+//     // if (encountered.has(pos)) {
+//     //     console.log("Found duplicate move! Adding to unmatched and skipping...")
+//     //     unmatched_positions.push(pos)
+//     //     continue
+//     // }
+//     // encountered.add(pos)
+
+//     for (let j = 0; j < chessjs_moves.length; j++) {
+//         if (compare_chessjs_to_woodstock_position(pos, chessjs_moves[j])) {
+//             if (has_matched) {
+//                 console.log("duplicate found!")
+//                 break
+//             } else {
+//                 has_matched = true
+//                 break
+//             }
+//         }
+//     }
+
+//     if (!has_matched) unmatched_positions.push(pos)
+// }
+
+// console.log(unmatched_positions.length == 0 ? "All positions verified!" : ("There were " + unmatched_positions.length + " incorrect positions."))
+// if (unmatched_positions.length != 0) console.log(unmatched_positions)

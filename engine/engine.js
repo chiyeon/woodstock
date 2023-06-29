@@ -1150,10 +1150,7 @@ export class Board {
                     }
                 }
             }
-
-            // TODO:
-            // checks mostly okay. problems seen so far are: pinned pieces can move to block out of check.
-
+            
             // if we are in check, only consider moves that will block checks or kill lone attackers for non king pieces
             if (in_check) {
                 // for kings consider only captures and evades
@@ -1171,8 +1168,6 @@ export class Board {
                     }
                 }
             }
-
-            // TODO fix bug where king can move into "checked" spaces that werent checked when it was in check
 
             if (all_moves_bitboard) {
                 let positions = BitBoard.get_positions_list(all_moves_bitboard)

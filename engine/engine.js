@@ -303,6 +303,21 @@ export class Board {
         "K": Piece.WHITE | Piece.KING,
     }
 
+    static piece_to_fen = {
+        [Piece.BLACK | Piece.PAWN]: "p",
+        [Piece.BLACK | Piece.ROOK]: "r",
+        [Piece.BLACK | Piece.KNIGHT]: "n",
+        [Piece.BLACK | Piece.BISHOP]: "b",
+        [Piece.BLACK | Piece.QUEEN]: "q",
+        [Piece.BLACK | Piece.KING]: "k",
+        [Piece.WHITE | Piece.PAWN]: "P",
+        [Piece.WHITE | Piece.ROOK]: "R",
+        [Piece.WHITE | Piece.KNIGHT]: "N",
+        [Piece.WHITE | Piece.BISHOP]: "B",
+        [Piece.WHITE | Piece.QUEEN]: "Q",
+        [Piece.WHITE | Piece.KING]: "K",
+    }
+
     constructor(starting_position = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR") {
         this.board = []
         this.history = []
@@ -325,6 +340,7 @@ export class Board {
         }
 
         this.read_fen_string(starting_position)
+        console.log(this.get_fen_string())
     }
 
     create_move = (from, to, flags = []) => {
@@ -333,7 +349,8 @@ export class Board {
             to: to,
             piece: this.board[from],
             captured: this.board[to],
-            flags: flags
+            flags: flags,
+            fen: this.get_fen_string() // debug only
         }
     }
 
@@ -397,6 +414,39 @@ export class Board {
         }
 
         console.log(board_out)
+    }
+
+    get_fen_string = () => {
+        let empty_spaces_count = 0
+        let fen_string = ""
+        for (let i = 0; i < 64; i++) {
+            let piece = this.board[i]
+
+            // started scanning a new line
+            if (i % 8 == 0 && i != 0) {
+                // if we were counting empty spaces prior, add and reset
+                if (empty_spaces_count != 0) {
+                    fen_string += empty_spaces_count
+                    empty_spaces_count = 0
+                }
+                fen_string += "/"
+            }
+
+            if (piece == Piece.EMPTY) {
+                empty_spaces_count++
+            } else {
+                // also record/reset num of spaces when we
+                // were just counting but hit a piece
+                if (empty_spaces_count != 0) {
+                    fen_string += empty_spaces_count
+                    empty_spaces_count = 0
+                }
+
+                fen_string += Board.piece_to_fen[piece]
+            }
+        }
+
+        return fen_string
     }
 
     get_index = (x, y) => {
@@ -1399,94 +1449,100 @@ class MoveMasks {
 // }
 
 
-// const get_chess_pos_to_index_table = () => {
-//     let letters = ["a", "b", "c", "d", "e", "f", "g", "h"]
-//     let numbers = [8, 7, 6, 5, 4, 3, 2, 1]
-//     let table = {}
+const get_chess_pos_to_index_table = () => {
+    let letters = ["a", "b", "c", "d", "e", "f", "g", "h"]
+    let numbers = [8, 7, 6, 5, 4, 3, 2, 1]
+    let table = {}
 
-//     for (let i = 0; i < 8; i++) {
-//         for (let j = 0; j < 8; j++) {
-//             let key = letters[j] + numbers[i]
-//             table[key] = i * 8 + j
-//         }
-//     }
+    for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 8; j++) {
+            let key = letters[j] + numbers[i]
+            table[key] = i * 8 + j
+        }
+    }
 
-//     return table
+    return table
+}
+
+const position_to_index = get_chess_pos_to_index_table()
+const piece_str_to_int = {
+    "p": Piece.PAWN,
+    "n": Piece.KNIGHT,
+    "b": Piece.BISHOP,
+    "r": Piece.ROOK,
+    "q": Piece.QUEEN,
+    "k": Piece.KING,
+}
+
+const compare_chessjs_to_woodstock_position = (woodstock_pos, chessjs_pos) => {
+    let chessjs_to = position_to_index[chessjs_pos.to]
+    let chessjs_from = position_to_index[chessjs_pos.from]
+    let chessjs_piece = piece_str_to_int[chessjs_pos.piece]
+    let woodstock_to = woodstock_pos.to
+    let woodstock_from = woodstock_pos.from
+    let woodstock_piece = woodstock_pos.piece & Piece.FILTER_PIECE
+
+    return chessjs_to == woodstock_to 
+            && chessjs_from == woodstock_from
+            && chessjs_piece == woodstock_piece
+            && woodstock_pos.fen == chessjs_pos.before.split(" ")[0]
+}
+
+
+let b = new Board("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K1R")
+b.print()
+
+
+import { Chess } from "../lib/chess.js"
+let chessjs_board = new Chess("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -")
+let board = new Board("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R")
+board.print()
+// console.log(chessjs_board.moves({ verbose: true }))
+//console.log(chessjs_board.moves({verbose: true})[0])
+
+// // console.log(get_chess_pos_to_index_table())
+let woodstock_moves = get_all_moves_at(board, 2)
+let chessjs_moves = get_all_moves_verbose_at(chessjs_board, 2)
+
+console.log("Found " + woodstock_moves.length + " woodstock moves")
+console.log("Found " + chessjs_moves.length + " actual moves.")
+
+// get the bad positions
+let unmatched_positions = []
+let encountered = new Set([])
+
+// for (let i = 0; i < 5; i++) {
+//     board.move(woodstock_moves[i])
+//     console.log(woodstock_moves[i])
+//     board.print()
+//     board.undo()
 // }
 
-// const position_to_index = get_chess_pos_to_index_table()
-// const piece_str_to_int = {
-//     "p": Piece.PAWN,
-//     "n": Piece.KNIGHT,
-//     "b": Piece.BISHOP,
-//     "r": Piece.ROOK,
-//     "q": Piece.QUEEN,
-//     "k": Piece.KING,
-// }
+for (let i = 0; i < woodstock_moves.length; i++) {
+    let has_matched = false
+    let pos = woodstock_moves[i]
 
-// const compare_chessjs_to_woodstock_position = (woodstock_pos, chessjs_pos) => {
-//     let chessjs_to = position_to_index[chessjs_pos.to]
-//     let chessjs_from = position_to_index[chessjs_pos.from]
-//     let chessjs_piece = piece_str_to_int[chessjs_pos.piece]
-//     let woodstock_to = woodstock_pos.to
-//     let woodstock_from = woodstock_pos.from
-//     let woodstock_piece = woodstock_pos.piece & Piece.FILTER_PIECE
+    // if (encountered.has(pos)) {
+    //     console.log("Found duplicate move! Adding to unmatched and skipping...")
+    //     unmatched_positions.push(pos)
+    //     continue
+    // }
+    // encountered.add(pos)
 
-//     return chessjs_to == woodstock_to 
-//             && chessjs_from == woodstock_from
-//             && chessjs_piece == woodstock_piece
-// }
+    for (let j = 0; j < chessjs_moves.length; j++) {
+        if (compare_chessjs_to_woodstock_position(pos, chessjs_moves[j])) {
+            if (has_matched) {
+                console.log("duplicate found!")
+                break
+            } else {
+                has_matched = true
+                break
+            }
+        }
+    }
 
+    if (!has_matched) unmatched_positions.push(pos)
+}
 
-
-// import { Chess } from "../lib/chess.js"
-// let chessjs_board = new Chess()
-// // console.log(chessjs_board.moves({ verbose: true }))
-
-
-// // // console.log(get_chess_pos_to_index_table())
-// let woodstock_moves = get_all_moves_at(board, 3)
-// let chessjs_moves = get_all_moves_verbose_at(chessjs_board, 3)
-
-// console.log("Found " + woodstock_moves.length + " woodstock moves")
-// console.log("Found " + chessjs_moves.length + " actual moves.")
-
-// // get the bad positions
-// let unmatched_positions = []
-// let encountered = new Set([])
-
-// // for (let i = 0; i < 5; i++) {
-// //     board.move(woodstock_moves[i])
-// //     console.log(woodstock_moves[i])
-// //     board.print()
-// //     board.undo()
-// // }
-
-// for (let i = 0; i < woodstock_moves.length; i++) {
-//     let has_matched = false
-//     let pos = woodstock_moves[i]
-
-//     // if (encountered.has(pos)) {
-//     //     console.log("Found duplicate move! Adding to unmatched and skipping...")
-//     //     unmatched_positions.push(pos)
-//     //     continue
-//     // }
-//     // encountered.add(pos)
-
-//     for (let j = 0; j < chessjs_moves.length; j++) {
-//         if (compare_chessjs_to_woodstock_position(pos, chessjs_moves[j])) {
-//             if (has_matched) {
-//                 console.log("duplicate found!")
-//                 break
-//             } else {
-//                 has_matched = true
-//                 break
-//             }
-//         }
-//     }
-
-//     if (!has_matched) unmatched_positions.push(pos)
-// }
-
-// console.log(unmatched_positions.length == 0 ? "All positions verified!" : ("There were " + unmatched_positions.length + " incorrect positions."))
-// if (unmatched_positions.length != 0) console.log(unmatched_positions)
+console.log(unmatched_positions.length == 0 ? "All positions verified!" : ("There were " + unmatched_positions.length + " incorrect positions."))
+if (unmatched_positions.length != 0) console.log(unmatched_positions)

@@ -318,7 +318,22 @@ export class Board {
         [Piece.WHITE | Piece.KING]: "K",
     }
 
-    constructor(starting_position = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR") {
+    static piece_to_img = {
+        [Piece.BLACK | Piece.PAWN]: "../img/chesspieces/wikipedia/bP.png",
+        [Piece.BLACK | Piece.ROOK]: "../img/chesspieces/wikipedia/bR.png",
+        [Piece.BLACK | Piece.KNIGHT]: "../img/chesspieces/wikipedia/bN.png",
+        [Piece.BLACK | Piece.BISHOP]: "../img/chesspieces/wikipedia/bB.png",
+        [Piece.BLACK | Piece.QUEEN]: "../img/chesspieces/wikipedia/bQ.png",
+        [Piece.BLACK | Piece.KING]: "../img/chesspieces/wikipedia/bK.png",
+        [Piece.WHITE | Piece.PAWN]: "../img/chesspieces/wikipedia/wP.png",
+        [Piece.WHITE | Piece.ROOK]: "../img/chesspieces/wikipedia/wR.png",
+        [Piece.WHITE | Piece.KNIGHT]: "../img/chesspieces/wikipedia/wN.png",
+        [Piece.WHITE | Piece.BISHOP]: "../img/chesspieces/wikipedia/wB.png",
+        [Piece.WHITE | Piece.QUEEN]: "../img/chesspieces/wikipedia/wQ.png",
+        [Piece.WHITE | Piece.KING]: "../img/chesspieces/wikipedia/wK.png",
+    }
+
+    constructor({id = undefined, start_position = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"}) {
         this.board = []
         this.history = []
         this.turn = Piece.WHITE
@@ -339,8 +354,36 @@ export class Board {
             }
         }
 
-        this.read_fen_string(starting_position)
-        console.log(this.get_fen_string())
+        this.read_fen_string(start_position)
+        
+        if (id != undefined) {
+            this.create_chessboard(id)
+        }
+    }
+
+    create_chessboard = (id) => {
+        let root = document.getElementById(id)
+        root.classList.add("board")
+
+        for (let y = 0; y < 8; y++) {
+            let row_el = document.createElement("div")
+            row_el.classList.add("row")
+            for (let x = 0; x < 8; x++) {
+                let square = document.createElement("div")
+                square.classList.add("square")
+                square.classList.add((x + y % 2) % 2 == 1 ? "black" : "white")
+                row_el.appendChild(square)
+
+                // check for pieces
+                let index = y * 8 + x
+                if (this.board[index] != Piece.EMPTY) {
+                    let piece = document.createElement("img")
+                    piece.src = Board.piece_to_img[this.board[index]]
+                    square.appendChild(piece)
+                }
+            }
+            root.appendChild(row_el)
+        }
     }
 
     create_move = (from, to, flags = []) => {
@@ -1489,60 +1532,62 @@ const compare_chessjs_to_woodstock_position = (woodstock_pos, chessjs_pos) => {
 }
 
 
-let b = new Board("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K1R")
+let b = new Board({
+    id: "board"
+})
 b.print()
 
 
-import { Chess } from "../lib/chess.js"
-let chessjs_board = new Chess("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -")
-let board = new Board("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R")
-board.print()
-// console.log(chessjs_board.moves({ verbose: true }))
-//console.log(chessjs_board.moves({verbose: true})[0])
+// import { Chess } from "../lib/chess.js"
+// let chessjs_board = new Chess("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -")
+// let board = new Board("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R")
+// board.print()
+// // console.log(chessjs_board.moves({ verbose: true }))
+// //console.log(chessjs_board.moves({verbose: true})[0])
 
-// // console.log(get_chess_pos_to_index_table())
-let woodstock_moves = get_all_moves_at(board, 2)
-let chessjs_moves = get_all_moves_verbose_at(chessjs_board, 2)
+// // // console.log(get_chess_pos_to_index_table())
+// let woodstock_moves = get_all_moves_at(board, 2)
+// let chessjs_moves = get_all_moves_verbose_at(chessjs_board, 2)
 
-console.log("Found " + woodstock_moves.length + " woodstock moves")
-console.log("Found " + chessjs_moves.length + " actual moves.")
+// console.log("Found " + woodstock_moves.length + " woodstock moves")
+// console.log("Found " + chessjs_moves.length + " actual moves.")
 
-// get the bad positions
-let unmatched_positions = []
-let encountered = new Set([])
+// // get the bad positions
+// let unmatched_positions = []
+// let encountered = new Set([])
 
-// for (let i = 0; i < 5; i++) {
-//     board.move(woodstock_moves[i])
-//     console.log(woodstock_moves[i])
-//     board.print()
-//     board.undo()
+// // for (let i = 0; i < 5; i++) {
+// //     board.move(woodstock_moves[i])
+// //     console.log(woodstock_moves[i])
+// //     board.print()
+// //     board.undo()
+// // }
+
+// for (let i = 0; i < woodstock_moves.length; i++) {
+//     let has_matched = false
+//     let pos = woodstock_moves[i]
+
+//     // if (encountered.has(pos)) {
+//     //     console.log("Found duplicate move! Adding to unmatched and skipping...")
+//     //     unmatched_positions.push(pos)
+//     //     continue
+//     // }
+//     // encountered.add(pos)
+
+//     for (let j = 0; j < chessjs_moves.length; j++) {
+//         if (compare_chessjs_to_woodstock_position(pos, chessjs_moves[j])) {
+//             if (has_matched) {
+//                 console.log("duplicate found!")
+//                 break
+//             } else {
+//                 has_matched = true
+//                 break
+//             }
+//         }
+//     }
+
+//     if (!has_matched) unmatched_positions.push(pos)
 // }
 
-for (let i = 0; i < woodstock_moves.length; i++) {
-    let has_matched = false
-    let pos = woodstock_moves[i]
-
-    // if (encountered.has(pos)) {
-    //     console.log("Found duplicate move! Adding to unmatched and skipping...")
-    //     unmatched_positions.push(pos)
-    //     continue
-    // }
-    // encountered.add(pos)
-
-    for (let j = 0; j < chessjs_moves.length; j++) {
-        if (compare_chessjs_to_woodstock_position(pos, chessjs_moves[j])) {
-            if (has_matched) {
-                console.log("duplicate found!")
-                break
-            } else {
-                has_matched = true
-                break
-            }
-        }
-    }
-
-    if (!has_matched) unmatched_positions.push(pos)
-}
-
-console.log(unmatched_positions.length == 0 ? "All positions verified!" : ("There were " + unmatched_positions.length + " incorrect positions."))
-if (unmatched_positions.length != 0) console.log(unmatched_positions)
+// console.log(unmatched_positions.length == 0 ? "All positions verified!" : ("There were " + unmatched_positions.length + " incorrect positions."))
+// if (unmatched_positions.length != 0) console.log(unmatched_positions)

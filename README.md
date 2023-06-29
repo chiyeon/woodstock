@@ -1,6 +1,19 @@
 # About
 Woodstock is a chess engine / ai opponent that runs in the browser. 
 
+# Features
+### Chess Engine
+- Use of Bit Boards for move calculation
+- Interpret and produce fen strings
+- Simulate and undo moves
+
+### AI
+- Alpha Beta pruning for move decisions
+- Small opening book for the first few moves, switches to minimaxing when leaving openings
+- Move ordering using a MVV LVA table
+- Evaluates using Piece-Square tables, mobility, bishop ownership
+- Searches to a depth of 3
+
 # Representation
 ### Board
 Woodstock represents the board in a single array, indexed from 0 to 64. The pieces align with chess positions in the following fashion:

@@ -370,12 +370,13 @@ export class Board {
             row_el.classList.add("row")
             for (let x = 0; x < 8; x++) {
                 let square = document.createElement("div")
+                let index = y * 8 + x
                 square.classList.add("square")
                 square.classList.add((x + y % 2) % 2 == 1 ? "black" : "white")
+                square.id = `sq-${index}`
                 row_el.appendChild(square)
 
                 // check for pieces
-                let index = y * 8 + x
                 if (this.board[index] != Piece.EMPTY) {
                     let piece = document.createElement("img")
                     piece.src = Board.piece_to_img[this.board[index]]
@@ -383,6 +384,27 @@ export class Board {
                 }
             }
             root.appendChild(row_el)
+        }
+    }
+
+    update_chessboard = (id) => {
+        for (let y = 0; y < 8; y++) {
+            for (let x = 0; x < 8; x++) {
+                let index = y * 8 + x
+                let square = document.getElementById(`sq-${index}`)
+
+                if (this.board[index] != Piece.EMPTY) {
+                    if (square.innerHTML == "") {
+                        let piece = document.createElement("img")
+                        piece.src = Board.piece_to_img[this.board[index]]
+                        square.appendChild(piece)
+                    } else {
+                        square.childNodes[0].src = Board.piece_to_img[this.board[index]]
+                    }
+                } else {
+                    square.innerHTML = ""
+                }
+            }
         }
     }
 
@@ -558,6 +580,7 @@ export class Board {
             }
         }
 
+        this.update_chessboard()
         this.update_turn()
     }
 
@@ -1536,6 +1559,15 @@ let b = new Board({
     id: "board"
 })
 b.print()
+
+const make_random_move = (board) => {
+    let moves = board.moves()
+    board.move(moves[Math.floor(Math.random() * moves.length)])
+}
+
+setInterval(() => {
+    make_random_move(b)
+}, 1000)
 
 
 // import { Chess } from "../lib/chess.js"

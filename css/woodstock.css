@@ -24,10 +24,10 @@
 }
 
 .board .row .square.black {
-    background-color: #495f42;
+    background-color: #6b8263;
 }
 
 .board .row .square img {
-    width: 90%;
-    height: 90%;
+    width: 93%;
+    height: 93%;
 }

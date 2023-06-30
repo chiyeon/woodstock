@@ -1,4 +1,4 @@
-CFILES=src/bitboard.cpp src/woodstock.cpp
+CFILES=src/*.cpp
 
 clean:
 	rm -rf -f build/

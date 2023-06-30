@@ -1,10 +1,12 @@
 #include <stdio.h>
-#include "bitboard.h"
+#include "game.h"
 
 int main()
 {
     printf("woodstock!\n");
-    Bitboard b = Bitboards::get(0, 0);
-    Bitboards::print(b);
+  
+    Game g;
+    g.print();
+
     return 0;
 }

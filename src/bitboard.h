@@ -1,3 +1,6 @@
+#ifndef BITBOARD_H
+#define BITBOARD_H
+
 #include <stdio.h>
 #include <stdint.h>
 
@@ -17,3 +20,4 @@ struct Bitboards
     static Bitboard get_i(int i);
 };
 
+#endif

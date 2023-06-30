@@ -361,64 +361,65 @@ export class Board {
         }
     }
 
-    create_chessboard = (id) => {
-        let root = document.getElementById(id)
-        root.classList.add("board")
+    // create_chessboard = (id) => {
+    //     let root = document.getElementById(id)
+    //     root.classList.add("board")
 
-        for (let y = 0; y < 8; y++) {
-            let row_el = document.createElement("div")
-            row_el.classList.add("row")
-            for (let x = 0; x < 8; x++) {
-                let square = document.createElement("div")
-                let index = y * 8 + x
-                square.classList.add("square")
-                square.classList.add((x + y % 2) % 2 == 1 ? "black" : "white")
-                square.id = `sq-${index}`
-                row_el.appendChild(square)
+    //     for (let y = 0; y < 8; y++) {
+    //         let row_el = document.createElement("div")
+    //         row_el.classList.add("row")
+    //         for (let x = 0; x < 8; x++) {
+    //             let square = document.createElement("div")
+    //             let index = y * 8 + x
+    //             square.classList.add("square")
+    //             square.classList.add((x + y % 2) % 2 == 1 ? "black" : "white")
+    //             square.id = `sq-${index}`
+    //             row_el.appendChild(square)
 
-                // check for pieces
-                if (this.board[index] != Piece.EMPTY) {
-                    let piece = document.createElement("img")
-                    piece.src = Board.piece_to_img[this.board[index]]
-                    square.appendChild(piece)
-                }
-            }
-            root.appendChild(row_el)
-        }
-    }
+    //             // check for pieces
+    //             if (this.board[index] != Piece.EMPTY) {
+    //                 let piece = document.createElement("img")
+    //                 piece.src = Board.piece_to_img[this.board[index]]
+    //                 square.appendChild(piece)
+    //             }
+    //         }
+    //         root.appendChild(row_el)
+    //     }
+    // }
 
-    update_chessboard = (id) => {
-        for (let y = 0; y < 8; y++) {
-            for (let x = 0; x < 8; x++) {
-                let index = y * 8 + x
-                let square = document.getElementById(`sq-${index}`)
+    // update_chessboard = (id) => {
+    //     for (let y = 0; y < 8; y++) {
+    //         for (let x = 0; x < 8; x++) {
+    //             let index = y * 8 + x
+    //             let square = document.getElementById(`sq-${index}`)
 
-                if (this.board[index] != Piece.EMPTY) {
-                    if (square.innerHTML == "") {
-                        let piece = document.createElement("img")
-                        piece.src = Board.piece_to_img[this.board[index]]
-                        square.appendChild(piece)
-                    } else {
-                        square.childNodes[0].src = Board.piece_to_img[this.board[index]]
-                    }
-                } else {
-                    square.innerHTML = ""
-                }
-            }
-        }
-    }
+    //             // first animate it in, then pop it into existence
+    //             if (this.board[index] != Piece.EMPTY) {
+    //                 if (square.innerHTML == "") {
+    //                     let piece = document.createElement("img")
+    //                     piece.src = Board.piece_to_img[this.board[index]]
+    //                     square.appendChild(piece)
+    //                 } else {
+    //                     square.childNodes[0].src = Board.piece_to_img[this.board[index]]
+    //                 }
+    //             } else {
+    //                 square.innerHTML = ""
+    //             }
+    //         }
+    //     }
+    // }
 
-    highlight_squares = (squares) => {
-        let prev_squares = document.querySelectorAll(".last-move")
-        for (let i = 0; i < prev_squares.length; i++) {
-            prev_squares[i].classList.remove("last-move")
-        }
+    // highlight_squares = (squares) => {
+    //     let prev_squares = document.querySelectorAll(".last-move")
+    //     for (let i = 0; i < prev_squares.length; i++) {
+    //         prev_squares[i].classList.remove("last-move")
+    //     }
 
-        for (let i = 0; i < squares.length; i++) {
-            let square = document.getElementById(`sq-${squares[i]}`)
-            square.classList.add("last-move")
-        }
-    }
+    //     for (let i = 0; i < squares.length; i++) {
+    //         let square = document.getElementById(`sq-${squares[i]}`)
+    //         square.classList.add("last-move")
+    //     }
+    // }
 
     create_move = (from, to, flags = []) => {
         return {
@@ -592,8 +593,8 @@ export class Board {
             }
         }
 
-        this.update_chessboard()
-        this.highlight_squares([move.from, move.to])
+        //this.update_chessboard()
+        //light_squares([move.from, move.to])
         this.update_turn()
     }
 
@@ -1563,10 +1564,12 @@ const compare_chessjs_to_woodstock_position = (woodstock_pos, chessjs_pos) => {
 }
 
 
-// let b = new Board({
-//     id: "board"
-// })
-// b.print()
+let board = new Board({
+    //id: "board",
+})
+board.print()
+// let a = board.moves()
+// measure_count_bulk_positions(4)
 
 // const make_random_move = (board) => {
 //     let moves = board.moves()

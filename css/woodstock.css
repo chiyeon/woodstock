@@ -38,7 +38,7 @@
 }
 
 .board .row .square img {
-    width: 93%;
-    height: 93%;
+    width: 95%;
+    height: 95%;
     z-index: 1;
 }

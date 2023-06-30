@@ -1,3 +1,5 @@
+> **Woodstock is a work in progress! Expect issues.**
+
 # Woodstock Web-Assembly Re-write
 This branch contains the rewrite of the woodstock chess engine and AI in C++, to be compiled to web assembly for running in the browser.
 

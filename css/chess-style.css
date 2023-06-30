@@ -28,9 +28,12 @@ body {
     padding-top: 20px;
 }
 
+#board > div > div {
+    border: none;
+}
+
 .controls {
     padding-top: 20px;
-    margin-left: 2px;
 }
 
 main {
@@ -40,7 +43,6 @@ main {
 
 .profile {
     padding-top: 10px;
-    padding-left: 2px;
     height: 50px;
 }
 
@@ -69,8 +71,6 @@ main {
     float: left;
     padding-right: 10px;
 }
-
-
 
 button {
     padding: 8px 10px;

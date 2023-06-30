@@ -49,7 +49,7 @@ const attempt_move_piece = (source, target, clicked = false) => {
     } catch {
         return "snapback"
     }
-    show_evaluated_position()
+    //show_evaluated_position()
     if (!clicked) board.position(game.fen())
 
     if (game.isGameOver()) return player_win()
@@ -57,17 +57,17 @@ const attempt_move_piece = (source, target, clicked = false) => {
     window.setTimeout(async () => {
         await perform_best_move(game, player_color)
         board.position(game.fen())
-        show_evaluated_position()
+        //show_evaluated_position()
         if (game.isGameOver()) return computer_win()
     }, 250)
 }
 
 const player_win = () => {
-    $("#winner").text("You won!").removeClass("hidden")
+    $("#winner-title").text("You won!").removeClass("hidden")
 }
 
 const computer_win = () => {
-    $("#winner").text("Woodstock won!").removeClass("hidden")
+    $("#winner-title").text("Woodstock won!").removeClass("hidden")
 }
 
 // current square with our mouse over it

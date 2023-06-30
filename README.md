@@ -1,0 +1,2 @@
+# Woodstock with Chess.js
+This branch contains the first ever draft of the Woodstock chess ai, implemented with `chess.js` and `chessboard.js`. Focus should be held almost entirely on the AI for this branch.

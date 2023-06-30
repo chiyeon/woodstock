@@ -1,7 +1,9 @@
 #include <stdio.h>
+#include <stdint.h>
 
 // represent bitboards as 64 bit unsigned integers
-using Bitboard = unsigned long;
+// it appears uint64_t == unsigned long long for emcc
+using Bitboard = uint64_t;
 
 /*
  * Bitboards is the tool class with 

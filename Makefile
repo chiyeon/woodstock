@@ -1,13 +1,15 @@
+CFILES=src/bitboard.cpp src/woodstock.cpp
+
 clean:
 	rm -rf -f build/
 
-build: clean src/woodstock.cpp
+build: clean ${CFILES}
 	mkdir build
-	emcc src/woodstock.cpp -o build/index.html
+	emcc ${CFILES} -o build/index.html
 
-cbuild: clean src/woodstock.cpp
+cbuild: clean ${CFILES}
 	mkdir build
-	g++ src/woodstock.cpp -o build/woodstock.o
+	g++ -Wall ${CFILES} -o build/woodstock.o
 
 serve: build/
 	lite-server

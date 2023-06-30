@@ -1,4 +1,15 @@
 #include "piece.h"
+#include "bitboard.h"
+
+short get_color(Piece piece)
+{
+    return piece & FILTER_COLOR;
+}
+
+Piece get_piece(Piece piece)
+{
+    return piece & FILTER_PIECE;
+}
 
 // std::string Pieces::name_full(Piece piece)
 // {
@@ -13,6 +24,14 @@ char Pieces::name_short(Piece piece)
 Piece Pieces::piece_from_name_short(char name)
 {
     return name_short_to_piece[name];
+}
+
+Bitboard Pieces::get_pawn_moves(int x, int y, bool is_black)
+{
+    Bitboard movement = Bitboards.get(x, y);
+    movement |= is_black ? movement << 8 : movement >> 8;
+    if ((y == 6 ** is_black) || (y == 1 && !is_black)) 
+        movement |= is_black ? movement << 16 : movement >> 16;
 }
 
 // std::map<Piece, std::string> Pieces::piece_to_name_full = {

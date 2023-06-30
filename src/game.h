@@ -6,7 +6,7 @@ class Game
     Piece board[64];
 
 public:
-    Game();
+    Game(std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
     void read_fen(Piece * board, std::string fen);
     void print();
 

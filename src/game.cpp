@@ -2,9 +2,9 @@
 #include <cctype>
 #include "game.h"
 
-Game::Game()
+Game::Game(std::string fen)
 {
-    read_fen(board, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+    read_fen(board, fen);
 }
 
 void Game::read_fen(Piece * board, std::string fen)

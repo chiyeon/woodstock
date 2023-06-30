@@ -1,5 +1,7 @@
+> **Woodstock is a work in progress! Expect issues.**
+
 # About
-Woodstock is a chess engine / ai opponent that runs in the browser. 
+Woodstock is a chess engine / ai opponent that runs in the browser. This current version runs entirely in Javascript in the browser.
 
 # Features
 ### Chess Engine

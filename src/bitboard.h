@@ -18,6 +18,11 @@ struct Bitboards
 
     static Bitboard get(int x, int y);              // returns with bit at location
     static Bitboard get_i(int i);
+
+    static Bitboard get_row(int y);
+    static Bitboard get_row_segment(int y, int x1, int x2);
+    static Bitboard get_column(int x);
+    static Bitboard get_column_segment(int x, int y1, int y2);
 };
 
 #endif

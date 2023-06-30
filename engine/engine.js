@@ -95,6 +95,6 @@ const get_pawn_moves = (piece, x, y) => {
     
 }
 
-print_board(board)
-move(1 * 8 + 3, 2 * 8 + 3)
-print_board(board)
+// print_board(board)
+// move(1 * 8 + 3, 2 * 8 + 3)
+// print_board(board)

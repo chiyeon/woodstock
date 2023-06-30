@@ -14,10 +14,15 @@ const set_highlight_square = (square, is_highlighted) => {
 
 const remove_highlighted_squares = () => {
     $("#board .square-55d63").removeClass("highlighted")
+    selected_square = undefined
 }
 
 const highlight_possible_moves = (square, piece) => {
     if (piece[0] != player_color) return;
+
+    remove_highlighted_squares()
+
+    selected_square = square
 
     let moves = game.moves({
         square: square,
@@ -31,10 +36,8 @@ const highlight_possible_moves = (square, piece) => {
     })
 }
 
-const attempt_move_piece = (source, target) => {
+const attempt_move_piece = (source, target, clicked = false) => {
     if (game.get(source).color != player_color) return console.log("attempted to move non-player picee!")
-
-    remove_highlighted_squares()
 
     try {
         game.move({
@@ -42,20 +45,21 @@ const attempt_move_piece = (source, target) => {
             to: target,
             promotion: "q"
         })
+        remove_highlighted_squares()
     } catch {
         return "snapback"
     }
     show_evaluated_position()
+    if (!clicked) board.position(game.fen())
 
     if (game.isGameOver()) return player_win()
 
     window.setTimeout(async () => {
         await perform_best_move(game, player_color)
         board.position(game.fen())
-
         show_evaluated_position()
         if (game.isGameOver()) return computer_win()
-    }, 200)
+    }, 250)
 }
 
 const player_win = () => {
@@ -66,19 +70,33 @@ const computer_win = () => {
     $("#winner").text("Woodstock won!").removeClass("hidden")
 }
 
+// current square with our mouse over it
+let mouse_over_square
+let selected_square
+
 board = Chessboard("board", {
     draggable: true,
     position: "start",
-    onMouseoutSquare: remove_highlighted_squares,
-    onMouseoverSquare: highlight_possible_moves,
     onDragStart: (source, piece, destination, orientation) => {
-        return piece[0] == player_color
+        if (piece[0] != player_color) return false
+        
+        highlight_possible_moves(source, piece)
     },
     onSnapEnd: () => {
-        board.position(game.fen())
-        show_evaluated_position()
+        //board.position(game.fen())
+        //show_evaluated_position()
+    },
+    onMouseoutSquare: (square, piece) => {
+        mouse_over_square = undefined
+    },
+    onMouseoverSquare: (square, piece) => {
+        mouse_over_square = square
     },
     onDrop: attempt_move_piece
+})
+
+document.addEventListener("click", () => {
+    if (selected_square && mouse_over_square) attempt_move_piece(selected_square, mouse_over_square)
 })
 
 const set_board = async () => {

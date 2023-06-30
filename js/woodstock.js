@@ -395,24 +395,24 @@ const evaluate_position = (game, raw_moves) => {
         }
     }
 
-    for (let i = 0; i < raw_moves.length; i++) {
-        let move = raw_moves[i]
-        if (move.captured) {
-            if (move.color == "w") {
-                white_mobility++
-                white_attacking_score   = white_attacking_score
-                                        + score_move(move)
-            } else {
-                black_mobility++
-                black_attacking_score   = black_attacking_score
-                                        + score_move(move)
-            }
-        }
-    }
+    // for (let i = 0; i < raw_moves.length; i++) {
+    //     let move = raw_moves[i]
+    //     if (move.captured) {
+    //         if (move.color == "w") {
+    //             white_mobility++
+    //             white_attacking_score   = white_attacking_score
+    //                                     + score_move(move)
+    //         } else {
+    //             black_mobility++
+    //             black_attacking_score   = black_attacking_score
+    //                                     + score_move(move)
+    //         }
+    //     }
+    // }
 
     let bishop_bonus = 0
-    if (white_bishop_count == 2) bishop_bonus += 10
-    if (black_bishop_count == 2) bishop_bonus -= 10
+    // if (white_bishop_count == 2) bishop_bonus += 10
+    // if (black_bishop_count == 2) bishop_bonus -= 10
     
     return (white_score - black_score)
             //+ 0.05 * (white_attacking_score - black_attacking_score)

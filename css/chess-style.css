@@ -34,12 +34,11 @@ body {
 
 main {
     max-width: 600px;
-    padding: 10px 0;
     margin: auto;
 }
 
 .profile {
-    padding-top: 50px;
+    padding-top: 10px;
     padding-left: 2px;
     height: 50px;
 }

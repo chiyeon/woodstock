@@ -395,28 +395,22 @@ const evaluate_position = (game, raw_moves) => {
         }
     }
 
-    // for (let i = 0; i < raw_moves.length; i++) {
-    //     let move = raw_moves[i]
-    //     if (move.captured) {
-    //         if (move.color == "w") {
-    //             white_mobility++
-    //             white_attacking_score   = white_attacking_score
-    //                                     + score_move(move)
-    //         } else {
-    //             black_mobility++
-    //             black_attacking_score   = black_attacking_score
-    //                                     + score_move(move)
-    //         }
-    //     }
-    // }
+    for (let i = 0; i < raw_moves.length; i++) {
+        let move = raw_moves[i]
+        if (move.color == "w") {
+            white_mobility++
+        } else {
+            black_mobility++
+        }
+    }
 
     let bishop_bonus = 0
-    // if (white_bishop_count == 2) bishop_bonus += 10
-    // if (black_bishop_count == 2) bishop_bonus -= 10
+    if (white_bishop_count == 2) bishop_bonus += 10
+    if (black_bishop_count == 2) bishop_bonus -= 10
     
     return (white_score - black_score)
             //+ 0.05 * (white_attacking_score - black_attacking_score)
-            // + 0.1 * (white_mobility - black_mobility)
+            + 0.1 * (white_mobility - black_mobility)
             + bishop_bonus
 }
 
@@ -456,7 +450,7 @@ const determine_best_move = (start_depth, game, maximizing_player) => {
 
         game.move(move)
 
-        let eval = alphabeta(game, start_depth - 1, -10000, 10000, maximizing_player)
+        let eval = (maximizing_player ? -1 : 1) * alphabeta(game, start_depth - 1, -10000, 10000, maximizing_player)
         //let eval = alpha_beta_max(game, start_depth - 1, -9999999, 9999999)
 
         game.undo()
@@ -475,7 +469,6 @@ const determine_best_move = (start_depth, game, maximizing_player) => {
 const alphabeta = (game, depth, alpha, beta, maximizing_player) => {
     positions_evaluated++
 
-    
     /*
      * so theres some commented out code below:
     * rustic-chess online supposes that physically sorting the array is a waste of 
@@ -488,7 +481,7 @@ const alphabeta = (game, depth, alpha, beta, maximizing_player) => {
     let game_moves = game.moves()
     //game_moves = game_moves.sort(compare_moves)
     let scored_moves = score_moves(game.moves({ raw: true }))
-    if (depth == 0) return (game.turn() == "b" ? 1 : -1) * evaluate_position(game, scored_moves)
+    if (depth == 0) return -evaluate_position(game, scored_moves)
 
     if (maximizing_player) {
         let best_move_eval = -999999

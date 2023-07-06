@@ -23,6 +23,15 @@ struct Bitboards
     static Bitboard get_row_segment(int y, int x1, int x2);
     static Bitboard get_column(int x);
     static Bitboard get_column_segment(int x, int y1, int y2);
+
+    static Bitboard get_diagonal_downwards_right_switchcase(int x, int y);     // returns bitboard from (x, y) (not inclusive)
+    static Bitboard get_diagonal_downwards_right_loopbuild(int x, int y);     // returns bitboard from (x, y) (not inclusive)
+    static Bitboard get_diagonal_downwards_left(int x, int y);      // in target direction
+    static Bitboard get_diagonal_upwards_right(int x, int y);
+    static Bitboard get_diagonal_upwards_left(int x, int y);
+
+    const static Bitboard diagonal_downward_right_starters[];           // we can store the 4 diff diag dirs into arrays, fastest
+    const static Bitboard diagonal_downward_left_starters[];            // way of calculating them
 };
 
 #endif

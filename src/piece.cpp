@@ -1,12 +1,12 @@
 #include "piece.h"
 #include "bitboard.h"
 
-short get_color(Piece piece)
+short Pieces::get_color(Piece piece)
 {
     return piece & FILTER_COLOR;
 }
 
-Piece get_piece(Piece piece)
+Piece Pieces::get_piece(Piece piece)
 {
     return piece & FILTER_PIECE;
 }
@@ -28,9 +28,9 @@ Piece Pieces::piece_from_name_short(char name)
 
 Bitboard Pieces::get_pawn_moves(int x, int y, bool is_black)
 {
-    Bitboard movement = Bitboards.get(x, y);
+    Bitboard movement = Bitboards::get(x, y);
     movement |= is_black ? movement << 8 : movement >> 8;
-    if ((y == 6 ** is_black) || (y == 1 && !is_black)) 
+    if ((y == 6 && is_black) || (y == 1 && !is_black)) 
         movement |= is_black ? movement << 16 : movement >> 16;
 }
 

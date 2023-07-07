@@ -1,5 +1,6 @@
 #include "piece.h"
 #include "bitboard.h"
+#include "game.h"
 
 short Pieces::get_color(Piece piece)
 {
@@ -26,12 +27,19 @@ Piece Pieces::piece_from_name_short(char name)
     return name_short_to_piece[name];
 }
 
-Bitboard Pieces::get_pawn_moves(int x, int y, bool is_black)
+Bitboard Pieces::get_pawn_moves(int x, int y, Game & game)
 {
     Bitboard movement = Bitboards::get(x, y);
-    movement |= is_black ? movement << 8 : movement >> 8;
+    bool is_black = game.is_blacks_turn();
+    movement = is_black ? movement << 8 : movement >> 8;
     if ((y == 6 && is_black) || (y == 1 && !is_black)) 
-        movement |= is_black ? movement << 16 : movement >> 16;
+        movement |= is_black ? movement << 8 : movement >> 8;
+    return movement;
+}
+
+Bitboard Pieces::get_bishop_moves(int x, int y, Game & game)
+{
+    return game.movemasks.get_bishop_moves()[x + y * 8];
 }
 
 // std::map<Piece, std::string> Pieces::piece_to_name_full = {

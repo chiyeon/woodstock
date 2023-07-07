@@ -53,14 +53,14 @@ Bitboard Bitboards::get_column_segment(int x, int y1, int y2)
     return column;
 }
 
-Bitboard Bitboards::get_diagonal_downwards_right_switchcase(int x, int y)
+Bitboard Bitboards::get_diagonal_downwards_right(int x, int y)
 {
     return diagonal_downwards_right_starters[x] >> (x + y * 8);
 }
 
 Bitboard Bitboards::get_diagonal_downwards_left(int x, int y)
 {
-    return diagonal_downwards_left_starters[(7 - x)] >> ((7 - x) + y * 8);
+    return diagonal_downwards_left_starters[(7 - x)] >> ((x + 1) + (y - 1) * 8);
 }
 
 Bitboard Bitboards::get_diagonal_upwards_right(int x, int y)

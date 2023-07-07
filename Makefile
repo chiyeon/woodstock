@@ -1,4 +1,5 @@
 CFILES=src/*.cpp
+CMP_ARGS=-Wall -Wfatal-errors
 
 clean:
 	rm -rf -f build/
@@ -9,7 +10,7 @@ build: clean ${CFILES}
 
 cbuild: clean ${CFILES}
 	mkdir build
-	g++ -Wall ${CFILES} -o build/woodstock.o
+	g++ ${CMP_ARGS} ${CFILES} -o build/woodstock.o
 
 serve: build/
 	lite-server

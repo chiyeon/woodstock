@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <cctype>
 #include "game.h"
+#include "piece.h"
 
 Game::Game(std::string fen)
 {
@@ -38,4 +39,29 @@ void Game::print()
         }
         printf("\n");
     }
+}
+
+Piece Game::get(int index)
+{
+    return board[index];
+}
+
+Piece Game::get(int x, int y)
+{
+    return board[y * 8 + x];
+}
+
+bool Game::is_blacks_turn()
+{
+    return turn == Pieces::BLACK;
+}
+
+bool Game::is_whites_turn()
+{
+    return turn == Pieces::WHITE;
+}
+
+Piece Game::get_turn()
+{
+    return turn;
 }

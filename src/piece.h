@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include "bitboard.h"
+class Game;
 
 using Piece = short;
 
@@ -37,12 +38,12 @@ struct Pieces
      * pseudo-moves for individual pieces
      */
     
-    static Bitboard get_pawn_moves(int x, int y, bool is_black);
-    static Bitboard get_knight_moves(int x, int y);
-    static Bitboard get_bishop_moves(int x, int y);
-    static Bitboard get_rook_moves(int x, int y);
-    static Bitboard get_queen_moves(int x, int y);
-    static Bitboard get_king_moves(int x, int y, bool is_black);
+    static Bitboard get_pawn_moves(int x, int y, Game & game);
+    static Bitboard get_knight_moves(int x, int y, Game & game);
+    static Bitboard get_bishop_moves(int x, int y, Game & game);
+    static Bitboard get_rook_moves(int x, int y, Game & game);
+    static Bitboard get_queen_moves(int x, int y, Game & game);
+    static Bitboard get_king_moves(int x, int y, Game & game);
 
 private:
     // static std::map<Piece, std::string> piece_to_name_full;

@@ -25,6 +25,9 @@ void Game::read_fen(Piece * board, std::string fen)
             index++;
         }
     }
+
+    // update our game bitboard representation
+    game_bitboard = Bitboards::board_to_bitboard(board);
 }
 
 void Game::print()
@@ -39,6 +42,11 @@ void Game::print()
         }
         printf("\n");
     }
+}
+
+Bitboard Game::get_game_bitboard()
+{
+    return game_bitboard;
 }
 
 Piece Game::get(int index)

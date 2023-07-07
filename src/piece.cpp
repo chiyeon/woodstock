@@ -1,5 +1,5 @@
 #include "piece.h"
-#include "bitboard.h"
+#include "constants.h"
 #include "game.h"
 
 short Pieces::get_color(Piece piece)

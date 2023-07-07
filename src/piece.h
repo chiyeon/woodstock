@@ -3,10 +3,9 @@
 
 #include <string>
 #include <map>
-#include "bitboard.h"
+#include "constants.h"
 class Game;
 
-using Piece = short;
 
 struct Pieces
 {

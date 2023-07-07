@@ -14,14 +14,14 @@ int main()
     Game g("B6B/8/2B2B2/8/4B3/1B6/5B2/B6B");
     g.print();
 
-    for (int x = 0; x < 8; x++)
-    {
-        for (int y = 0; y < 8; y++) {
-            if (g.get(x, y) != Pieces::EMPTY) {
-                Bitboards::print(Pieces::get_bishop_moves(x, y, g));
-            }
-        }
+    int * positions = Bitboards::bitboard_to_positions(g.get_game_bitboard());
+    for (int i = 0; i <= sizeof(positions); ++i) {
+        printf("Found at %d\n", positions[i]);
     }
+
+    // Bitboards::print(g.get_game_bitboard());
+    // printf("Number of pieces: %d\n", Bitboards::bit_count(g.get_game_bitboard()));
+
 
     return 0;
 }

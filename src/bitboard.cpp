@@ -1,6 +1,7 @@
 #include <algorithm>
 #include "bitboard.h"
 #include "constants.h"
+#include "piece.h"
 
 void Bitboards::print(Bitboard bitboard)
 {
@@ -71,6 +72,43 @@ Bitboard Bitboards::get_diagonal_upwards_right(int x, int y)
 Bitboard Bitboards::get_diagonal_upwards_left(int x, int y)
 {
     return diagonal_upwards_left_starters[std::max(7 - y, 7 - x)] << ((7 - x) + (7 - y) * 8);
+}
+
+Bitboard Bitboards::board_to_bitboard(Piece * board)
+{
+    Bitboard bitboard = 0;
+    for (int i = 0; i < 64; ++i) {
+        if (board[i] != 0) {
+            bitboard |= get_i(i);
+        }
+    }
+    return bitboard;
+}
+
+int Bitboards::bit_count(Bitboard bitboard)
+{
+    int count = 0;
+    Bitboard filter = get_i(0);
+    for (int i = 0; i < 64; ++i) {
+        if (((bitboard << i) & filter) != 0) ++count;
+    }
+    return count;
+}
+
+int * Bitboards::bitboard_to_positions(Bitboard bitboard)
+{
+    int * positions = new int[bit_count(bitboard)]{0};
+    int positions_index = 0;
+    Bitboard filter = get_i(0);
+
+    for (int i = 0; i < 64; ++i) {
+        // check if piece is in spot
+        if ((filter & (bitboard << i)) != 0) {
+            positions[positions_index++] = i;
+        }
+    }
+
+    return positions;
 }
 
 const Bitboard Bitboards::diagonal_downwards_right_starters[] = {

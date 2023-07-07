@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <vector>
 #include "bitboard.h"
 #include "constants.h"
 #include "piece.h"
@@ -95,17 +96,16 @@ int Bitboards::bit_count(Bitboard bitboard)
     return count;
 }
 
-int * Bitboards::bitboard_to_positions(Bitboard bitboard)
+std::vector<int> Bitboards::bitboard_to_positions(Bitboard bitboard)
 {
-    int * positions = new int[bit_count(bitboard)]{0};
+    std::vector<int> positions;
     
-    int positions_index = 0;
     Bitboard filter = get_i(0);
 
     for (int i = 0; i < 64; ++i) {
         // check if piece is in spot
         if ((filter & (bitboard << i)) != 0) {
-            positions[positions_index++] = i;
+            positions.push_back(i);
         }
     }
 

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <vector>
 #include "game.h"
 // #include "tests.h"
 
@@ -14,9 +15,9 @@ int main()
     Game g("8/1N6/8/8/4N3/8/8/8");
     g.print();
 
-    int * positions = Bitboards::bitboard_to_positions(g.get_game_bitboard());
+    std::vector<int> positions = Bitboards::bitboard_to_positions(g.get_game_bitboard());
     
-    for (int i = 0; i < sizeof(positions) / sizeof(int); ++i) {
+    for (int i = 0; i < positions.size(); ++i) {
         Bitboards::print(Pieces::get_knight_moves(positions[i] % 8, positions[i] / 8, g));
     }
 

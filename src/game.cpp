@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <cctype>
+#include <vector>
 #include "game.h"
 #include "piece.h"
 
@@ -74,7 +75,37 @@ Piece Game::get_turn()
     return turn;
 }
 
-Move * Game::get_moves()
+std::vector<Move> Game::get_moves()
 {
-    
+    std::vector<Move> moves;
+
+    // get rid of this looping someday...
+    for (int x = 0; x < 8; ++x) {
+        for (int y = 0; y < 8; ++y) {
+            Piece piece = board[y * 8 + x];
+            
+            if (piece == 0 || (piece & Pieces::FILTER_COLOR) != turn) continue;
+
+            // for every piece, get moves based on type
+            switch (piece & Pieces::FILTER_PIECE) {
+                case Pieces::PAWN:
+                {
+                    Bitboard moves = Pieces::get_pawn_moves(x, y, *this);
+                    std::vector<int> positions = Bitboards::bitboard_to_positions(moves);
+                    break;
+                }
+                case Pieces::KNIGHT:
+                {
+                    Bitboard moves = Pieces::get_knight_moves(x, y, *this);
+                    break;
+                }
+                case Pieces::BISHOP:
+                {
+                    Bitboard moves = Pieces::get_bishop_moves(x, y, *this);
+                    break;
+                }
+                // TODO others
+            }
+        }
+    }
 }

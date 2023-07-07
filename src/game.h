@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include <map>
+#include <vector>
 #include "piece.h"
 #include "movemasks.h"
 #include "move.h"
@@ -27,7 +28,7 @@ public:
     bool is_whites_turn();
     Piece get_turn();
 
-    Move * get_moves();
+    std::vector<Move> get_moves();
 
 private:
     static std::map<char, Piece> fen_to_piece;

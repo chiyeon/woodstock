@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <vector>
 #include "constants.h"
 
 /*
@@ -28,7 +29,7 @@ struct Bitboards
 
     static Bitboard board_to_bitboard(Piece * board);
     static int bit_count(Bitboard bitboard);
-    static int * bitboard_to_positions(Bitboard bitboard);
+    static std::vector<int> bitboard_to_positions(Bitboard bitboard);
 
     const static Bitboard diagonal_downwards_right_starters[];           // we can store the 4 diff diag dirs into arrays, fastest
     const static Bitboard diagonal_downwards_left_starters[];            // way of calculating them

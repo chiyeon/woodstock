@@ -55,34 +55,25 @@ Bitboard Bitboards::get_column_segment(int x, int y1, int y2)
 
 Bitboard Bitboards::get_diagonal_downwards_right_switchcase(int x, int y)
 {
-    return diagonal_downward_right_starters[x] >> (x + y * 8);
-}
-
-Bitboard Bitboards::get_diagonal_downwards_right_loopbuild(int x, int y)
-{
-    Bitboard starting_bits = 0;
-    for (int i = 0; i < 7 - x; i++) {
-        starting_bits = (starting_bits >> 9) | (0b0000000001000000000000000000000000000000000000000000000000000000);
-    }
-    return starting_bits >> (x + y * 8);
+    return diagonal_downwards_right_starters[x] >> (x + y * 8);
 }
 
 Bitboard Bitboards::get_diagonal_downwards_left(int x, int y)
 {
-    return diagonal_downward_left_starters[(7 - x)] >> ((7 - x) + y * 8);
+    return diagonal_downwards_left_starters[(7 - x)] >> ((7 - x) + y * 8);
 }
 
 Bitboard Bitboards::get_diagonal_upwards_right(int x, int y)
 {
-    return diagonal_upward_right_starters[std::max(7 - y, x)] << ((7 - y) * 8) >> x;
+    return diagonal_upwards_right_starters[std::max(7 - y, x)] << ((7 - y) * 8) >> x;
 }
 
 Bitboard Bitboards::get_diagonal_upwards_left(int x, int y)
 {
-    return diagonal_upward_left_starters[std::max(7 - y, 7 - x)] << ((7 - x) + (7 - y) * 8);
+    return diagonal_upwards_left_starters[std::max(7 - y, 7 - x)] << ((7 - x) + (7 - y) * 8);
 }
 
-const Bitboard Bitboards::diagonal_downward_right_starters[] = {
+const Bitboard Bitboards::diagonal_downwards_right_starters[] = {
     0b0000000001000000001000000001000000001000000001000000001000000001,
     0b0000000001000000001000000001000000001000000001000000001000000000,
     0b0000000001000000001000000001000000001000000001000000000000000000,
@@ -93,7 +84,7 @@ const Bitboard Bitboards::diagonal_downward_right_starters[] = {
     0,
 };
 
-const Bitboard Bitboards::diagonal_downward_left_starters[] = {
+const Bitboard Bitboards::diagonal_downwards_left_starters[] = {
     0b0000000000000010000001000000100000010000001000000100000010000000,
     0b0000000000000010000001000000100000010000001000000100000000000000,
     0b0000000000000010000001000000100000010000001000000000000000000000,
@@ -104,7 +95,7 @@ const Bitboard Bitboards::diagonal_downward_left_starters[] = {
     0,
 };
 
-const Bitboard Bitboards::diagonal_upward_right_starters[] = {
+const Bitboard Bitboards::diagonal_upwards_right_starters[] = {
     0b0000000100000010000001000000100000010000001000000100000000000000,
     0b0000000000000010000001000000100000010000001000000100000000000000,
     0b0000000000000000000001000000100000010000001000000100000000000000,
@@ -115,7 +106,7 @@ const Bitboard Bitboards::diagonal_upward_right_starters[] = {
     0,
 };
 
-const Bitboard Bitboards::diagonal_upward_left_starters[] = {
+const Bitboard Bitboards::diagonal_upwards_left_starters[] = {
     0b1000000001000000001000000001000000001000000001000000001000000000,
     0b0000000001000000001000000001000000001000000001000000001000000000,
     0b0000000000000000001000000001000000001000000001000000001000000000,

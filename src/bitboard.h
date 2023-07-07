@@ -30,10 +30,10 @@ struct Bitboards
     static Bitboard get_diagonal_upwards_right(int x, int y);
     static Bitboard get_diagonal_upwards_left(int x, int y);
 
-    const static Bitboard diagonal_downward_right_starters[];           // we can store the 4 diff diag dirs into arrays, fastest
-    const static Bitboard diagonal_downward_left_starters[];            // way of calculating them
-    const static Bitboard diagonal_upward_right_starters[];
-    const static Bitboard diagonal_upward_left_starters[];
+    const static Bitboard diagonal_downwards_right_starters[];           // we can store the 4 diff diag dirs into arrays, fastest
+    const static Bitboard diagonal_downwards_left_starters[];            // way of calculating them
+    const static Bitboard diagonal_upwards_right_starters[];
+    const static Bitboard diagonal_upwards_left_starters[];
 };
 
 #endif

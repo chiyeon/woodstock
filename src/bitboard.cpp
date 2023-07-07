@@ -98,6 +98,7 @@ int Bitboards::bit_count(Bitboard bitboard)
 int * Bitboards::bitboard_to_positions(Bitboard bitboard)
 {
     int * positions = new int[bit_count(bitboard)]{0};
+    
     int positions_index = 0;
     Bitboard filter = get_i(0);
 

@@ -11,12 +11,13 @@ int main()
 
     //test_switchcase_vs_loopbuild_for_diagonals();
 
-    Game g("B6B/8/2B2B2/8/4B3/1B6/5B2/B6B");
+    Game g("8/1N6/8/8/4N3/8/8/8");
     g.print();
 
     int * positions = Bitboards::bitboard_to_positions(g.get_game_bitboard());
-    for (int i = 0; i <= sizeof(positions); ++i) {
-        printf("Found at %d\n", positions[i]);
+    
+    for (int i = 0; i < sizeof(positions) / sizeof(int); ++i) {
+        Bitboards::print(Pieces::get_knight_moves(positions[i] % 8, positions[i] / 8, g));
     }
 
     // Bitboards::print(g.get_game_bitboard());

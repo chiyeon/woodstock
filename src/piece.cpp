@@ -37,6 +37,24 @@ Bitboard Pieces::get_pawn_moves(int x, int y, Game & game)
     return movement;
 }
 
+Bitboard Pieces::get_knight_moves(int x, int y, Game & game)
+{
+    Bitboard movement = 0;
+    Bitboard start = Bitboards::get(x, y);
+
+    // todo fix
+    if (y + 2 < 8 && x + 1 < 8) movement = movement | start >> 17;
+    if (y + 2 < 8 && x - 1 >= 0) movement = movement | start >> 15;
+    if (y + 1 < 8 && x + 2 < 8) movement = movement | start >> 10;
+    if (y + 1 < 8 && x - 2 >= 0) movement = movement | start >> 6;
+    if (y - 2 >= 0 && x + 1 < 8) movement = movement | start << 15;
+    if (y - 2 >= 0 && x - 1 >= 0) movement = movement | start << 17;
+    if (y - 1 >= 0 && x + 2 < 8) movement = movement | start << 6;
+    if (y - 1 >= 0 && x - 2 >= 0) movement = movement | start << 10;
+
+    return movement;
+}
+
 Bitboard Pieces::get_bishop_moves(int x, int y, Game & game)
 {
     return game.movemasks.get_bishop_moves()[x + y * 8];

@@ -73,3 +73,8 @@ Piece Game::get_turn()
 {
     return turn;
 }
+
+Move * Game::get_moves()
+{
+    
+}

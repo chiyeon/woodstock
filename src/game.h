@@ -4,6 +4,7 @@
 #include <map>
 #include "piece.h"
 #include "movemasks.h"
+#include "move.h"
 
 class Game
 {
@@ -26,7 +27,7 @@ public:
     bool is_whites_turn();
     Piece get_turn();
 
-    // get moves()
+    Move * get_moves();
 
 private:
     static std::map<char, Piece> fen_to_piece;

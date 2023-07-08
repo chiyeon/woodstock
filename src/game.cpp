@@ -143,7 +143,7 @@ std::vector<Move> Game::get_moves()
                 {
                     Bitboard piece_moves = Pieces::get_rook_moves(x, y, *this);
 
-                    // get collisions
+                    //get collisions
                     Bitboard collisions = piece_moves & game_bitboard;
                     std::vector<int> collision_positions = Bitboards::bitboard_to_positions(collisions);
                     for (auto pos : collision_positions) {
@@ -165,6 +165,8 @@ std::vector<Move> Game::get_moves()
                     for (auto pos : positions) {
                         moves.push_back(Move(y * 8 + x, pos, piece));
                     }
+
+                    //Bitboards::print(piece_moves);
 
                     break;
                 }

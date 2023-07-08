@@ -9,6 +9,7 @@ class MoveMasks
     Bitboard bishop_moves[64];
 
     void calculate_all_rook_moves(Bitboard * moveset);
+    Bitboard * get_rook_blocker_moves(Bitboard moveset_mask);
     void calculate_all_bishop_moves(Bitboard * moveset);
 
 public:

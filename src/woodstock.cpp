@@ -13,7 +13,8 @@ int main()
     //test_switchcase_vs_loopbuild_for_diagonals();
 
     Game g;
-    g.print();
+    // g.print();
+    // g.get_moves();
 
     measure_count_bulk_positions(g, 1);
     measure_count_bulk_positions(g, 2);

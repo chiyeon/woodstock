@@ -28,6 +28,7 @@ struct Bitboards
     static Bitboard get_diagonal_upwards_left(int x, int y);
 
     static Bitboard board_to_bitboard(Piece * board);
+    static Bitboard board_to_bitboard(Piece * board, Piece color);
     static int bit_count(Bitboard bitboard);
     static std::vector<int> bitboard_to_positions(Bitboard bitboard);
 

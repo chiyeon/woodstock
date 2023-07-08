@@ -12,7 +12,11 @@ class Game
     Piece board[64];
     Piece turn = Pieces::WHITE;
     Bitboard game_bitboard = 0;         // updates everytime move() is used
+    Bitboard white_bitboard = 0;
+    Bitboard black_bitboard = 0;
     // TODO bitboards for pieces, ie white_pawn_bitboard
+
+    std::vector<Move> history;
 
 public:
     MoveMasks movemasks;
@@ -29,6 +33,8 @@ public:
     Piece get_turn();
 
     std::vector<Move> get_moves();
+    void move(Move move);
+    void undo();
 
 private:
     static std::map<char, Piece> fen_to_piece;

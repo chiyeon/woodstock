@@ -1,12 +1,12 @@
 CFILES=src/*.cpp
-CMP_ARGS=-Wall -Wfatal-errors
+CMP_ARGS=-Wall -Wfatal-errors -std=c++20
 
 clean:
 	rm -rf -f build/
 
 build: clean ${CFILES}
 	mkdir build
-	emcc ${CFILES} -o build/index.html
+	emcc ${CMP_ARGS} ${CFILES} -o build/index.html
 
 cbuild: clean ${CFILES}
 	mkdir build

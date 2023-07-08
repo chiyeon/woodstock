@@ -86,6 +86,17 @@ Bitboard Bitboards::board_to_bitboard(Piece * board)
     return bitboard;
 }
 
+Bitboard Bitboards::board_to_bitboard(Piece * board, Piece color)
+{
+    Bitboard bitboard = 0;
+    for (int i = 0; i < 64; ++i) {
+        if (board[i] != 0 && (board[i] & Pieces::FILTER_COLOR) == color) {
+            bitboard |= get_i(i);
+        }
+    }
+    return bitboard;
+}
+
 int Bitboards::bit_count(Bitboard bitboard)
 {
     int count = 0;

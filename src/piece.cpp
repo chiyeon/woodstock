@@ -31,9 +31,9 @@ Bitboard Pieces::get_pawn_moves(int x, int y, Game & game)
 {
     Bitboard movement = Bitboards::get(x, y);
     bool is_black = game.is_blacks_turn();
-    movement = is_black ? movement << 8 : movement >> 8;
-    if ((y == 6 && is_black) || (y == 1 && !is_black)) 
-        movement |= is_black ? movement << 8 : movement >> 8;
+    movement = !is_black ? movement << 8 : movement >> 8;
+    if ((y == 6 && !is_black) || (y == 1 && is_black)) 
+        movement |= !is_black ? movement << 8 : movement >> 8;
     return movement;
 }
 
@@ -58,6 +58,34 @@ Bitboard Pieces::get_knight_moves(int x, int y, Game & game)
 Bitboard Pieces::get_bishop_moves(int x, int y, Game & game)
 {
     return game.movemasks.get_bishop_moves()[x + y * 8];
+}
+
+Bitboard Pieces::get_rook_moves(int x, int y, Game & game)
+{
+    return game.movemasks.get_rook_moves()[x + y * 8];
+}
+
+Bitboard Pieces::get_queen_moves(int x, int y, Game & game)
+{
+    return game.movemasks.get_bishop_moves()[x + y * 8] | game.movemasks.get_rook_moves()[x + y * 8];
+}
+
+Bitboard Pieces::get_king_moves(int x, int y, Game & game)
+{
+    Bitboard movement = 0;
+    Bitboard start = Bitboards::get(x, y);
+
+    // TODO fix
+    if (y < 7) movement |= start >> 8;
+    if (y < 7 && x < 7) movement |= start >> 9;
+    if (y < 7 && x > 0) movement |= start >> 7;
+    if (x > 0) movement |= start << 1;
+    if (x < 7) movement |= start >> 1;
+    if (y > 0) movement |= start << 8;
+    if (y > 0 && x > 0) movement |= start << 9;
+    if (y > 0 && x < 7) movement |= start << 7;
+
+    return movement;
 }
 
 // std::map<Piece, std::string> Pieces::piece_to_name_full = {

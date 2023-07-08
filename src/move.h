@@ -5,21 +5,21 @@
 
 struct Move
 {
-    Bitboard to;
-    Bitboard from;
+    int from;
+    int to;
     Piece piece;
     Piece captured;
 
-    Move(Bitboard to, Bitboard from, Piece piece)
-        : to(to)
-        , from(from)
+    Move(int from, int to, Piece piece)
+        : from(from)
+        , to(to)
         , piece(piece)
         , captured(0)
     { }
 
-    Move(Bitboard to, Bitboard from, Piece piece, Piece captured)
-        : to(to)
-        , from(from)
+    Move(int from, int to, Piece piece, Piece captured)
+        : from(from)
+        , to(to)
         , piece(piece)
         , captured(captured)
     { }

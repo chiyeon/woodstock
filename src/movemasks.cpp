@@ -3,6 +3,16 @@
 #include <vector>
 
 /*
+ * the "naive" approach: using raycasting to 
+ * generate all possible rook moves, accounting for all possible board
+ * combinations & blocking
+ */
+void MoveMasks::generate_rook_moves_at_square_raycasting(int square, Bitboard * moveset)
+{
+
+}
+
+/*
  * calculates bitboards for all possible rook positions. as it is 
  * used for blocking, does NOT include the last square in any particular direction
  */
@@ -22,6 +32,8 @@ void MoveMasks::calculate_all_rook_moves(Bitboard * moveset)
         }
     }
 }
+
+void MoveMasks::
 
 // first we need our "ground truth": get a database of all legal moves by [piece location] and [blockers]
 // given a board moveset, we can claculate

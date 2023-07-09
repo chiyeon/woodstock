@@ -471,7 +471,7 @@ const alphabeta = (game, depth, alpha, beta, maximizing_player) => {
 
     /*
      * so theres some commented out code below:
-    * rustic-chess online supposes that physically sorting the array is a waste of 
+     * rustic-chess online supposes that physically sorting the array is a waste of 
      * computing power as alpha-beta pruning will remove some of these eventualities meaning
      * we are sorting elements we have no need to sort
      * in my experience (thanks js?) there is no difference, so the

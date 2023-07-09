@@ -223,4 +223,3 @@ $("#run-benchmark").on("click", () => {
     measure_count_bulk_positions(4)
  })
 $("#run-benchmark2").on("click", () => { run_benchmark2() })
-

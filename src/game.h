@@ -3,9 +3,12 @@
 
 #include <map>
 #include <vector>
+#include <stack>
 #include "piece.h"
 #include "movemasks.h"
 #include "move.h"
+
+#define PIECES_PER_SIDE 16
 
 class Game
 {
@@ -14,9 +17,15 @@ class Game
     Bitboard game_bitboard = 0;         // updates everytime move() is used
     Bitboard white_bitboard = 0;
     Bitboard black_bitboard = 0;
+
+    int num_white_pieces = 0;
+    int num_black_pieces = 0;
+    int white_piece_positions[PIECES_PER_SIDE];
+    int black_piece_positions[PIECES_PER_SIDE];
+
     // TODO bitboards for pieces, ie white_pawn_bitboard
 
-    std::vector<Move> history;
+    std::stack<Move> history;
 
 public:
     MoveMasks movemasks;

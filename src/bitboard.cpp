@@ -110,6 +110,7 @@ int Bitboards::bit_count(Bitboard bitboard)
 std::vector<int> Bitboards::bitboard_to_positions(Bitboard bitboard)
 {
     std::vector<int> positions;
+    //positions.reserve(64);
     
     Bitboard filter = get_i(0);
 

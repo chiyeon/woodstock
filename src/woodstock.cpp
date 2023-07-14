@@ -17,10 +17,10 @@ int main()
     g.print();
     // g.get_moves();
 
-    // measure_count_bulk_positions(g, 1);
-    // measure_count_bulk_positions(g, 2);
+    measure_count_bulk_positions(g, 1);
+    measure_count_bulk_positions(g, 2);
     measure_count_bulk_positions(g, 3);
-    // measure_count_bulk_positions(g, 4);
+    measure_count_bulk_positions(g, 4);
     // measure_count_bulk_positions(g, 5);
     // measure_count_bulk_positions(g, 6);
 

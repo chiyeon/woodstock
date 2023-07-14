@@ -9,6 +9,7 @@ using Piece = short;
 struct Constants
 {
     const static int BOARD_SIZE = 8;
+    const static int MAX_CHESS_MOVES_PER_POSITION = 218;
 };
 
 #endif

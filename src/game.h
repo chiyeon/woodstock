@@ -31,6 +31,7 @@ public:
     bool is_blacks_turn();
     bool is_whites_turn();
     Piece get_turn();
+    bool in_check();
 
     std::vector<Move> get_moves();
     void move(Move move);

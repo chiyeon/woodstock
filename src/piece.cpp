@@ -37,6 +37,22 @@ Bitboard Pieces::get_pawn_moves(int x, int y, Game & game)
     return movement;
 }
 
+Bitboard Pieces::get_pawn_captures(int x, int y, Game & game)
+{
+    Bitboard start = Bitboards::get(x, y);
+    Bitboard movement = 0;
+
+    if (game.is_blacks_turn()) {
+        movement |= (start >> 7) & Bitboards::NOT_H_FILE;
+        movement |= (start >> 9) & Bitboards::NOT_A_FILE;
+    } else {
+        movement |= (start << 7) & Bitboards::NOT_A_FILE;
+        movement |= (start << 9) & Bitboards::NOT_H_FILE;
+    }
+
+    return movement;
+}
+
 Bitboard Pieces::get_knight_moves(int x, int y, Game & game)
 {
     return game.movemasks.get_knight_moves()[x + y * 8];

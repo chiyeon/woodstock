@@ -13,14 +13,14 @@ int main()
 
     //test_switchcase_vs_loopbuild_for_diagonals();
 
-    Game g("N6N/1N4N1/8/3N4/5N2/8/1N4N1/N6N");
+    Game g;
     // g.print();
     // g.get_moves();
 
     measure_count_bulk_positions(g, 1);
-    // measure_count_bulk_positions(g, 2);
-    // measure_count_bulk_positions(g, 3);
-    // measure_count_bulk_positions(g, 4);
+    measure_count_bulk_positions(g, 2);
+    measure_count_bulk_positions(g, 3);
+    measure_count_bulk_positions(g, 4);
     // measure_count_bulk_positions(g, 5);
     // measure_count_bulk_positions(g, 6);
 

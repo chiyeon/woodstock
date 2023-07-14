@@ -38,6 +38,7 @@ struct Pieces
      */
     
     static Bitboard get_pawn_moves(int x, int y, Game & game);
+    static Bitboard get_pawn_captures(int x, int y, Game & game);
     static Bitboard get_knight_moves(int x, int y, Game & game);
     static Bitboard get_bishop_moves(int x, int y, Game & game);
     static Bitboard get_rook_moves(int x, int y, Game & game);

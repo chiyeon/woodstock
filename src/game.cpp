@@ -101,10 +101,13 @@ std::vector<Move> Game::get_moves()
                 {
                     Bitboard piece_moves = Pieces::get_pawn_moves(x, y, *this);
                     piece_moves &= not_ally_bitboard;
+                    piece_moves |= Pieces::get_pawn_captures(x, y, *this) & axis_bitboard;
+
                     std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
                     for (auto pos : positions) {
                         moves.push_back(Move(i, pos, piece));
                     }
+
                     break;
                 }
                 case Pieces::KNIGHT:
@@ -115,7 +118,6 @@ std::vector<Move> Game::get_moves()
                     for (auto pos : positions) {
                         moves.push_back(Move(i, pos, piece));
                     }
-                    Bitboards::print(piece_moves);
                     break;
                 }
                 case Pieces::BISHOP:
@@ -123,17 +125,29 @@ std::vector<Move> Game::get_moves()
                     // TEMPORARY RAYCASTING METHOD
                     Bitboard piece_moves = 0;
 
-                    // for (int i = x; i < 8; ++i) {
-                    //     Bitboard target_square = Bitboards::get(i, i);
-                    //     piece_moves |= target_square;
-                    //     if (game_bitboard & target_square) break;
-                    // }
+                    for (int i = 1; (x + i < 8) && (y + i < 8); ++i) {
+                        Bitboard target_square = Bitboards::get(x + i, y + i);
+                        piece_moves |= target_square;
+                        if (game_bitboard & target_square) break;
+                    }
 
-                    // for (int i = x; i < 8; ++i) {
-                    //     Bitboard target_square = Bitboards::get(i, 7 - i);
-                    //     piece_moves |= target_square;
-                    //     if (game_bitboard & target_square) break;
-                    // }
+                    for (int i = 1; (x + -i >= 0) && (y + i < 8); ++i) {
+                        Bitboard target_square = Bitboards::get(x - i, y + i);
+                        piece_moves |= target_square;
+                        if (game_bitboard & target_square) break;
+                    }
+
+                    for (int i = 1; (x + i < 8) && (y + -i >= 0); ++i) {
+                        Bitboard target_square = Bitboards::get(x + i, y - i);
+                        piece_moves |= target_square;
+                        if (game_bitboard & target_square) break;
+                    }
+
+                    for (int i = 1; (x + -i >= 0) && (y + -i >= 0); ++i) {
+                        Bitboard target_square = Bitboards::get(x - i, y - i);
+                        piece_moves |= target_square;
+                        if (game_bitboard & target_square) break;
+                    }
 
                     piece_moves &= not_ally_bitboard;
 
@@ -192,30 +206,54 @@ std::vector<Move> Game::get_moves()
                     // temporary raycasting method
                     Bitboard piece_moves = 0;
 
-                    for (int i = x; i < 8; ++i) {
+                    for (int i = x + 1; i < 8; ++i) {
                         Bitboard target_square = Bitboards::get(i, y);
                         // if there is a piece on target square, bye bye
                         piece_moves |= target_square;
                         if (game_bitboard & target_square) break;
                     }
 
-                    for (int i = x; i >= 0; --i) {
+                    for (int i = x - 1; i >= 0; --i) {
                         Bitboard target_square = Bitboards::get(i, y);
                         // if there is a piece on target square, bye bye
                         piece_moves |= target_square;
                         if (game_bitboard & target_square) break;
                     }
 
-                    for (int i = y; i < 8; ++i) {
+                    for (int i = y + 1; i < 8; ++i) {
                         Bitboard target_square = Bitboards::get(x, i);
                         // if there is a piece on target square, bye bye
                         piece_moves |= target_square;
                         if (game_bitboard & target_square) break;
                     }
 
-                    for (int i = y; i >= 0; --i) {
+                    for (int i = y - 1; i >= 0; --i) {
                         Bitboard target_square = Bitboards::get(x, i);
                         // if there is a piece on target square, bye bye
+                        piece_moves |= target_square;
+                        if (game_bitboard & target_square) break;
+                    }
+
+                    for (int i = 1; (x + i < 8) && (y + i < 8); ++i) {
+                        Bitboard target_square = Bitboards::get(x + i, y + i);
+                        piece_moves |= target_square;
+                        if (game_bitboard & target_square) break;
+                    }
+
+                    for (int i = 1; (x + -i >= 0) && (y + i < 8); ++i) {
+                        Bitboard target_square = Bitboards::get(x - i, y + i);
+                        piece_moves |= target_square;
+                        if (game_bitboard & target_square) break;
+                    }
+
+                    for (int i = 1; (x + i < 8) && (y + -i >= 0); ++i) {
+                        Bitboard target_square = Bitboards::get(x + i, y - i);
+                        piece_moves |= target_square;
+                        if (game_bitboard & target_square) break;
+                    }
+
+                    for (int i = 1; (x + -i >= 0) && (y + -i >= 0); ++i) {
+                        Bitboard target_square = Bitboards::get(x - i, y - i);
                         piece_moves |= target_square;
                         if (game_bitboard & target_square) break;
                     }

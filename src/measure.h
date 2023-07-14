@@ -20,6 +20,10 @@ int count_bulk_positions(Game game, int depth, bool print_positions = false) {
 
     for (int i = 0; i < moves.size(); ++i) {
         game.move(moves[i]);
+        if (depth == 1) {
+            game.print();
+            printf("\n");
+        }
         if (print_positions) game.print();
         count += count_bulk_positions(game, depth - 1, print_positions);
         game.undo();

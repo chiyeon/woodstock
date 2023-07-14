@@ -46,6 +46,8 @@ void Game::print()
         }
         printf("\n");
     }
+    Bitboards::print(black_bitboard);
+    Bitboards::print(white_bitboard);
 }
 
 Bitboard Game::get_game_bitboard()
@@ -101,11 +103,12 @@ std::vector<Move> Game::get_moves()
                 {
                     Bitboard piece_moves = Pieces::get_pawn_moves(x, y, *this);
                     piece_moves &= not_ally_bitboard;
-                    piece_moves |= Pieces::get_pawn_captures(x, y, *this) & axis_bitboard;
+                    piece_moves |= (Pieces::get_pawn_captures(x, y, *this) & axis_bitboard);
 
                     std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
                     for (auto pos : positions) {
-                        moves.push_back(Move(i, pos, piece));
+                        int captured = board[pos];
+                        moves.push_back(Move(i, pos, piece, captured));
                     }
 
                     break;
@@ -116,7 +119,8 @@ std::vector<Move> Game::get_moves()
                     piece_moves &= not_ally_bitboard;
                     std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
                     for (auto pos : positions) {
-                        moves.push_back(Move(i, pos, piece));
+                        int captured = board[pos];
+                        moves.push_back(Move(i, pos, piece, captured));
                     }
                     break;
                 }
@@ -153,7 +157,8 @@ std::vector<Move> Game::get_moves()
 
                     std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
                     for (auto pos : positions) {
-                        moves.push_back(Move(y * 8 + x, pos, piece));
+                        int captured = board[pos];
+                        moves.push_back(Move(i, pos, piece, captured));
                     }
                     // Bitboards::print(piece_moves);
                     break;
@@ -195,7 +200,8 @@ std::vector<Move> Game::get_moves()
 
                     std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
                     for (auto pos : positions) {
-                        moves.push_back(Move(y * 8 + x, pos, piece));
+                        int captured = board[pos];
+                        moves.push_back(Move(i, pos, piece, captured));
                     }
 
 
@@ -262,7 +268,8 @@ std::vector<Move> Game::get_moves()
 
                     std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
                     for (auto pos : positions) {
-                        moves.push_back(Move(y * 8 + x, pos, piece));
+                        int captured = board[pos];
+                        moves.push_back(Move(i, pos, piece, captured));
                     }
                     break;
                 }
@@ -272,7 +279,8 @@ std::vector<Move> Game::get_moves()
                     piece_moves &= not_ally_bitboard;
                     std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
                     for (auto pos : positions) {
-                        moves.push_back(Move(y * 8 + x, pos, piece));
+                        int captured = board[pos];
+                        moves.push_back(Move(i, pos, piece, captured));
                     }
                     break;
                 }
@@ -331,10 +339,12 @@ void Game::undo()
     Bitboard from_bitboard = Bitboards::get_i(last_move.from);
     Bitboard to_bitboard = Bitboards::get_i(last_move.to);
 
+    // put piece back in from, only remove piece at to if there was nothing there
+    // in the first place (we didn't capture)
     game_bitboard |= from_bitboard;
-    game_bitboard ^= to_bitboard;
+    if (last_move.captured == 0) game_bitboard ^= to_bitboard;
 
-    if (is_blacks_turn()) {
+    if (!is_blacks_turn()) {
         black_bitboard |= from_bitboard;
         black_bitboard ^= to_bitboard;
 
@@ -360,5 +370,4 @@ void Game::undo()
 
     // flip sides
     turn = is_blacks_turn() ? Pieces::WHITE : Pieces::BLACK;
-
 }

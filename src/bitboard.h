@@ -45,6 +45,10 @@ struct Bitboards
     const static Bitboard NOT_H_FILE;
     const static Bitboard NOT_AB_FILE;
     const static Bitboard NOT_GH_FILE;
+    const static Bitboard ROW_1;
+    const static Bitboard ROW_8;
+    const static Bitboard NOT_ROW_1;
+    const static Bitboard NOT_ROW_8;
 };
 
 #endif

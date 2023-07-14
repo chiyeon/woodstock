@@ -94,11 +94,53 @@ void MoveMasks::calculate_all_bishop_moves(Bitboard * moveset)
     }
 }
 
+void MoveMasks::calculate_all_queen_moves(Bitboard * moveset)
+{
+    for (int y = 0; y < 8; ++y) {
+        for (int x = 0; x < 8; ++x) {
+            int i = x + y * 8;
+            moveset[i] = rook_moves[i] ^ bishop_moves[i];
+        }
+    }
+}
+
+void MoveMasks::calculate_all_king_moves(Bitboard * moveset)
+{
+
+    for (int y = 0; y < 8; ++y) {
+        for (int x = 0; x < 8; ++x) {
+            int i = x + y * 8;
+            Bitboard movement = 0;
+            Bitboard start = Bitboards::get(x, y);
+
+            // cases for top mobility
+            if (start & Bitboards::NOT_ROW_1) {
+                movement |= (start << 8);
+                movement |= (start << 9) & Bitboards::NOT_H_FILE;
+                movement |= (start << 7) & Bitboards::NOT_A_FILE;
+            }
+
+            if (start & Bitboards::NOT_ROW_8) {
+                movement |= (start >> 8);
+                movement |= (start >> 9) & Bitboards::NOT_A_FILE;
+                movement |= (start >> 7) & Bitboards::NOT_H_FILE;
+            }
+
+            movement |= (start >> 1) & Bitboards::NOT_A_FILE;
+            movement |= (start << 1) & Bitboards::NOT_H_FILE;
+
+            moveset[i] = movement;
+        }
+    }
+}
+
 MoveMasks::MoveMasks()
 {
     calculate_all_knight_moves(knight_moves);
     calculate_all_rook_moves(rook_moves);
     calculate_all_bishop_moves(bishop_moves);
+    calculate_all_queen_moves(queen_moves);     // calculate after bishop and rook...
+    calculate_all_king_moves(king_moves);
 }
 
 Bitboard * MoveMasks::get_rook_moves()
@@ -114,4 +156,14 @@ Bitboard * MoveMasks::get_bishop_moves()
 Bitboard * MoveMasks::get_knight_moves()
 {
     return knight_moves;
+}
+
+Bitboard * MoveMasks::get_queen_moves()
+{
+    return queen_moves;
+}
+
+Bitboard * MoveMasks::get_king_moves()
+{
+    return king_moves;
 }

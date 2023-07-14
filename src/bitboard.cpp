@@ -123,6 +123,11 @@ std::vector<int> Bitboards::bitboard_to_positions(Bitboard bitboard)
     return positions;
 }
 
+/*
+ * these were primarily created for fast bishop diagonal
+ * calculations... the speed (while it is there) isn't necessary
+ * anymore. but its already here so *shrugs*
+ */
 const Bitboard Bitboards::diagonal_downwards_right_starters[] = {
     0b0000000001000000001000000001000000001000000001000000001000000001,
     0b0000000001000000001000000001000000001000000001000000001000000000,
@@ -175,3 +180,7 @@ const Bitboard Bitboards::NOT_A_FILE = ~A_FILE;
 const Bitboard Bitboards::NOT_H_FILE = ~H_FILE;
 const Bitboard Bitboards::NOT_AB_FILE = ~AB_FILE;
 const Bitboard Bitboards::NOT_GH_FILE = ~GH_FILE;
+const Bitboard Bitboards::ROW_1 = get_row(0);
+const Bitboard Bitboards::ROW_8 = get_row(7);
+const Bitboard Bitboards::NOT_ROW_1 = ~get_row(0);
+const Bitboard Bitboards::NOT_ROW_8 = ~get_row(7);

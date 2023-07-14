@@ -95,26 +95,26 @@ std::vector<Move> Game::get_moves()
                 case Pieces::PAWN:
                 {
                     Bitboard piece_moves = Pieces::get_pawn_moves(x, y, *this);
-                    piece_moves &= ~(is_blacks_turn() ? black_bitboard : white_bitboard);
-                    // std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
-                    // for (auto pos : positions) {
-                    //     moves.push_back(Move(i, pos, piece));
-                    // }
+                    // piece_moves &= ~(is_blacks_turn() ? black_bitboard : white_bitboard);
+                    std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
+                    for (auto pos : positions) {
+                        moves.push_back(Move(i, pos, piece));
+                    }
                     break;
                 }
                 case Pieces::KNIGHT:
                 {
                     Bitboard piece_moves = Pieces::get_knight_moves(x, y, *this);
-                    piece_moves &= ~(is_blacks_turn() ? black_bitboard : white_bitboard);
-                    // std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
-                    // for (auto pos : positions) {
-                    //     moves.push_back(Move(i, pos, piece));
-                    // }
+                    // piece_moves &= ~(is_blacks_turn() ? black_bitboard : white_bitboard);
+                    std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
+                    for (auto pos : positions) {
+                        moves.push_back(Move(i, pos, piece));
+                    }
                     break;
                 }
                 case Pieces::BISHOP:
                 {
-                  //   Bitboard piece_moves = Pieces::get_bishop_moves(x, y, *this);
+                    Bitboard piece_moves = Pieces::get_bishop_moves(x, y, *this);
 
                   //   // get collisions
                   //   Bitboard collisions = piece_moves & game_bitboard;
@@ -134,15 +134,15 @@ std::vector<Move> Game::get_moves()
                   //       }
                   //   }
 
-                  //   std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
-                  //   for (auto pos : positions) {
-                  //       moves.push_back(Move(y * 8 + x, pos, piece));
-                  //   }
-                  //   break;
+                    std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
+                    for (auto pos : positions) {
+                        moves.push_back(Move(y * 8 + x, pos, piece));
+                    }
+                    break;
                 }
                 case Pieces::ROOK:
                 {
-                  //   Bitboard piece_moves = Pieces::get_rook_moves(x, y, *this);
+                    Bitboard piece_moves = Pieces::get_rook_moves(x, y, *this);
 
                   //   //get collisions
                   //   Bitboard collisions = piece_moves & game_bitboard;
@@ -162,16 +162,35 @@ std::vector<Move> Game::get_moves()
                   //       }
                   //   }
 
-                  //   std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
-                  //   for (auto pos : positions) {
-                  //       moves.push_back(Move(y * 8 + x, pos, piece));
-                  //   }
+                    std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
+                    for (auto pos : positions) {
+                        moves.push_back(Move(y * 8 + x, pos, piece));
+                    }
 
-                  //   //Bitboards::print(piece_moves);
+                    //Bitboards::print(piece_moves);
 
-                  //   break;
+                    break;
                 }
-                // TODO others
+                case Pieces::QUEEN:
+                {
+                    Bitboard piece_moves = Pieces::get_queen_moves(x, y, *this);
+
+                    std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
+                    for (auto pos : positions) {
+                        moves.push_back(Move(y * 8 + x, pos, piece));
+                    }
+                    break;
+                }
+                case Pieces::KING:
+                {
+                    Bitboard piece_moves = Pieces::get_king_moves(x, y, *this);
+
+                    std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
+                    for (auto pos : positions) {
+                        moves.push_back(Move(y * 8 + x, pos, piece));
+                    }
+                    break;
+                }
             }
         }
     }

@@ -2,6 +2,7 @@
 #include <vector>
 #include "game.h"
 #include "measure.h"
+#include "bitboard.h"
 
 int main()
 {
@@ -15,6 +16,8 @@ int main()
     Game g;
     // g.print();
     // g.get_moves();
+
+    Bitboards::print(Bitboards::ROW_1);    
 
     measure_count_bulk_positions(g, 1);
     measure_count_bulk_positions(g, 2);

@@ -54,27 +54,12 @@ Bitboard Pieces::get_rook_moves(int x, int y, Game & game)
 
 Bitboard Pieces::get_queen_moves(int x, int y, Game & game)
 {
-    return game.movemasks.get_bishop_moves()[x + y * 8] | game.movemasks.get_rook_moves()[x + y * 8];
+    return game.movemasks.get_queen_moves()[x + y * 8];
 }
 
 Bitboard Pieces::get_king_moves(int x, int y, Game & game)
 {
-    Bitboard movement = 0;
-    Bitboard start = Bitboards::get(x, y);
-
-    
-
-    // TODO fix
-    if (y < 7) movement |= start >> 8;
-    if (y < 7 && x < 7) movement |= start >> 9;
-    if (y < 7 && x > 0) movement |= start >> 7;
-    if (x > 0) movement |= start << 1;
-    if (x < 7) movement |= start >> 1;
-    if (y > 0) movement |= start << 8;
-    if (y > 0 && x > 0) movement |= start << 9;
-    if (y > 0 && x < 7) movement |= start << 7;
-
-    return movement;
+    return game.movemasks.get_king_moves()[x + y * 8];
 }
 
 // std::map<Piece, std::string> Pieces::piece_to_name_full = {

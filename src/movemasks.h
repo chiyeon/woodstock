@@ -8,6 +8,8 @@ class MoveMasks
     Bitboard knight_moves[64];
     Bitboard rook_moves[64];
     Bitboard bishop_moves[64];
+    Bitboard queen_moves[64];
+    Bitboard king_moves[64];
 
     void generate_rook_moves_at_square_raycasting(int square, Bitboard * moveset);
     
@@ -17,12 +19,16 @@ class MoveMasks
     Bitboard * get_rook_blocker_moves(Bitboard moveset_mask);
 
     void calculate_all_bishop_moves(Bitboard * moveset);
+    void calculate_all_queen_moves(Bitboard * moveset);
+    void calculate_all_king_moves(Bitboard * moveset);
 
 public:
     MoveMasks();
     Bitboard * get_knight_moves();
     Bitboard * get_rook_moves();
     Bitboard * get_bishop_moves();
+    Bitboard * get_queen_moves();
+    Bitboard * get_king_moves();
 };
 
 #endif

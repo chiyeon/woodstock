@@ -21,7 +21,7 @@ int main()
     measure_count_bulk_positions(g, 2);
     measure_count_bulk_positions(g, 3);
     measure_count_bulk_positions(g, 4);
-    // measure_count_bulk_positions(g, 5);
+    measure_count_bulk_positions(g, 5);
     // measure_count_bulk_positions(g, 6);
 
     // auto run_get_moves = [&]() {

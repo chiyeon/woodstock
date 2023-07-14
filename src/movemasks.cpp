@@ -11,14 +11,14 @@ void MoveMasks::calculate_all_knight_moves(Bitboard * moveset)
             Bitboard start = Bitboards::get(x, y);
             Bitboard movement = 0;
 
-            movement |= (start >> 17)   & Bitboards::NOT_H_FILE;
-            movement |= (start >> 15)   & Bitboards::NOT_A_FILE;
-            movement |= (start >> 10)   & Bitboards::NOT_GH_FILE;
-            movement |= (start >> 6)    & Bitboards::NOT_AB_FILE;
-            movement |= (start << 17)   & Bitboards::NOT_A_FILE;
-            movement |= (start << 15)   & Bitboards::NOT_H_FILE;
-            movement |= (start << 10)   & Bitboards::NOT_AB_FILE;
-            movement |= (start << 6)    & Bitboards::NOT_GH_FILE;
+            movement |= (start >> 17)   & Bitboards::NOT_A_FILE;
+            movement |= (start >> 15)   & Bitboards::NOT_H_FILE;
+            movement |= (start >> 10)   & Bitboards::NOT_AB_FILE;
+            movement |= (start >> 6)    & Bitboards::NOT_GH_FILE;
+            movement |= (start << 17)   & Bitboards::NOT_H_FILE;
+            movement |= (start << 15)   & Bitboards::NOT_A_FILE;
+            movement |= (start << 10)   & Bitboards::NOT_GH_FILE;
+            movement |= (start << 6)    & Bitboards::NOT_AB_FILE;
 
             moveset[i] = movement;
         }

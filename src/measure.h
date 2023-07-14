@@ -15,7 +15,8 @@ float measure(auto fn)
 int count_bulk_positions(Game game, int depth, bool print_positions = false) {
     if (depth <= 0) return 1;
 
-    std::vector<Move> moves = game.get_moves();
+    std::vector<Move> moves;
+    game.get_moves(moves);
     int count = 0;
 
     for (int i = 0; i < moves.size(); ++i) {

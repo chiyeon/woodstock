@@ -42,7 +42,7 @@ public:
     Piece get_turn();
     bool in_check();
 
-    std::vector<Move> get_moves();
+    void get_moves(std::vector<Move> & moves);
     void move(Move move);
     void undo();
 

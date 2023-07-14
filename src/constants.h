@@ -10,6 +10,7 @@ struct Constants
 {
     const static int BOARD_SIZE = 8;
     const static int MAX_CHESS_MOVES_PER_POSITION = 218;
+    const static int MAX_NUM_SQUARES = 27; // maximum number of moves that can be made by one piece in one turn
 };
 
 #endif

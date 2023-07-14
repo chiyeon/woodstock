@@ -35,8 +35,10 @@ void Game::read_fen(Piece * board, std::string fen)
     black_bitboard = Bitboards::board_to_bitboard(board, Pieces::BLACK);
 
     // this is actually broken if we arent playing on a standard board (more than 16 pieces per side)
-    std::vector<int> white_pieces = Bitboards::bitboard_to_positions(white_bitboard);
-    std::vector<int> black_pieces = Bitboards::bitboard_to_positions(black_bitboard);
+    std::vector<int> white_pieces;
+    std::vector<int> black_pieces;
+    Bitboards::bitboard_to_positions(white_pieces, white_bitboard);
+    Bitboards::bitboard_to_positions(black_pieces, black_bitboard);
     for (int i = 0; i < PIECES_PER_SIDE; ++i) {
         white_piece_positions[num_white_pieces++] = white_pieces[i];
         black_piece_positions[num_black_pieces++] = black_pieces[i];
@@ -236,9 +238,8 @@ bool Game::in_check()
     return attacking_squares & king_position;
 }
 
-std::vector<Move> Game::get_moves()
+void Game::get_moves(std::vector<Move> & moves)
 {
-    std::vector<Move> moves;
     moves.reserve(Constants::MAX_CHESS_MOVES_PER_POSITION);
 
     Bitboard not_game_bitboard = ~game_bitboard;
@@ -398,7 +399,8 @@ std::vector<Move> Game::get_moves()
 
         piece_moves &= not_ally_bitboard;
 
-        std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
+        std::vector<int> positions;
+        Bitboards::bitboard_to_positions(positions, piece_moves);
         for (auto & target_pos : positions) {
             int captured = board[target_pos];
             Move potential_move(pos, target_pos, piece, captured);
@@ -410,8 +412,6 @@ std::vector<Move> Game::get_moves()
             undo();
         }
     }
-
-    return moves;
 }
 
 void Game::move(Move move)

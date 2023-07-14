@@ -95,6 +95,7 @@ bool Game::in_check()
     Bitboard axis_bitboard = is_whites_turn() ? black_bitboard : white_bitboard;
     Bitboard ally_bitboard = is_whites_turn() ? white_bitboard : black_bitboard;
     Bitboard king_position = 0;
+    // Piece target_king = (Pieces::KING | (is_whites_turn() ? Pieces::WHITE : Pieces::BLACK));
 
     for (int x = 0; x < 8; ++x) {
         for (int y = 0; y < 8; ++y) {
@@ -270,13 +271,6 @@ std::vector<Move> Game::get_moves()
         int y = pos / 8;
         Piece piece = board[pos];
 
-    // for (int x = 0; x < 8; ++x) {
-    //     for (int y = 0; y < 8; ++y) {
-    //         int pos = y * 8 + x;
-    //     Piece piece = board[pos];
-
-    //     if (piece == 0 || (piece & Pieces::FILTER_COLOR) != turn) continue;
-
         Bitboard piece_moves = 0;
         // for every piece, get moves based on type
         switch (piece & Pieces::FILTER_PIECE) {
@@ -410,8 +404,7 @@ std::vector<Move> Game::get_moves()
             Move potential_move(pos, target_pos, piece, captured);
 
             move(potential_move);
-            bool is_in_check = in_check();
-            if (!is_in_check) {
+            if (!in_check()) {
                 moves.push_back(potential_move);
             }
             undo();

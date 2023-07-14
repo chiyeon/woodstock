@@ -6,7 +6,7 @@ clean:
 
 build: clean ${CFILES}
 	mkdir build
-	emcc ${CMP_ARGS} ${CFILES} -o build/index.html
+	emcc -flto -O2 ${CMP_ARGS} ${CFILES} -o build/index.html
 
 cbuild: clean ${CFILES}
 	mkdir build

@@ -106,7 +106,6 @@ void MoveMasks::calculate_all_queen_moves(Bitboard * moveset)
 
 void MoveMasks::calculate_all_king_moves(Bitboard * moveset)
 {
-
     for (int y = 0; y < 8; ++y) {
         for (int x = 0; x < 8; ++x) {
             int i = x + y * 8;
@@ -114,17 +113,17 @@ void MoveMasks::calculate_all_king_moves(Bitboard * moveset)
             Bitboard start = Bitboards::get(x, y);
 
             // cases for top mobility
-            if (start & Bitboards::NOT_ROW_1) {
+            // if (start & Bitboards::NOT_ROW_1) {
                 movement |= (start << 8);
                 movement |= (start << 9) & Bitboards::NOT_H_FILE;
                 movement |= (start << 7) & Bitboards::NOT_A_FILE;
-            }
+            // }
 
-            if (start & Bitboards::NOT_ROW_8) {
+            // if (start & Bitboards::NOT_ROW_8) {
                 movement |= (start >> 8);
                 movement |= (start >> 9) & Bitboards::NOT_A_FILE;
                 movement |= (start >> 7) & Bitboards::NOT_H_FILE;
-            }
+            // }
 
             movement |= (start >> 1) & Bitboards::NOT_A_FILE;
             movement |= (start << 1) & Bitboards::NOT_H_FILE;

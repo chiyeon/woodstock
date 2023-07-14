@@ -46,6 +46,7 @@ void Game::print()
         }
         printf("\n");
     }
+    printf("\n");
 }
 
 Bitboard Game::get_game_bitboard()
@@ -83,14 +84,21 @@ bool Game::in_check()
     Bitboard attacking_squares = 0;
     Bitboard axis_bitboard = is_whites_turn() ? black_bitboard : white_bitboard;
     Bitboard ally_bitboard = is_whites_turn() ? white_bitboard : black_bitboard;
-    std::vector<int> enemy_positions = Bitboards::bitboard_to_positions(axis_bitboard);
-    for (auto pos : enemy_positions) {
-        int x = pos % 8;
-        int y = pos / 8;
-        Bitboard piece_moves = 0;
-        switch (board[pos] & Pieces::FILTER_PIECE) {
+    Bitboard king_position = 0;
+
+    for (int x = 0; x < 8; ++x) {
+        for (int y = 0; y < 8; ++y) {
+            int index = y * 8 + x;
+            if (board[index] == Pieces::EMPTY) continue;
+            if (board[index] == Pieces::KING | (is_whites_turn() ? Pieces::WHITE : Pieces::BLACK)) {
+                king_position = Bitboards::get_i(index);
+                continue;
+            } else if ((board[index] & Pieces::FILTER_COLOR) != turn) continue;
+
+            Bitboard piece_moves = 0;
+        switch (board[index] & Pieces::FILTER_PIECE) {
             case Pieces::PAWN:
-                piece_moves |= (Pieces::get_pawn_captures(x, y, *this) & axis_bitboard);
+                piece_moves = (Pieces::get_pawn_captures(x, y, *this) & axis_bitboard);
                 break;
             case Pieces::KNIGHT:
                 piece_moves = Pieces::get_knight_moves(x, y, *this);
@@ -206,20 +214,12 @@ bool Game::in_check()
                 }
                 break;
             case Pieces::KING:
-                Bitboard piece_moves = Pieces::get_king_moves(x, y, *this);
+                piece_moves = Pieces::get_king_moves(x, y, *this);
                 break;
         }
     
         attacking_squares |= piece_moves;
-    }
-
-    Bitboard king_position;
-    for (int i = 0; i < 64; ++i) {
-        Piece target = Pieces::KING | (is_whites_turn() ? Pieces::WHITE : Pieces::BLACK);
-        if (board[i] == target) {
-            king_position = Bitboards::get_i(i);
-            break;
-        }
+        }   
     }
 
     return attacking_squares & king_position;
@@ -230,6 +230,7 @@ std::vector<Move> Game::get_moves()
     std::vector<Move> moves;
     moves.reserve(Constants::MAX_CHESS_MOVES_PER_POSITION);
 
+    Bitboard not_game_bitboard = ~game_bitboard;
     Bitboard axis_bitboard = is_whites_turn() ? black_bitboard : white_bitboard;
     Bitboard ally_bitboard = is_whites_turn() ? white_bitboard : black_bitboard;
     Bitboard not_axis_bitboard = ~axis_bitboard;
@@ -248,7 +249,7 @@ std::vector<Move> Game::get_moves()
             // for every piece, get moves based on type
             switch (piece & Pieces::FILTER_PIECE) {
                 case Pieces::PAWN:
-                    piece_moves = Pieces::get_pawn_moves(x, y, *this);
+                    piece_moves = Pieces::get_pawn_moves(x, y, *this) & not_game_bitboard;
                     piece_moves |= (Pieces::get_pawn_captures(x, y, *this) & axis_bitboard);
                     break;
                 case Pieces::KNIGHT:
@@ -365,7 +366,7 @@ std::vector<Move> Game::get_moves()
                     }
                     break;
                 case Pieces::KING:
-                    Bitboard piece_moves = Pieces::get_king_moves(x, y, *this);
+                    piece_moves = Pieces::get_king_moves(x, y, *this);
                     break;
             }
 
@@ -377,7 +378,8 @@ std::vector<Move> Game::get_moves()
                 Move potential_move(i, pos, piece, captured);
 
                 move(potential_move);
-                if (!in_check()) {
+                bool is_in_check = in_check();
+                if (!is_in_check) {
                     moves.push_back(potential_move);
                 }
                 undo();

@@ -32,7 +32,9 @@ Bitboard Pieces::get_pawn_moves(int x, int y, Game & game)
     Bitboard movement = Bitboards::get(x, y);
     bool is_black = game.is_blacks_turn();
     movement = !is_black ? movement << 8 : movement >> 8;
-    if ((y == 6 && !is_black) || (y == 1 && is_black)) 
+    if (
+        (y == 6 && !is_black && game.get(x, y - 1) == Pieces::EMPTY)
+        || (y == 1 && is_black) && game.get(x, y + 1) == Pieces::EMPTY) 
         movement |= !is_black ? movement << 8 : movement >> 8;
     return movement;
 }

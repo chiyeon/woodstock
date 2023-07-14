@@ -85,6 +85,7 @@ std::vector<Move> Game::get_moves()
     // get rid of this looping someday...
     for (int x = 0; x < 8; ++x) {
         for (int y = 0; y < 8; ++y) {
+            int i = y * 8 + x;
             Piece piece = board[y * 8 + x];
             
             if (piece == 0 || (piece & Pieces::FILTER_COLOR) != turn) continue;
@@ -95,80 +96,80 @@ std::vector<Move> Game::get_moves()
                 {
                     Bitboard piece_moves = Pieces::get_pawn_moves(x, y, *this);
                     piece_moves &= ~(is_blacks_turn() ? black_bitboard : white_bitboard);
-                    std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
-                    for (auto pos : positions) {
-                        moves.push_back(Move(y * 8 + x, pos, piece));
-                    }
+                    // std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
+                    // for (auto pos : positions) {
+                    //     moves.push_back(Move(i, pos, piece));
+                    // }
                     break;
                 }
                 case Pieces::KNIGHT:
                 {
                     Bitboard piece_moves = Pieces::get_knight_moves(x, y, *this);
                     piece_moves &= ~(is_blacks_turn() ? black_bitboard : white_bitboard);
-                    std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
-                    for (auto pos : positions) {
-                        moves.push_back(Move(y * 8 + x, pos, piece));
-                    }
+                    // std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
+                    // for (auto pos : positions) {
+                    //     moves.push_back(Move(i, pos, piece));
+                    // }
                     break;
                 }
                 case Pieces::BISHOP:
                 {
-                    Bitboard piece_moves = Pieces::get_bishop_moves(x, y, *this);
+                  //   Bitboard piece_moves = Pieces::get_bishop_moves(x, y, *this);
 
-                    // get collisions
-                    Bitboard collisions = piece_moves & game_bitboard;
-                    std::vector<int> collision_positions = Bitboards::bitboard_to_positions(collisions);
-                    for (auto pos : collision_positions) {
-                        int col_x = pos % 8;
-                        int col_y = pos / 8;
+                  //   // get collisions
+                  //   Bitboard collisions = piece_moves & game_bitboard;
+                  //   std::vector<int> collision_positions = Bitboards::bitboard_to_positions(collisions);
+                  //   for (auto pos : collision_positions) {
+                  //       int col_x = pos % 8;
+                  //       int col_y = pos / 8;
 
-                        if (col_x > x && col_y > y) {
-                            piece_moves &= ~Bitboards::get_diagonal_downwards_right(x, y);
-                        } else if (col_x < x && col_y > y){
-                            piece_moves &= ~Bitboards::get_diagonal_downwards_left(x, y);
-                        } else if (col_x < x && col_y < y){
-                            piece_moves &= ~Bitboards::get_diagonal_upwards_left(x, y);
-                        } else if (col_x > x && col_y < y){
-                            piece_moves &= ~Bitboards::get_diagonal_upwards_right(x, y);
-                        }
-                    }
+                  //       if (col_x > x && col_y > y) {
+                  //           piece_moves &= ~Bitboards::get_diagonal_downwards_right(x, y);
+                  //       } else if (col_x < x && col_y > y){
+                  //           piece_moves &= ~Bitboards::get_diagonal_downwards_left(x, y);
+                  //       } else if (col_x < x && col_y < y){
+                  //           piece_moves &= ~Bitboards::get_diagonal_upwards_left(x, y);
+                  //       } else if (col_x > x && col_y < y){
+                  //           piece_moves &= ~Bitboards::get_diagonal_upwards_right(x, y);
+                  //       }
+                  //   }
 
-                    std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
-                    for (auto pos : positions) {
-                        moves.push_back(Move(y * 8 + x, pos, piece));
-                    }
-                    break;
+                  //   std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
+                  //   for (auto pos : positions) {
+                  //       moves.push_back(Move(y * 8 + x, pos, piece));
+                  //   }
+                  //   break;
                 }
                 case Pieces::ROOK:
                 {
-                    Bitboard piece_moves = Pieces::get_rook_moves(x, y, *this);
+                  //   Bitboard piece_moves = Pieces::get_rook_moves(x, y, *this);
 
-                    //get collisions
-                    Bitboard collisions = piece_moves & game_bitboard;
-                    std::vector<int> collision_positions = Bitboards::bitboard_to_positions(collisions);
-                    for (auto pos : collision_positions) {
-                        int col_x = pos % 8;
-                        int col_y = pos / 8;
+                  //   //get collisions
+                  //   Bitboard collisions = piece_moves & game_bitboard;
+                  //   std::vector<int> collision_positions = Bitboards::bitboard_to_positions(collisions);
+                  //   for (auto pos : collision_positions) {
+                  //       int col_x = pos % 8;
+                  //       int col_y = pos / 8;
 
-                        if (col_x > x) {
-                            piece_moves &= ~Bitboards::get_row_segment(y, col_x + 1, 7);
-                        } else if (col_x < x){
-                            piece_moves &= ~Bitboards::get_row_segment(y, 0, col_x - 1);
-                        } else if (col_y > y){
-                            piece_moves &= ~Bitboards::get_column_segment(x, col_y + 1, 7);
-                        } else if (col_y < y){
-                            piece_moves &= ~Bitboards::get_column_segment(x, 0, col_y - 1);
-                        }
-                    }
+                  //       if (col_x > x) {
+                  //           piece_moves &= ~Bitboards::get_row_segment(y, col_x + 1, 7);
+                  //       } else if (col_x < x){
+                  //           piece_moves &= ~Bitboards::get_row_segment(y, 0, col_x - 1);
+                  //       } else if (col_y > y){
+                  //           piece_moves &= ~Bitboards::get_column_segment(x, col_y + 1, 7);
+                  //       } else if (col_y < y){
+                  //           piece_moves &= ~Bitboards::get_column_segment(x, 0, col_y - 1);
+                  //       }
+                  //   }
 
-                    std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
-                    for (auto pos : positions) {
-                        moves.push_back(Move(y * 8 + x, pos, piece));
-                    }
+                  //   std::vector<int> positions = Bitboards::bitboard_to_positions(piece_moves);
+                  //   for (auto pos : positions) {
+                  //       moves.push_back(Move(y * 8 + x, pos, piece));
+                  //   }
 
-                    //Bitboards::print(piece_moves);
+                  //   //Bitboards::print(piece_moves);
 
-                    break;
+                  //   break;
                 }
                 // TODO others
             }

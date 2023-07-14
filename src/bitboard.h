@@ -36,6 +36,15 @@ struct Bitboards
     const static Bitboard diagonal_downwards_left_starters[];            // way of calculating them
     const static Bitboard diagonal_upwards_right_starters[];
     const static Bitboard diagonal_upwards_left_starters[];
+
+    const static Bitboard A_FILE;
+    const static Bitboard H_FILE;
+    const static Bitboard AB_FILE;
+    const static Bitboard GH_FILE;
+    const static Bitboard NOT_A_FILE;
+    const static Bitboard NOT_H_FILE;
+    const static Bitboard NOT_AB_FILE;
+    const static Bitboard NOT_GH_FILE;
 };
 
 #endif

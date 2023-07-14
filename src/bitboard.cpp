@@ -166,3 +166,12 @@ const Bitboard Bitboards::diagonal_upwards_left_starters[] = {
     0b0000000000000000000000000000000000000000000000000000001000000000,
     0,
 };
+
+const Bitboard Bitboards::A_FILE = get_column(0);
+const Bitboard Bitboards::H_FILE = get_column(7);
+const Bitboard Bitboards::AB_FILE = get_column(0) | get_column(1);
+const Bitboard Bitboards::GH_FILE = get_column(7) | get_column(6);
+const Bitboard Bitboards::NOT_A_FILE = ~A_FILE;
+const Bitboard Bitboards::NOT_H_FILE = ~H_FILE;
+const Bitboard Bitboards::NOT_AB_FILE = ~AB_FILE;
+const Bitboard Bitboards::NOT_GH_FILE = ~GH_FILE;

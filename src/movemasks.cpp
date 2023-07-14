@@ -2,6 +2,29 @@
 #include "bitboard.h"
 #include <vector>
 
+void MoveMasks::calculate_all_knight_moves(Bitboard * moveset)
+{
+    for (int y = 0; y < 8; ++y) {
+        for (int x = 0; x < 8; ++x) {
+            int i = x + y * 8;
+
+            Bitboard start = Bitboards::get(x, y);
+            Bitboard movement = 0;
+
+            movement |= (start >> 17)   & Bitboards::NOT_H_FILE;
+            movement |= (start >> 15)   & Bitboards::NOT_A_FILE;
+            movement |= (start >> 10)   & Bitboards::NOT_GH_FILE;
+            movement |= (start >> 6)    & Bitboards::NOT_AB_FILE;
+            movement |= (start << 17)   & Bitboards::NOT_A_FILE;
+            movement |= (start << 15)   & Bitboards::NOT_H_FILE;
+            movement |= (start << 10)   & Bitboards::NOT_AB_FILE;
+            movement |= (start << 6)    & Bitboards::NOT_GH_FILE;
+
+            moveset[i] = movement;
+        }
+    }
+}
+
 /*
  * the "naive" approach: using raycasting to 
  * generate all possible rook moves, accounting for all possible board
@@ -18,8 +41,8 @@ void MoveMasks::generate_rook_moves_at_square_raycasting(int square, Bitboard * 
  */
 void MoveMasks::calculate_all_rook_moves(Bitboard * moveset)
 {
-    for (int y = 0; y < 8; y++) {
-        for (int x = 0; x < 8; x++) {
+    for (int y = 0; y < 8; ++y) {
+        for (int x = 0; x < 8; ++x) {
             int i = x + y * 8;
             moveset[i]
                 = Bitboards::get_row(y) 
@@ -32,8 +55,6 @@ void MoveMasks::calculate_all_rook_moves(Bitboard * moveset)
         }
     }
 }
-
-void MoveMasks::
 
 // first we need our "ground truth": get a database of all legal moves by [piece location] and [blockers]
 // given a board moveset, we can claculate
@@ -60,8 +81,8 @@ Bitboard * MoveMasks::get_rook_blocker_moves(Bitboard moveset_mask)
 
 void MoveMasks::calculate_all_bishop_moves(Bitboard * moveset)
 {
-    for (int y = 0; y < 8; y++) {
-        for (int x = 0; x < 8; x++) {
+    for (int y = 0; y < 8; ++y) {
+        for (int x = 0; x < 8; ++x) {
             int i = x + y * 8;
 
             moveset[i]
@@ -75,6 +96,7 @@ void MoveMasks::calculate_all_bishop_moves(Bitboard * moveset)
 
 MoveMasks::MoveMasks()
 {
+    calculate_all_knight_moves(knight_moves);
     calculate_all_rook_moves(rook_moves);
     calculate_all_bishop_moves(bishop_moves);
 }
@@ -87,4 +109,9 @@ Bitboard * MoveMasks::get_rook_moves()
 Bitboard * MoveMasks::get_bishop_moves()
 {
     return bishop_moves;
+}
+
+Bitboard * MoveMasks::get_knight_moves()
+{
+    return knight_moves;
 }

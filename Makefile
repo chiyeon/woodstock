@@ -1,8 +1,8 @@
 CFILES=src/*.cpp
-CMP_ARGS=-Wall -Wfatal-errors -std=c++20 -march=native -fassociative-math -ffast-math -flto -fomit-frame-pointer
+CMP_ARGS=-Wall -Wfatal-errors -std=c++20 -fassociative-math -ffast-math -flto -fomit-frame-pointer
 
-G++_ARGS=-Ofast
-EMCC_ARGS=-O0
+G++_ARGS=-Ofast -march=native
+EMCC_ARGS=-Os
 
 clean:
 	rm -rf -f build/

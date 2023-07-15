@@ -436,7 +436,7 @@ void Game::get_moves(std::vector<Move> & moves)
         }
 
         // skip any pieces with no moves anyway
-        // if (piece_moves == 0) continue;
+        if (piece_moves == 0) continue;
 
         piece_moves &= not_ally_bitboard;
 

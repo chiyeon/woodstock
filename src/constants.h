@@ -1,5 +1,7 @@
 // represent bitboards as 64 bit unsigned integers
 // it appears uint64_t == unsigned long long for emcc
+#include <stdint.h>
+
 using Bitboard = uint64_t;
 using Magic = uint64_t;
 using Piece = short;

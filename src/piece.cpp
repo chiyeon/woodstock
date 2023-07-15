@@ -27,22 +27,23 @@ Piece Pieces::piece_from_name_short(char name)
     return name_short_to_piece[name];
 }
 
-Bitboard Pieces::get_pawn_moves(int x, int y, Game & game)
+Bitboard Pieces::get_pawn_moves(int pos, Game & game)
 {
-    Bitboard movement = Bitboards::get(x, y);
+    Bitboard movement = Bitboards::get_i(pos);
+    int y = pos / 8;
     bool is_black = game.is_blacks_turn();
     movement = !is_black ? movement << 8 : movement >> 8;
     if (
-        (y == 6 && !is_black && game.get(x, y - 1) == Pieces::EMPTY)
-        || (y == 1 && is_black && game.get(x, y + 1) == Pieces::EMPTY)
+        (y == 6 && !is_black && game.get(pos - 8) == Pieces::EMPTY)
+        || (y == 1 && is_black && game.get(pos + 8) == Pieces::EMPTY)
     )
         movement |= !is_black ? movement << 8 : movement >> 8;
     return movement;
 }
 
-Bitboard Pieces::get_pawn_captures(int x, int y, Game & game)
+Bitboard Pieces::get_pawn_captures(int pos, Game & game)
 {
-    Bitboard start = Bitboards::get(x, y);
+    Bitboard start = Bitboards::get_i(pos);
     Bitboard movement = 0;
 
     if (game.is_blacks_turn()) {
@@ -56,29 +57,29 @@ Bitboard Pieces::get_pawn_captures(int x, int y, Game & game)
     return movement;
 }
 
-Bitboard Pieces::get_knight_moves(int x, int y, Game & game)
+Bitboard Pieces::get_knight_moves(int pos, Game & game)
 {
-    return game.movemasks.get_knight_moves()[x + y * 8];
+    return game.movemasks.get_knight_moves()[pos];
 }
 
-Bitboard Pieces::get_bishop_moves(int x, int y, Game & game)
+Bitboard Pieces::get_bishop_moves(int pos, Game & game)
 {
-    return game.movemasks.get_bishop_moves()[x + y * 8];
+    return game.movemasks.get_bishop_moves()[pos];
 }
 
-Bitboard Pieces::get_rook_moves(int x, int y, Game & game)
+Bitboard Pieces::get_rook_moves(int pos, Game & game)
 {
-    return game.movemasks.get_rook_moves()[x + y * 8];
+    return game.movemasks.get_rook_moves()[pos];
 }
 
-Bitboard Pieces::get_queen_moves(int x, int y, Game & game)
+Bitboard Pieces::get_queen_moves(int pos, Game & game)
 {
-    return game.movemasks.get_queen_moves()[x + y * 8];
+    return game.movemasks.get_queen_moves()[pos];
 }
 
-Bitboard Pieces::get_king_moves(int x, int y, Game & game)
+Bitboard Pieces::get_king_moves(int pos, Game & game)
 {
-    return game.movemasks.get_king_moves()[x + y * 8];
+    return game.movemasks.get_king_moves()[pos];
 }
 
 // std::map<Piece, std::string> Pieces::piece_to_name_full = {

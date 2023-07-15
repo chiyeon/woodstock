@@ -37,13 +37,13 @@ struct Pieces
      * pseudo-moves for individual pieces
      */
     
-    static Bitboard get_pawn_moves(int x, int y, Game & game);
-    static Bitboard get_pawn_captures(int x, int y, Game & game);
-    static Bitboard get_knight_moves(int x, int y, Game & game);
-    static Bitboard get_bishop_moves(int x, int y, Game & game);
-    static Bitboard get_rook_moves(int x, int y, Game & game);
-    static Bitboard get_queen_moves(int x, int y, Game & game);
-    static Bitboard get_king_moves(int x, int y, Game & game);
+    static Bitboard get_pawn_moves(int pos, Game & game);
+    static Bitboard get_pawn_captures(int pos, Game & game);
+    static Bitboard get_knight_moves(int pos, Game & game);
+    static Bitboard get_bishop_moves(int pos, Game & game);
+    static Bitboard get_rook_moves(int pos, Game & game);
+    static Bitboard get_queen_moves(int pos, Game & game);
+    static Bitboard get_king_moves(int pos, Game & game);
 
 private:
     // static std::map<Piece, std::string> piece_to_name_full;

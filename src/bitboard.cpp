@@ -106,7 +106,7 @@ int Bitboards::bit_count(Bitboard bitboard)
 
 void Bitboards::bitboard_to_positions(std::vector<int> & positions, Bitboard bitboard)
 {
-    positions.reserve(Constants::MAX_NUM_SQUARES);
+    positions.reserve(64);
     
     while (bitboard != 0) {
         int lsb_pos = ffsll(bitboard);

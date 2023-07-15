@@ -101,10 +101,10 @@ bool Game::in_check()
             Bitboard piece_moves = 0;
         switch (board[index] & Pieces::FILTER_PIECE) {
             case Pieces::PAWN:
-                piece_moves = (Pieces::get_pawn_captures(x, y, *this) & axis_bitboard);
+                piece_moves = (Pieces::get_pawn_captures(x + y * 8, *this) & axis_bitboard);
                 break;
             case Pieces::KNIGHT:
-                piece_moves = Pieces::get_knight_moves(x, y, *this);
+                piece_moves = Pieces::get_knight_moves(x + y * 8, *this);
                 break;
             case Pieces::BISHOP:
                 // TEMPORARY RAYCASTING METHOD
@@ -217,7 +217,7 @@ bool Game::in_check()
                 }
                 break;
             case Pieces::KING:
-                piece_moves = Pieces::get_king_moves(x, y, *this);
+                piece_moves = Pieces::get_king_moves(x + y * 8, *this);
                 break;
         }
     
@@ -241,8 +241,6 @@ void Game::get_moves(std::vector<Move> & moves)
     Bitboard ally_bitboard = is_blacks_turn() ? black_bitboard : white_bitboard;
     Bitboard not_axis_bitboard = ~axis_bitboard;
     Bitboard not_ally_bitboard = ~ally_bitboard;
-    //int num_allied_pieces = is_blacks_turn() ? num_black_pieces : num_white_pieces;
-    //int * ally_piece_positions = is_blacks_turn() ? black_piece_positions : white_piece_positions;
 
     /*
      * note: converting these bitboards to positions
@@ -257,21 +255,22 @@ void Game::get_moves(std::vector<Move> & moves)
     // for (int j = 0; j < ally_piece_positions.size(); ++j) {
     for (auto & pos : ally_piece_positions) {
         // int pos = ally_piece_positions[j];
-        int x = pos % 8;
-        int y = pos / 8;
         Piece piece = board[pos];
 
         Bitboard piece_moves = 0;
         // for every piece, get moves based on type
         switch (piece & Pieces::FILTER_PIECE) {
             case Pieces::PAWN:
-                piece_moves = Pieces::get_pawn_moves(x, y, *this) & not_game_bitboard;
-                piece_moves |= (Pieces::get_pawn_captures(x, y, *this) & axis_bitboard);
+                piece_moves = Pieces::get_pawn_moves(pos, *this) & not_game_bitboard;
+                piece_moves |= (Pieces::get_pawn_captures(pos, *this) & axis_bitboard);
                 break;
             case Pieces::KNIGHT:
-                piece_moves = Pieces::get_knight_moves(x, y, *this);
+                piece_moves = Pieces::get_knight_moves(pos, *this);
                 break;
             case Pieces::BISHOP:
+            {
+                int x = pos % 8;
+                int y = pos / 8;
                 // TEMPORARY RAYCASTING METHOD
                 for (int i = 1; (x + i < 8) && (y + i < 8); ++i) {
                     Bitboard target_square = Bitboards::get(x + i, y + i);
@@ -297,7 +296,11 @@ void Game::get_moves(std::vector<Move> & moves)
                     if (game_bitboard & target_square) break;
                 }
                 break;
+            }
             case Pieces::ROOK:
+            {
+                int x = pos % 8;
+                int y = pos / 8;
                 // temporary raycasting method
                 for (int i = x + 1; i < 8; ++i) {
                     Bitboard target_square = Bitboards::get(i, y);
@@ -327,7 +330,11 @@ void Game::get_moves(std::vector<Move> & moves)
                     if (game_bitboard & target_square) break;
                 }
                 break;
+            }
             case Pieces::QUEEN:
+            {
+                int x = pos % 8;
+                int y = pos / 8;
                 // temporary raycasting method
                 for (int i = x + 1; i < 8; ++i) {
                     Bitboard target_square = Bitboards::get(i, y);
@@ -381,8 +388,9 @@ void Game::get_moves(std::vector<Move> & moves)
                     if (game_bitboard & target_square) break;
                 }
                 break;
+            }
             case Pieces::KING:
-                piece_moves = Pieces::get_king_moves(x, y, *this);
+                piece_moves = Pieces::get_king_moves(pos, *this);
                 break;
         }
 

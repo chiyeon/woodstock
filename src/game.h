@@ -18,6 +18,9 @@ class Game
     Bitboard white_bitboard = 0;
     Bitboard black_bitboard = 0;
 
+    // Bitboard white_king_bitboard = 0;
+    // Bitboard black_king_bitboard = 0;
+
     // TODO bitboards for pieces, ie white_pawn_bitboard
 
     std::stack<Move> history;

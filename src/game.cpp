@@ -105,7 +105,7 @@ bool Game::in_check()
 {
     Bitboard attacking_squares = 0;
 
-    Bitboard axis_bitboard = is_whites_turn() ? black_bitboard : white_bitboard;
+    Bitboard axis_bitboard = is_whites_turn() ? white_bitboard : black_bitboard;
     // Bitboard ally_bitboard = is_whites_turn() ? white_bitboard : black_bitboard;
     Bitboard king_position;
     // std::vector<int> ally_positions;
@@ -117,7 +117,10 @@ bool Game::in_check()
     //     }
     // }
 
-    Piece target = Pieces::KING | turn;
+    // why is it flipped? well, in this case, we are checking if the last move just made
+    // (whether legal or not) was what put us into check. so while it may be blacks turn,
+    // we are checking if white is in check because of the move we made
+    Piece target = Pieces::KING | (is_blacks_turn() ? Pieces::WHITE : Pieces::BLACK);
     for (int i = 0; i < 64; ++i) {
         if (board[i] == target) {
             king_position = Bitboards::get_i(i);
@@ -133,7 +136,7 @@ bool Game::in_check()
     {
         for (auto & index : axis_positions) {
             //int index = y * 8 + x;
-            if (board[index] == Pieces::EMPTY || (board[index] & Pieces::FILTER_COLOR) == turn) continue;
+            // if (board[index] == Pieces::EMPTY || (board[index] & Pieces::FILTER_COLOR) == turn) continue;
 
             Bitboard piece_moves = 0;
         switch (board[index] & Pieces::FILTER_PIECE) {

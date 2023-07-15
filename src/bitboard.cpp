@@ -106,12 +106,20 @@ int Bitboards::bit_count(Bitboard bitboard)
 
 void Bitboards::bitboard_to_positions(std::vector<int> & positions, Bitboard bitboard)
 {
+    // positions.reserve(bit_count(bitboard));
     positions.reserve(64);
     
     while (bitboard != 0) {
+        /*
+         * this function will forever remain a mystery...
+         * seems to be no difference between most/least significant bit calculation
+         */
         int lsb_pos = ffsll(bitboard);
         bitboard &= bitboard - 1;
-        positions.push_back(64 - lsb_pos);      // this subtraction instruction makes it really slow...
+        positions.push_back(64 - lsb_pos);      // not having this subtraction makes it slow?!?!?
+        // int msb_pos = __builtin_clzll(bitboard);
+        // bitboard &= ~Bitboards::get_i(msb_pos);
+        // positions.push_back(msb_pos);
     }
 }
 

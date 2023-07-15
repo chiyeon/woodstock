@@ -1,5 +1,5 @@
 CFILES=src/*.cpp
-CMP_ARGS=-Wall -Wfatal-errors -std=c++20 -fassociative-math -ffast-math -flto -fomit-frame-pointer
+CMP_ARGS=-Wall -Wfatal-errors -std=c++20 -flto -fassociative-math -ffast-math -fomit-frame-pointer
 
 G++_ARGS=-Ofast -march=native
 EMCC_ARGS=-Os -s TOTAL_STACK=4MB -s ASSERTIONS=2

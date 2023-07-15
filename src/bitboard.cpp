@@ -59,22 +59,53 @@ Bitboard Bitboards::get_column(int x)
 
 Bitboard Bitboards::get_diagonal_downwards_right(int x, int y)
 {
-    return diagonal_downwards_right_starters[x] >> (x + y * 8);
+    Bitboard output = 0ULL;
+    Bitboard start = Bitboards::get(x, y);
+
+    for (int i = 0; (x - i > 0) && (y - i > 0); ++i)
+    {
+        output |= (start >> ((x - i) + (y - i) * 8));
+    }
+
+    return output;
 }
 
 Bitboard Bitboards::get_diagonal_downwards_left(int x, int y)
 {
-    return diagonal_downwards_left_starters[(7 - x)] >> ((x + 1) + (y - 1) * 8);
+    Bitboard output = 0ULL;
+    Bitboard start = Bitboards::get(x, y);
+
+    for (int i = 1; (x + i < 8) && (y - i > 0); ++i) {
+        output |= (start >> ((x + i - 1) + (y - i) * 8));
+    }
+
+    return output;
 }
 
 Bitboard Bitboards::get_diagonal_upwards_right(int x, int y)
 {
-    return diagonal_upwards_right_starters[std::max(7 - y, x)] << ((7 - y) * 8) >> x;
+    Bitboard output = 0ULL;
+    Bitboard start = Bitboards::get(x, y);
+
+    for (int i = 0; (x - i > 0) && (y + i < 8); ++i)
+    {
+        output |= (start >> ((x - i) + (y + i) * 8));
+    }
+
+    return output;
 }
 
 Bitboard Bitboards::get_diagonal_upwards_left(int x, int y)
 {
-    return diagonal_upwards_left_starters[std::max(7 - y, 7 - x)] << ((7 - x) + (7 - y) * 8);
+    Bitboard output = 0ULL;
+    Bitboard start = Bitboards::get(x, y);
+
+    for (int i = 0; (x + i < 8) && (y + i < 8); ++i)
+    {
+        output |= (start >> ((x + i) + (y + i) * 8));
+    }
+
+    return output;
 }
 
 Bitboard Bitboards::board_to_bitboard(Piece * board)

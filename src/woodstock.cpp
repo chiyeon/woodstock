@@ -13,6 +13,12 @@ int main()
 
     //test_switchcase_vs_loopbuild_for_diagonals();
 
+    Bitboards::print(Bitboards::get_diagonal_downwards_left(4, 4));
+    Bitboards::print(Bitboards::get_diagonal_downwards_left(0, 0));
+    Bitboards::print(Bitboards::get_diagonal_downwards_left(0, 1));
+    Bitboards::print(Bitboards::get_diagonal_downwards_left(1, 1));
+    Bitboards::print(Bitboards::get_diagonal_downwards_left(1, 0));
+
     Game g;
     g.print();
 

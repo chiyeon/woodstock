@@ -31,6 +31,7 @@ struct Bitboards
     static Bitboard board_to_bitboard(Piece * board, Piece color);
     static int bit_count(Bitboard bitboard);
     static void bitboard_to_positions(std::vector<int> & positions, Bitboard bitboard);
+    static int bitboard_to_position(Bitboard bitboard);
 
     const static Bitboard diagonal_downwards_right_starters[];           // we can store the 4 diff diag dirs into arrays, fastest
     const static Bitboard diagonal_downwards_left_starters[];            // way of calculating them

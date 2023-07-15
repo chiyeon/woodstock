@@ -115,6 +115,11 @@ void Bitboards::bitboard_to_positions(std::vector<int> & positions, Bitboard bit
     }
 }
 
+int Bitboards::bitboard_to_position(Bitboard bitboard)
+{
+    return 64 - ffsll(bitboard);
+}
+
 /*
  * these were primarily created for fast bishop diagonal
  * calculations... the speed (while it is there) isn't necessary

@@ -242,29 +242,17 @@ void Game::get_moves(std::vector<Move> & moves)
 {
     moves.reserve(Constants::MAX_CHESS_MOVES_PER_POSITION);
 
+    /*
+     * note: it is MARGINALLY faster to not constnatly call is_blacks_turn.
+     * marginally enough for me not to care?
+     */
     Bitboard not_game_bitboard = ~game_bitboard;
-    Bitboard axis_bitboard;
-    Bitboard ally_bitboard;
-    Bitboard not_axis_bitboard;
-    Bitboard not_ally_bitboard;
-    int num_allied_pieces;
-    int * ally_piece_positions;
-
-    // inelegant but a bit faster ?
-    if (is_blacks_turn()) {
-        axis_bitboard = white_bitboard;
-        ally_bitboard = black_bitboard;
-        num_allied_pieces = num_black_pieces;
-        ally_piece_positions = black_piece_positions;
-    } else {
-        axis_bitboard = black_bitboard;
-        ally_bitboard = white_bitboard;
-        num_allied_pieces = num_white_pieces;
-        ally_piece_positions = white_piece_positions;
-    }
-
-    not_axis_bitboard = ~axis_bitboard;
-    not_ally_bitboard = ~ally_bitboard;
+    Bitboard axis_bitboard = is_blacks_turn() ? white_bitboard : black_bitboard;
+    Bitboard ally_bitboard = is_blacks_turn() ? black_bitboard : white_bitboard;
+    Bitboard not_axis_bitboard = ~axis_bitboard;
+    Bitboard not_ally_bitboard = ~ally_bitboard;
+    int num_allied_pieces = is_blacks_turn() ? num_black_pieces : num_white_pieces;
+    int * ally_piece_positions = is_blacks_turn() ? black_piece_positions : white_piece_positions;
 
     for (int j = 0; j < num_allied_pieces; ++j) {
         int pos = ally_piece_positions[j];

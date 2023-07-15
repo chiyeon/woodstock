@@ -109,9 +109,9 @@ void Bitboards::bitboard_to_positions(std::vector<int> & positions, Bitboard bit
     positions.reserve(Constants::MAX_NUM_SQUARES);
     
     while (bitboard != 0) {
-        int lsb_pos = ffsl(bitboard);
+        int lsb_pos = ffsll(bitboard);
         bitboard &= bitboard - 1;
-        positions.push_back(64 - lsb_pos);
+        positions.push_back(64 - lsb_pos);      // this subtraction instruction makes it really slow...
     }
 }
 

@@ -34,8 +34,8 @@ Bitboard Pieces::get_pawn_moves(int pos, Game & game)
     bool is_black = game.is_blacks_turn();
     movement = !is_black ? movement << 8 : movement >> 8;
     if (
-        (y == 6 && !is_black && game.get(pos - 8) == Pieces::EMPTY)
-        || (y == 1 && is_black && game.get(pos + 8) == Pieces::EMPTY)
+        (y == 1 && !is_black && game.get(pos + 8) == Pieces::EMPTY)
+        || (y == 6 && is_black && game.get(pos - 8) == Pieces::EMPTY)
     )
         movement |= !is_black ? movement << 8 : movement >> 8;
     return movement;
@@ -47,11 +47,11 @@ Bitboard Pieces::get_pawn_captures(int pos, Game & game)
     Bitboard movement = 0;
 
     if (game.is_blacks_turn()) {
-        movement |= (start >> 7) & Bitboards::NOT_H_FILE;
-        movement |= (start >> 9) & Bitboards::NOT_A_FILE;
+        movement |= (start << 7) & Bitboards::NOT_H_FILE;
+        movement |= (start << 9) & Bitboards::NOT_A_FILE;
     } else {
-        movement |= (start << 7) & Bitboards::NOT_A_FILE;
-        movement |= (start << 9) & Bitboards::NOT_H_FILE;
+        movement |= (start >> 7) & Bitboards::NOT_A_FILE;
+        movement |= (start >> 9) & Bitboards::NOT_H_FILE;
     }
 
     return movement;

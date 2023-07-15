@@ -14,14 +14,14 @@ void MoveMasks::calculate_knight_moves(Bitboard * moveset)
             Bitboard start = Bitboards::get(x, y);
             Bitboard movement = 0;
 
-            movement |= (start >> 17)   & Bitboards::NOT_A_FILE;
-            movement |= (start >> 15)   & Bitboards::NOT_H_FILE;
-            movement |= (start >> 10)   & Bitboards::NOT_AB_FILE;
-            movement |= (start >> 6)    & Bitboards::NOT_GH_FILE;
-            movement |= (start << 17)   & Bitboards::NOT_H_FILE;
-            movement |= (start << 15)   & Bitboards::NOT_A_FILE;
-            movement |= (start << 10)   & Bitboards::NOT_GH_FILE;
-            movement |= (start << 6)    & Bitboards::NOT_AB_FILE;
+            movement |= (start >> 17)   & Bitboards::NOT_H_FILE;
+            movement |= (start >> 15)   & Bitboards::NOT_A_FILE;
+            movement |= (start >> 10)   & Bitboards::NOT_GH_FILE;
+            movement |= (start >> 6)    & Bitboards::NOT_AB_FILE;
+            movement |= (start << 17)   & Bitboards::NOT_A_FILE;
+            movement |= (start << 15)   & Bitboards::NOT_H_FILE;
+            movement |= (start << 10)   & Bitboards::NOT_AB_FILE;
+            movement |= (start << 6)    & Bitboards::NOT_GH_FILE;
 
             moveset[i] = movement;
         }
@@ -76,21 +76,14 @@ void MoveMasks::calculate_king_moves(Bitboard * moveset)
             Bitboard movement = 0;
             Bitboard start = Bitboards::get(x, y);
 
-            // cases for top mobility
-            // if (start & Bitboards::NOT_ROW_1) {
-                movement |= (start << 8);
-                movement |= (start << 9) & Bitboards::NOT_H_FILE;
-                movement |= (start << 7) & Bitboards::NOT_A_FILE;
-            // }
-
-            // if (start & Bitboards::NOT_ROW_8) {
-                movement |= (start >> 8);
-                movement |= (start >> 9) & Bitboards::NOT_A_FILE;
-                movement |= (start >> 7) & Bitboards::NOT_H_FILE;
-            // }
-
-            movement |= (start >> 1) & Bitboards::NOT_A_FILE;
-            movement |= (start << 1) & Bitboards::NOT_H_FILE;
+            movement |= (start >> 8);                           // south
+            movement |= (start >> 9) & Bitboards::NOT_A_FILE;   // south east
+            movement |= (start >> 7) & Bitboards::NOT_H_FILE;   // south west
+            movement |= (start >> 1) & Bitboards::NOT_A_FILE;   // east
+            movement |= (start << 1) & Bitboards::NOT_H_FILE;   // west
+            movement |= (start << 7) & Bitboards::NOT_A_FILE;   // north east
+            movement |= (start << 9) & Bitboards::NOT_H_FILE;   // north west
+            movement |= (start << 8);                           // north
 
             moveset[i] = movement;
         }

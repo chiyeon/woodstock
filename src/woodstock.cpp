@@ -36,7 +36,7 @@ int main()
 
     printf("Took %dms\n", measure(fn));
 
-    // measure_count_bulk_positions(g, 1);
+    measure_count_bulk_positions(g, 1, true);
     // measure_count_bulk_positions(g, 2);
     // measure_count_bulk_positions(g, 3);
     // measure_count_bulk_positions(g, 4);

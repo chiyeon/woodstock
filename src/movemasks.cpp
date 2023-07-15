@@ -1,6 +1,8 @@
 #include "movemasks.h"
 #include "bitboard.h"
 #include "constants.h"
+#include "piece.h"
+#include <strings.h>
 #include <random>
 // #include <time.h>
 #include <vector>
@@ -112,10 +114,10 @@ MoveMasks::MoveMasks()
         6, 5, 5, 5, 5, 5, 5, 6
     }
 {
-    // srand(time(NULL));
+    srand(time(NULL));
 
     calculate_knight_moves(knight_moves);
-    // calculate_rook_masks(rook_masks);
+    calculate_rook_masks(rook_masks);
     // calculate_bishop_masks(bishop_masks);
     //calculate_all_queen_moves(queen_moves);     // calculate after bishop and rook...
     calculate_king_moves(king_moves);
@@ -153,7 +155,47 @@ Magic MoveMasks::get_random_small_magic()
     return get_random_magic() & get_random_magic() & get_random_magic();
 }
 
-Magic MoveMasks::find_magics(int pos)
+// "adds one" to current while ONLY using the masked bits. for example:
+/*
+ * if our mask is           100111001
+ * then 1 would be          000000001
+ * but 2 would instead be   000001000
+ * following the mask
+ */
+Bitboard MoveMasks::add_one_with_masked_bits(Bitboard current, Bitboard mask)
+{
+    // get index of least significant bit of the mask
+    int lsb_pos = ffsll(mask) - 1;
+    Bitboard lsb = Bitboards::get_i(lsb_pos);
+
+    // if the bit is 0, just set it to one. otherwise we have to wrap the bits
+    if ((current & lsb) == 0) {
+        return current | lsb;
+    } else {
+        return add_one_with_masked_bits(current ^ lsb, mask ^ lsb);
+    }
+}
+
+// given a bishop/rook blocker mask, return all possible combinations of blockers that can be in that mask
+std::vector<Bitboard> MoveMasks::get_all_blocker_combinations(Bitboard blocker)
+{
+    std::vector<Bitboard> blockers_combinations;
+    // todo reserve
+    blockers_combinations.push_back(blocker);       // add fully blocked as one
+    
+    Bitboard count_board = 0ULL;    // this will increment like binary does each iteration
+    while (blocker != count_board)
+    {
+        // add to our list of blockers
+        blockers_combinations.push_back(count_board);
+        // increment our count_board
+        count_board = add_one_with_masked_bits(count_board, blocker);
+    }
+
+    return blockers_combinations;
+}
+
+Magic MoveMasks::find_magics(int pos, Piece piece_type)
 {
     /* psuedocode: 
      * 
@@ -163,7 +205,95 @@ Magic MoveMasks::find_magics(int pos)
      * then for each blocker combination calculate the proper positions with raycasting
      * then, use that to determine the magics by brute forcing
      *
+     * defining attributes of a magic: 
+     * - is the same for each square
+     * - can (with the help of index bits) map
+     *   blocker combinations to small indexes with no collisions
      * */
+
+    // printf("Finding magics for %s\n", piece_type == Pieces::BISHOP ? "bishops" : "rooks");
+
+    Bitboard start_position = Bitboards::get_i(pos);
+    Bitboard mask = (piece_type == Pieces::BISHOP) ? bishop_masks[pos] : rook_masks[pos];
+    std::vector<Bitboard> blocker_combinations = get_all_blocker_combinations(mask);
+    int num_moves = blocker_combinations.size();
+    int num_magic_moves = piece_type == Pieces::BISHOP ? 512 : 4096;
+    std::vector<Bitboard> legal_moves;
+    std::vector<Bitboard> magic_moves(num_magic_moves, 0ULL);
+    int index_bits = piece_type == Pieces::BISHOP ? bishop_index_bits[pos] : rook_index_bits[pos];
+
+    // printf("There are %d possible blocker boards.\n", num_moves);
+
+    legal_moves.reserve(num_moves);
+
+    // calculate all legal moves
+    for (int i = 0; i < num_moves; ++i)
+    {
+        Bitboard movement = 0;
+
+        if (piece_type == Pieces::BISHOP) {
+            // calculacte bishop stuff
+        } else {
+            // calculate rook stuff
+            int x = pos % 8;
+            int y = pos / 8;
+            for (int i = x + 1; i < 8; ++i) {
+                Bitboard target_square = Bitboards::get(i, y);
+                // if there is a piece on target square, bye bye
+                movement |= target_square;
+                if (blocker_combinations[i] & target_square) break;
+            }
+
+            for (int i = x - 1; i >= 0; --i) {
+                Bitboard target_square = Bitboards::get(i, y);
+                movement |= target_square;
+                if (blocker_combinations[i] & target_square) break;
+            }
+
+            for (int i = y + 1; i < 8; ++i) {
+                Bitboard target_square = Bitboards::get(x, i);
+                movement |= target_square;
+                if (blocker_combinations[i] & target_square) break;
+            }
+
+            for (int i = y - 1; i >= 0; --i) {
+                Bitboard target_square = Bitboards::get(x, i);
+                movement |= target_square;
+                if (blocker_combinations[i] & target_square) break;
+            }
+        }
+    }
+
+    // printf("All legal moves calculated.\n");
+
+    // once all legal moves are calculated, test random magics till found
+    int num_tries = 100000000;
+    bool magic_found = false;
+
+    for (int i = 0; i < num_tries; ++i) {
+        Magic magic = get_random_small_magic();
+        fill(magic_moves.begin(), magic_moves.end(), 0ULL);    // reset magic moves
+
+        // printf("Magic is %llu\n", magic);
+        for (int i = 0; i < num_moves; ++i) {
+            Bitboard key = (blocker_combinations[i] * magic) >> (64 - index_bits);
+            if (key >= num_magic_moves) goto next_magic;
+            // printf("Trying key %d\n", key);
+            if (magic_moves[key] != 0) {
+                // printf("Collision detected. Trying again...\n");
+                goto next_magic;
+            } else {
+                magic_moves[key] = legal_moves[i];
+            }
+        }
+
+        // printf("Magic fonud?!??!\n");
+        return magic;
+        next_magic:;
+    }
+
+    printf("Magic not found in %d tries.\n", num_tries);
+    return 0;
 }
 
 Bitboard MoveMasks::get_bishop_move(Bitboard occupation, int pos)
@@ -172,4 +302,24 @@ Bitboard MoveMasks::get_bishop_move(Bitboard occupation, int pos)
     occupation += bishop_table[pos].magic;
     occupation >> 64 - 9;
     return bishop_moves[pos][occupation];
+}
+
+void MoveMasks::test()
+{
+    // Bitboard mask = rook_masks[32];
+    // printf("Test Mask:\n");
+    // Bitboards::print(mask);
+
+    // Bitboard count = 0ULL;
+    // for (int i = 0; i < 3; ++i) {
+    //     count = add_one_with_masked_bits(count, mask);
+    //     Bitboards::print(count);
+    // }
+    for (int i = 0; i < 64; ++i) {
+        printf("%d: %llu\n", i, find_magics(i, Pieces::ROOK));
+    }
+
+    for (int i = 0; i < 64; ++i) {
+        // printf("%d: %llu\n", i, find_magics(i, Pieces::BISHOP));
+    }
 }

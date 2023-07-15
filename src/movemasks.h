@@ -38,7 +38,10 @@ class MoveMasks
 
     Magic get_random_magic();
     Magic get_random_small_magic();
-    Magic find_magics(int pos);
+    Magic find_magics(int pos, Piece piece_type);
+
+    Bitboard add_one_with_masked_bits(Bitboard current, Bitboard mask);
+    std::vector<Bitboard> get_all_blocker_combinations(Bitboard blocker);
     
     void calculate_knight_moves(Bitboard * moveset);
     void calculate_king_moves(Bitboard * moveset);
@@ -56,6 +59,8 @@ public:
     Bitboard * get_king_moves();
     Bitboard get_bishop_move(Bitboard occupation, int pos);
     Bitboard get_rook_move(Bitboard occupation, int pos);
+
+    void test();
 };
 
 #endif

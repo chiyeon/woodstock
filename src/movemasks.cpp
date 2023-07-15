@@ -121,6 +121,8 @@ MoveMasks::MoveMasks()
     // calculate_bishop_masks(bishop_masks);
     //calculate_all_queen_moves(queen_moves);     // calculate after bishop and rook...
     calculate_king_moves(king_moves);
+
+    find_all_magics();
 }
 
 Bitboard * MoveMasks::get_knight_moves()
@@ -233,6 +235,31 @@ Magic MoveMasks::find_magics(int pos, Piece piece_type)
 
         if (piece_type == Pieces::BISHOP) {
             // calculacte bishop stuff
+            int x = pos % 8;
+            int y = pos / 8;
+            for (int i = 1; (x + i < 8) && (y + i < 8); ++i) {
+                Bitboard target_square = Bitboards::get(x + i, y + i);
+                movement |= target_square;
+                if (blocker_combinations[i] & target_square) break;
+            }
+
+            for (int i = 1; (x + -i >= 0) && (y + i < 8); ++i) {
+                Bitboard target_square = Bitboards::get(x - i, y + i);
+                movement |= target_square;
+                if (blocker_combinations[i] & target_square) break;
+            }
+
+            for (int i = 1; (x + i < 8) && (y + -i >= 0); ++i) {
+                Bitboard target_square = Bitboards::get(x + i, y - i);
+                movement |= target_square;
+                if (blocker_combinations[i] & target_square) break;
+            }
+
+            for (int i = 1; (x + -i >= 0) && (y + -i >= 0); ++i) {
+                Bitboard target_square = Bitboards::get(x - i, y - i);
+                movement |= target_square;
+                if (blocker_combinations[i] & target_square) break;
+            }
         } else {
             // calculate rook stuff
             int x = pos % 8;
@@ -275,19 +302,28 @@ Magic MoveMasks::find_magics(int pos, Piece piece_type)
         fill(magic_moves.begin(), magic_moves.end(), 0ULL);    // reset magic moves
 
         // printf("Magic is %llu\n", magic);
-        for (int i = 0; i < num_moves; ++i) {
-            Bitboard key = (blocker_combinations[i] * magic) >> (64 - index_bits);
+        for (int j = 0; j < num_moves; ++j) {
+            Bitboard key = (blocker_combinations[j] * magic) >> (64 - index_bits);
             if (key >= num_magic_moves) goto next_magic;
             // printf("Trying key %d\n", key);
             if (magic_moves[key] != 0) {
                 // printf("Collision detected. Trying again...\n");
                 goto next_magic;
             } else {
-                magic_moves[key] = legal_moves[i];
+                magic_moves[key] = legal_moves[j];
             }
         }
 
         // printf("Magic fonud?!??!\n");
+        if (piece_type == Pieces::BISHOP) {
+            for (int j = 0; j < magic_moves.size(); ++j) {
+                bishop_moves[pos][j] = magic_moves[j];
+            }
+        } else {
+            for (int j = 0; j < magic_moves.size(); ++j) {
+                rook_moves[pos][j] = magic_moves[j];
+            }
+        }
         return magic;
         next_magic:;
     }
@@ -298,28 +334,27 @@ Magic MoveMasks::find_magics(int pos, Piece piece_type)
 
 Bitboard MoveMasks::get_bishop_move(Bitboard occupation, int pos)
 {
-    occupation &= bishop_table[pos].mask;
-    occupation += bishop_table[pos].magic;
-    occupation >> 64 - 9;
+    occupation &= bishop_masks[pos];
+    occupation *= bishop_magics[pos];
+    occupation >>= (64 - bishop_index_bits[pos]);
     return bishop_moves[pos][occupation];
 }
 
-void MoveMasks::test()
+Bitboard MoveMasks::get_rook_move(Bitboard occupation, int pos)
 {
-    // Bitboard mask = rook_masks[32];
-    // printf("Test Mask:\n");
-    // Bitboards::print(mask);
+    occupation &= rook_masks[pos];
+    occupation *= rook_magics[pos];
+    occupation >>= (64 - rook_index_bits[pos]);
+    return rook_moves[pos][occupation];
+}
 
-    // Bitboard count = 0ULL;
-    // for (int i = 0; i < 3; ++i) {
-    //     count = add_one_with_masked_bits(count, mask);
-    //     Bitboards::print(count);
-    // }
+void MoveMasks::find_all_magics()
+{
     for (int i = 0; i < 64; ++i) {
-        printf("%d: %llu\n", i, find_magics(i, Pieces::ROOK));
+        rook_magics[i] = find_magics(i, Pieces::ROOK);
     }
 
     for (int i = 0; i < 64; ++i) {
-        // printf("%d: %llu\n", i, find_magics(i, Pieces::BISHOP));
+        bishop_magics[i] = find_magics(i, Pieces::BISHOP);
     }
 }

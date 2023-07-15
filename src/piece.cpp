@@ -69,7 +69,7 @@ Bitboard Pieces::get_bishop_moves(int pos, Game & game)
 
 Bitboard Pieces::get_rook_moves(int pos, Game & game)
 {
-    // return game.movemasks.get_rook_moves()[pos];
+    return game.movemasks.get_rook_move(game.get_game_bitboard(), pos);
 }
 
 Bitboard Pieces::get_queen_moves(int pos, Game & game)

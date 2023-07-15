@@ -30,6 +30,9 @@ class MoveMasks
     int rook_index_bits[64];
     int bishop_index_bits[64];
 
+    Magic rook_magics[64];
+    Magic bishop_magics[64];
+
     MagicEntry rook_table[64];
     MagicEntry bishop_table[64];
 
@@ -39,6 +42,7 @@ class MoveMasks
     Magic get_random_magic();
     Magic get_random_small_magic();
     Magic find_magics(int pos, Piece piece_type);
+    void find_all_magics();
 
     Bitboard add_one_with_masked_bits(Bitboard current, Bitboard mask);
     std::vector<Bitboard> get_all_blocker_combinations(Bitboard blocker);

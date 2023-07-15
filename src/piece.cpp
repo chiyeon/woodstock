@@ -64,12 +64,12 @@ Bitboard Pieces::get_knight_moves(int pos, Game & game)
 
 Bitboard Pieces::get_bishop_moves(int pos, Game & game)
 {
-    return game.movemasks.get_bishop_moves()[pos];
+    // return game.movemasks.get_bishop_moves()[pos];
 }
 
 Bitboard Pieces::get_rook_moves(int pos, Game & game)
 {
-    return game.movemasks.get_rook_moves()[pos];
+    // return game.movemasks.get_rook_moves()[pos];
 }
 
 Bitboard Pieces::get_queen_moves(int pos, Game & game)

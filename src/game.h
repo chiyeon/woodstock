@@ -29,6 +29,7 @@ public:
     MoveMasks movemasks;
 
     Game(std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+    Game(Game & g) = delete;
     void read_fen(Piece * board, std::string fen);
     void print();
     Bitboard get_game_bitboard();

@@ -116,7 +116,7 @@ void Bitboards::bitboard_to_positions(std::vector<int> & positions, Bitboard bit
          */
         int lsb_pos = ffsll(bitboard);
         bitboard &= bitboard - 1;
-        positions.push_back(lsb_pos);      // not having this subtraction makes it slow?!?!?
+        positions.push_back(lsb_pos - 1);      // not having this subtraction makes it slow?!?!?
         // int msb_pos = __builtin_clzll(bitboard);
         // bitboard &= ~Bitboards::get_i(msb_pos);
         // positions.push_back(msb_pos);

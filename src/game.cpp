@@ -435,6 +435,9 @@ void Game::get_moves(std::vector<Move> & moves)
                 break;
         }
 
+        // skip any pieces with no moves anyway
+        if (piece_moves == 0) continue;
+
         piece_moves &= not_ally_bitboard;
 
         std::vector<int> positions;
@@ -443,11 +446,12 @@ void Game::get_moves(std::vector<Move> & moves)
             int captured = board[target_pos];
             Move potential_move(pos, target_pos, piece, captured);
 
-            // move(potential_move);
-            // if (!in_check()) {
+            move(potential_move);
+            if (!in_check()) {
+
                 moves.push_back(potential_move);
-            // }
-            // undo();
+            }
+            undo();
         }
     }
 }

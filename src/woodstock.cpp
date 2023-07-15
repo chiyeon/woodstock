@@ -21,20 +21,20 @@ int main()
     // }
     // measure_count_bulk_positions(g, 1, true);
 
-    auto fn = [&]() {
-        for (int i = 0; i < 100000; ++i) {
-            std::vector<Move> moves;
-            g.get_moves(moves);
-            for (int j = 0; j < moves.size(); ++j) {
-                g.move(moves[j]);
-                std::vector<int> pos;
-                Bitboards::bitboard_to_positions(pos, g.get_game_bitboard());
-                g.undo();
-            }
-        }
-    };
+    // auto fn = [&]() {
+    //     for (int i = 0; i < 100000; ++i) {
+    //         std::vector<Move> moves;
+    //         g.get_moves(moves);
+    //         for (int j = 0; j < moves.size(); ++j) {
+    //             g.move(moves[j]);
+    //             std::vector<int> pos;
+    //             Bitboards::bitboard_to_positions(pos, g.get_game_bitboard());
+    //             g.undo();
+    //         }
+    //     }
+    // };
 
-    printf("Took %f\n", measure(fn));
+    // printf("Took %dms\n", measure(fn));
 
     measure_count_bulk_positions(g, 1);
     measure_count_bulk_positions(g, 2);

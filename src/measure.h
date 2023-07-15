@@ -3,7 +3,7 @@
 #include "game.h"
 #include "move.h"
 
-float measure(auto fn)
+int measure(auto fn)
 {
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     fn();
@@ -35,7 +35,7 @@ void measure_count_bulk_positions(Game game, int depth, bool print_positions = f
         count = count_bulk_positions(game, depth, print_positions);
     };
 
-    float time = measure(fn);
+    int time = measure(fn);
     
-    printf("Depth: %d\tPositions: %d\tTime: %fms\n", depth, count, time);
+    printf("Depth: %d\tPositions: %d\tTime: %dms\n", depth, count, time);
 }

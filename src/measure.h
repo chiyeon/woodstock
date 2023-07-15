@@ -12,7 +12,7 @@ int measure(auto fn)
     return std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
 }
 
-int count_bulk_positions(Game game, int depth, bool print_positions = false) {
+int count_bulk_positions(Game & game, int depth, bool print_positions = false) {
     if (depth <= 0) return 1;
 
     std::vector<Move> moves;
@@ -29,7 +29,7 @@ int count_bulk_positions(Game game, int depth, bool print_positions = false) {
     return count;
 }
 
-void measure_count_bulk_positions(Game game, int depth, bool print_positions = false) {
+void measure_count_bulk_positions(Game & game, int depth, bool print_positions = false) {
     int count = 0;
     auto fn = [&]() {
         count = count_bulk_positions(game, depth, print_positions);

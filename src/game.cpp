@@ -33,16 +33,6 @@ void Game::read_fen(Piece * board, std::string fen)
     game_bitboard = Bitboards::board_to_bitboard(board);
     white_bitboard = Bitboards::board_to_bitboard(board, Pieces::WHITE);
     black_bitboard = Bitboards::board_to_bitboard(board, Pieces::BLACK);
-
-    // this is actually broken if we arent playing on a standard board (more than 16 pieces per side)
-    std::vector<int> white_pieces;
-    std::vector<int> black_pieces;
-    Bitboards::bitboard_to_positions(white_pieces, white_bitboard);
-    Bitboards::bitboard_to_positions(black_pieces, black_bitboard);
-    for (int i = 0; i < PIECES_PER_SIDE; ++i) {
-        white_piece_positions[num_white_pieces++] = white_pieces[i];
-        black_piece_positions[num_black_pieces++] = black_pieces[i];
-    }
 }
 
 void Game::print()
@@ -251,11 +241,22 @@ void Game::get_moves(std::vector<Move> & moves)
     Bitboard ally_bitboard = is_blacks_turn() ? black_bitboard : white_bitboard;
     Bitboard not_axis_bitboard = ~axis_bitboard;
     Bitboard not_ally_bitboard = ~ally_bitboard;
-    int num_allied_pieces = is_blacks_turn() ? num_black_pieces : num_white_pieces;
-    int * ally_piece_positions = is_blacks_turn() ? black_piece_positions : white_piece_positions;
+    //int num_allied_pieces = is_blacks_turn() ? num_black_pieces : num_white_pieces;
+    //int * ally_piece_positions = is_blacks_turn() ? black_piece_positions : white_piece_positions;
 
-    for (int j = 0; j < num_allied_pieces; ++j) {
-        int pos = ally_piece_positions[j];
+    /*
+     * note: converting these bitboards to positions
+     * is JUST faster than storing an array of positions as ints it seems.
+     * 
+     * However, testing was only done with "simulatons" for checks, that is
+     * move/undo was being used a lot.
+     */
+    std::vector<int> ally_piece_positions;
+    Bitboards::bitboard_to_positions(ally_piece_positions, ally_bitboard);
+
+    // for (int j = 0; j < ally_piece_positions.size(); ++j) {
+    for (auto & pos : ally_piece_positions) {
+        // int pos = ally_piece_positions[j];
         int x = pos % 8;
         int y = pos / 8;
         Piece piece = board[pos];
@@ -414,12 +415,12 @@ void Game::move(Move move)
     if (is_blacks_turn()) {
         black_bitboard ^= from_bitboard;
         black_bitboard |= to_bitboard;
-        for (int i = 0; i < num_black_pieces; ++i) {
-            if (black_piece_positions[i] == move.from) {
-                black_piece_positions[i] = move.to;
-                break;
-            }
-        }
+        // for (int i = 0; i < num_black_pieces; ++i) {
+        //     if (black_piece_positions[i] == move.from) {
+        //         black_piece_positions[i] = move.to;
+        //         break;
+        //     }
+        // }
 
         // captured enemy piece
         if (white_bitboard & to_bitboard) {
@@ -427,33 +428,33 @@ void Game::move(Move move)
 
             // find our piece and replace it with the last piece in our list, effectively
             // removing it & shortening the size of our list.
-            for (int i = 0; i < num_white_pieces; ++i) {
-                if (white_piece_positions[i] == move.to) {
-                    white_piece_positions[i] = white_piece_positions[--num_white_pieces];
-                    break;
-                }
-            }
+            // for (int i = 0; i < num_white_pieces; ++i) {
+            //     if (white_piece_positions[i] == move.to) {
+            //         white_piece_positions[i] = white_piece_positions[--num_white_pieces];
+            //         break;
+            //     }
+            // }
         }
     } else {
         white_bitboard ^= from_bitboard;
         white_bitboard |= to_bitboard;
 
-        for (int i = 0; i < num_white_pieces; ++i) {
-            if (white_piece_positions[i] == move.from) {
-                white_piece_positions[i] = move.to;
-                break;
-            }
-        }
+        // for (int i = 0; i < num_white_pieces; ++i) {
+        //     if (white_piece_positions[i] == move.from) {
+        //         white_piece_positions[i] = move.to;
+        //         break;
+        //     }
+        // }
 
         // captured enemy piece
         if (black_bitboard & to_bitboard) {
             black_bitboard ^= to_bitboard;
-            for (int i = 0; i < num_black_pieces; ++i) {
-                if (black_piece_positions[i] == move.to) {
-                    black_piece_positions[i] = black_piece_positions[--num_black_pieces];
-                    break;
-                }
-            }
+            // for (int i = 0; i < num_black_pieces; ++i) {
+            //     if (black_piece_positions[i] == move.to) {
+            //         black_piece_positions[i] = black_piece_positions[--num_black_pieces];
+            //         break;
+            //     }
+            // }
         }
     }
 
@@ -487,33 +488,33 @@ void Game::undo()
         black_bitboard |= from_bitboard;
         black_bitboard ^= to_bitboard;
         
-        for (int i = 0; i < num_black_pieces; ++i) {
-            if (black_piece_positions[i] == last_move.to) {
-                black_piece_positions[i] = last_move.from;
-                break;
-            }
-        }
+        // for (int i = 0; i < num_black_pieces; ++i) {
+        //     if (black_piece_positions[i] == last_move.to) {
+        //         black_piece_positions[i] = last_move.from;
+        //         break;
+        //     }
+        // }
 
         // captured enemy piece
         if (last_move.captured != 0) {
             white_bitboard |= to_bitboard;
-            white_piece_positions[num_white_pieces++] = last_move.to;
+            // white_piece_positions[num_white_pieces++] = last_move.to;
         }
     } else {
         white_bitboard |= from_bitboard;
         white_bitboard ^= to_bitboard;
 
-        for (int i = 0; i < num_white_pieces; ++i) {
-            if (white_piece_positions[i] == last_move.to) {
-                white_piece_positions[i] = last_move.from;
-                break;
-            }
-        }
+        // for (int i = 0; i < num_white_pieces; ++i) {
+        //     if (white_piece_positions[i] == last_move.to) {
+        //         white_piece_positions[i] = last_move.from;
+        //         break;
+        //     }
+        // }
 
         // captured enemy piece
         if (last_move.captured != 0) {
             black_bitboard |= to_bitboard;
-            black_piece_positions[num_black_pieces++] = last_move.to;
+            // black_piece_positions[num_black_pieces++] = last_move.to;
         }
     }
 

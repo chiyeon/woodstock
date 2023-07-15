@@ -17,7 +17,6 @@ struct Move
     int to;
     Piece piece;
     Piece captured;
-    MoveFlag * flags;
 
     Move(int from, int to, Piece piece)
         : from(from)

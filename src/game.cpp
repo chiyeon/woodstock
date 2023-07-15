@@ -14,29 +14,16 @@ Game::Game(std::string fen)
 void Game::read_fen(Piece * board, std::string fen)
 {
     int fen_length = fen.size();
-    int index = 0;
+    int index = 63;
     for (int i = 0; i < fen_length; ++i) {
         // read number of spaces
         if (isdigit(fen[i])) {
             int num_spaces = int(fen[i] - '0');
             for (int j = 0; j < num_spaces; ++j) {
-                board[index] = Pieces::EMPTY;
-                index++;
+                board[index--] = Pieces::EMPTY;
             }
         } else if (fen[i] != '/') {
-            board[index] = Pieces::piece_from_name_short(fen[i]);
-
-            // switch (board[index] & Pieces::FILTER_PIECE) {
-            //     case Pieces::KING:
-            //         if ((board[index] & Pieces::FILTER_COLOR) == Pieces::BLACK) {
-            //             black_king_bitboard = Bitboards::get_i(index);
-            //         } else {
-            //             white_king_bitboard = Bitboards::get_i(index);
-            //         }
-            //     break;
-            // }
-
-            index++;
+            board[index--] = Pieces::piece_from_name_short(fen[i]);
         }
     }
 
@@ -58,8 +45,8 @@ void Game::read_fen(Piece * board, std::string fen)
 
 void Game::print()
 {
-    for (int y = 0; y < 8; y++) {
-        for (int x = 0; x < 8; x++) {
+    for (int y = 7; y >= 0; --y) {
+        for (int x = 7; x >= 0; --x) {
             Piece piece = board[x + y * 8];
             printf("%c ", piece == Pieces::EMPTY 
                 ? ((y % 2 + x) % 2 == 0 ? ',' : '.') 
@@ -447,6 +434,9 @@ void Game::get_moves(std::vector<Move> & moves)
                 piece_moves = Pieces::get_king_moves(pos, *this);
                 break;
         }
+
+        // skip any pieces with no moves anyway
+        if (piece_moves == 0) continue;
 
         piece_moves &= not_ally_bitboard;
 

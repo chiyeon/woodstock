@@ -8,10 +8,10 @@ int main()
 {
     printf("woodstock!\n");
   
-    Game g("1p6/8/1R2p3/8/8/8/1R1p4/8");
-    g.print();
-    std::vector<Move> s;
-    g.get_moves(s);
+    // Game g("1p6/8/1R2p3/8/8/8/1R1p4/8");
+    // g.print();
+    // std::vector<Move> s;
+    // g.get_moves(s);
 
     //test_switchcase_vs_loopbuild_for_diagonals();
 
@@ -45,11 +45,13 @@ int main()
 
     // printf("Took %dms\n", measure(fn));
 
-    // measure_count_bulk_positions(g, 1);
-    // measure_count_bulk_positions(g, 2);
-    // measure_count_bulk_positions(g, 3);
-    // measure_count_bulk_positions(g, 4);
-    // measure_count_bulk_positions(g, 5);
+    Game g;
+    g.print();
+    measure_count_bulk_positions(g, 1, true);
+    measure_count_bulk_positions(g, 2);
+    measure_count_bulk_positions(g, 3);
+    measure_count_bulk_positions(g, 4);
+    measure_count_bulk_positions(g, 5);
 
     // auto run_get_moves = [&]() {
     //     std::vector<Move> moves = g.get_moves();

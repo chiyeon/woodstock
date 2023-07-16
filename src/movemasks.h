@@ -35,8 +35,8 @@ class MoveMasks
     Magic get_random_magic();
     Magic get_random_small_magic();
 
-    void populate_magic_shift_bits();
-    Magic find_magics(int pos, Piece piece_type);
+    void initialize_magic_table();
+    Magic find_magic(int pos, Piece piece_type);
     void find_all_magics();
 
     Bitboard add_one_with_masked_bits(Bitboard current, Bitboard mask);
@@ -51,9 +51,8 @@ class MoveMasks
 public:
     MoveMasks();
     MoveMasks(MoveMasks & t) = delete;
-    Bitboard * get_knight_moves();
-    Bitboard * get_queen_moves();
-    Bitboard * get_king_moves();
+    Bitboard get_knight_move(int pos);
+    Bitboard get_king_move(int pos);
     Bitboard get_bishop_move(Bitboard occupation, int pos);
     Bitboard get_rook_move(Bitboard occupation, int pos);
 

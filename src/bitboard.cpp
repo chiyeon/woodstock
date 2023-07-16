@@ -60,52 +60,40 @@ Bitboard Bitboards::get_column(int x)
 Bitboard Bitboards::get_diagonal_downwards_right(int x, int y)
 {
     Bitboard output = 0ULL;
-    Bitboard start = Bitboards::get(x, y);
-
-    for (int i = 0; (x - i > 0) && (y - i > 0); ++i)
-    {
-        output |= (start >> ((x - i) + (y - i) * 8));
+    for (int i = 0; i < x; i++) {
+        output = (output >> 9) | (0b0000000001000000000000000000000000000000000000000000000000000000);
     }
-
-    return output;
+    return (output >> ((7 - x) + (7 - y) * 8));
 }
 
 Bitboard Bitboards::get_diagonal_downwards_left(int x, int y)
 {
     Bitboard output = 0ULL;
-    Bitboard start = Bitboards::get(x, y);
-
-    for (int i = 1; (x + i < 8) && (y - i > 0); ++i) {
-        output |= (start >> ((x + i - 1) + (y - i) * 8));
+    for (int i = 0; i < (7 - x); i++) {
+        output = (output >> 7) | (0b000000100000000000000000000000000000000000000000000000000000000);
     }
-
-    return output;
+    return (output >> ((7 - x) + (7 - y) * 8));
 }
 
 Bitboard Bitboards::get_diagonal_upwards_right(int x, int y)
 {
     Bitboard output = 0ULL;
-    Bitboard start = Bitboards::get(x, y);
-
-    for (int i = 0; (x - i > 0) && (y + i < 8); ++i)
-    {
-        output |= (start >> ((x - i) + (y + i) * 8));
-    }
-
+    for (int i = 0; i < std::min(7 - y, x); i++) {
+        output = (output << 7) | (0b100000000000000);
+    }   //monkas
+    output >>= (7 - x);
+    output <<= (y * 8);
     return output;
 }
 
 Bitboard Bitboards::get_diagonal_upwards_left(int x, int y)
 {
     Bitboard output = 0ULL;
-    Bitboard start = Bitboards::get(x, y);
-
-    for (int i = 0; (x + i < 8) && (y + i < 8); ++i)
-    {
-        output |= (start >> ((x + i) + (y + i) * 8));
+    for (int i = 0; i < std::min(7 - x, 7 - y); i++) {
+        output = (output << 9) | (0b1000000000);
     }
 
-    return output;
+    return output << (x + y * 8);
 }
 
 Bitboard Bitboards::board_to_bitboard(Piece * board)

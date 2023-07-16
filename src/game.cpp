@@ -202,8 +202,7 @@ void Game::get_moves(std::vector<Move> & moves)
                 piece_moves = Pieces::get_rook_moves(pos, *this);
                 break;
             case Pieces::QUEEN:
-                piece_moves = Pieces::get_bishop_moves(pos, *this)
-                            | Pieces::get_rook_moves(pos, *this);
+                piece_moves = Pieces::get_queen_moves(pos, *this);
             case Pieces::KING:
                 piece_moves = Pieces::get_king_moves(pos, *this);
                 break;

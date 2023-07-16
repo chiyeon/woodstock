@@ -8,19 +8,21 @@ int main()
 {
     printf("woodstock!\n");
   
-    // Game g;
-    // g.print();
+    Game g("8/3p4/8/3R4/8/8/8/8");
+    g.print();
+    std::vector<Move> s;
+    g.get_moves(s);
 
     //test_switchcase_vs_loopbuild_for_diagonals();
 
-    Bitboards::print(Bitboards::get_diagonal_downwards_left(4, 4));
-    Bitboards::print(Bitboards::get_diagonal_downwards_left(0, 0));
-    Bitboards::print(Bitboards::get_diagonal_downwards_left(0, 1));
-    Bitboards::print(Bitboards::get_diagonal_downwards_left(1, 1));
-    Bitboards::print(Bitboards::get_diagonal_downwards_left(1, 0));
+    // Bitboards::print(Bitboards::get_diagonal_downwards_left(4, 4));
+    // Bitboards::print(Bitboards::get_diagonal_downwards_left(0, 0));
+    // Bitboards::print(Bitboards::get_diagonal_downwards_left(0, 1));
+    // Bitboards::print(Bitboards::get_diagonal_downwards_left(1, 1));
+    // Bitboards::print(Bitboards::get_diagonal_downwards_left(1, 0));
 
-    Game g;
-    g.print();
+    // Game g;
+    // g.print();
 
     // std::vector<Move> moves = g.get_moves();
     // for (auto & move : moves) {
@@ -43,11 +45,11 @@ int main()
 
     // printf("Took %dms\n", measure(fn));
 
-    measure_count_bulk_positions(g, 1);
-    measure_count_bulk_positions(g, 2);
-    measure_count_bulk_positions(g, 3);
-    measure_count_bulk_positions(g, 4);
-    measure_count_bulk_positions(g, 5);
+    // measure_count_bulk_positions(g, 1);
+    // measure_count_bulk_positions(g, 2);
+    // measure_count_bulk_positions(g, 3);
+    // measure_count_bulk_positions(g, 4);
+    // measure_count_bulk_positions(g, 5);
 
     // auto run_get_moves = [&]() {
     //     std::vector<Move> moves = g.get_moves();

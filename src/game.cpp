@@ -210,6 +210,8 @@ void Game::get_moves(std::vector<Move> & moves)
         }
 
         // skip any pieces with no moves anyway
+        printf("Rook possible moves:");
+        Bitboards::print(piece_moves);
         if (piece_moves == 0) continue;
 
         piece_moves &= not_ally_bitboard;

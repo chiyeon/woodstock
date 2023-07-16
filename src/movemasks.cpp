@@ -127,8 +127,8 @@ void MoveMasks::populate_magic_shift_bits()
     };
 
     for (int i = 0; i < 64; ++i) {
-        rook_magic_table[i].shift = rook_shift_bits[i];
-        bishop_magic_table[i].shift = bishop_shift_bits[i];
+        rook_magic_table[i] = MagicEntry{0ULL, 0ULL, rook_shift_bits[i]};
+        bishop_magic_table[i] = MagicEntry{0ULL, 0ULL, bishop_shift_bits[i]};
     }
 }
 
@@ -228,7 +228,7 @@ Magic MoveMasks::find_magics(int pos, Piece piece_type)
     int num_moves = blocker_combinations.size();
     int num_magic_moves = piece_type == Pieces::BISHOP ? 512 : 4096;
     std::vector<Bitboard> legal_moves;
-    std::vector<Bitboard> magic_moves(num_magic_moves, -1);
+    std::vector<Bitboard> magic_moves(num_magic_moves, 0);
     int index_bits = piece_type == Pieces::BISHOP ? bishop_magic_table[pos].shift : rook_magic_table[pos].shift;
 
     // printf("There are %d possible blocker boards.\n", num_moves);
@@ -300,18 +300,16 @@ Magic MoveMasks::find_magics(int pos, Piece piece_type)
 
     // once all legal moves are calculated, test random magics till found
     int num_tries = 100000000;
-    bool magic_found = false;
 
     for (int i = 0; i < num_tries; ++i) {
         Magic magic = get_random_small_magic();
         fill(magic_moves.begin(), magic_moves.end(), 0ULL);    // reset magic moves
-
         for (int j = 0; j < num_moves; ++j) {
             Bitboard key = (blocker_combinations[j] * magic) >> (64 - index_bits);
             if (key >= num_magic_moves) goto next_magic;
-            if (magic_moves[key] == -1) {
+            if (magic_moves[key] == 0) {
                 magic_moves[key] = legal_moves[j];
-            } else if (magic_moves[key] != legal_moves[key]) {
+            } else if (magic_moves[key] != legal_moves[j]) {
                 // not a good magic if there is a collision that ISNT the same legal move
                 goto next_magic;
             }
@@ -360,4 +358,7 @@ void MoveMasks::find_all_magics()
     for (int i = 0; i < 64; ++i) {
         bishop_magic_table[i].magic = find_magics(i, Pieces::BISHOP);
     }
+
+    Bitboards::print(get_rook_move(Bitboards::get_i(20), 20));
+    Bitboards::print(rook_moves[23][2341]);
 }

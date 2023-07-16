@@ -8,7 +8,7 @@ int main()
 {
     printf("woodstock!\n");
   
-    Game g("8/3p4/8/3R4/8/8/8/8");
+    Game g("1p6/8/1R2p3/8/8/8/1R1p4/8");
     g.print();
     std::vector<Move> s;
     g.get_moves(s);

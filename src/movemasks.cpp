@@ -228,7 +228,7 @@ Magic MoveMasks::find_magics(int pos, Piece piece_type)
     int num_moves = blocker_combinations.size();
     int num_magic_moves = piece_type == Pieces::BISHOP ? 512 : 4096;
     std::vector<Bitboard> legal_moves;
-    std::vector<Bitboard> magic_moves(num_magic_moves, 0);
+    std::vector<Bitboard> magic_moves(num_magic_moves, 0xFFFFFFFFFFFFFFFFULL);      // this number is impossible for normal movement, thus it becomes our "empty" state
     int index_bits = piece_type == Pieces::BISHOP ? bishop_magic_table[pos].shift : rook_magic_table[pos].shift;
 
     // printf("There are %d possible blocker boards.\n", num_moves);
@@ -271,43 +271,48 @@ Magic MoveMasks::find_magics(int pos, Piece piece_type)
             // calculate rook stuff
             int x = pos % 8;
             int y = pos / 8;
-            for (int i = x + 1; i < 8; ++i) {
-                Bitboard target_square = Bitboards::get(i, y);
+            for (int j = x + 1; j < 8; ++j) {
+                Bitboard target_square = Bitboards::get(j, y);
                 // if there is a piece on target square, bye bye
                 movement |= target_square;
                 if (blocker_combinations[i] & target_square) break;
             }
 
-            for (int i = x - 1; i >= 0; --i) {
-                Bitboard target_square = Bitboards::get(i, y);
+            for (int j = x - 1; j >= 0; --j) {
+                Bitboard target_square = Bitboards::get(j, y);
                 movement |= target_square;
                 if (blocker_combinations[i] & target_square) break;
             }
 
-            for (int i = y + 1; i < 8; ++i) {
-                Bitboard target_square = Bitboards::get(x, i);
+            for (int j = y + 1; j < 8; ++j) {
+                Bitboard target_square = Bitboards::get(x, j);
                 movement |= target_square;
                 if (blocker_combinations[i] & target_square) break;
             }
 
-            for (int i = y - 1; i >= 0; --i) {
-                Bitboard target_square = Bitboards::get(x, i);
+            for (int j = y - 1; j >= 0; --j) {
+                Bitboard target_square = Bitboards::get(x, j);
                 movement |= target_square;
                 if (blocker_combinations[i] & target_square) break;
             }
         }
+
+
+        legal_moves[i] = movement;
     }
+
+
 
     // once all legal moves are calculated, test random magics till found
     int num_tries = 100000000;
 
     for (int i = 0; i < num_tries; ++i) {
         Magic magic = get_random_small_magic();
-        fill(magic_moves.begin(), magic_moves.end(), 0ULL);    // reset magic moves
+        fill(magic_moves.begin(), magic_moves.end(), 0xFFFFFFFFFFFFFFFFULL);    // reset magic moves
         for (int j = 0; j < num_moves; ++j) {
             Bitboard key = (blocker_combinations[j] * magic) >> (64 - index_bits);
             if (key >= num_magic_moves) goto next_magic;
-            if (magic_moves[key] == 0) {
+            if (magic_moves[key] == 0xFFFFFFFFFFFFFFFF) {
                 magic_moves[key] = legal_moves[j];
             } else if (magic_moves[key] != legal_moves[j]) {
                 // not a good magic if there is a collision that ISNT the same legal move
@@ -356,9 +361,6 @@ void MoveMasks::find_all_magics()
     }
 
     for (int i = 0; i < 64; ++i) {
-        bishop_magic_table[i].magic = find_magics(i, Pieces::BISHOP);
+        // bishop_magic_table[i].magic = find_magics(i, Pieces::BISHOP);
     }
-
-    Bitboards::print(get_rook_move(Bitboards::get_i(20), 20));
-    Bitboards::print(rook_moves[23][2341]);
 }

@@ -126,30 +126,30 @@ bool Game::in_check()
             // if (board[index] == Pieces::EMPTY || (board[index] & Pieces::FILTER_COLOR) == turn) continue;
 
             Bitboard piece_moves = 0;
-        switch (board[index] & Pieces::FILTER_PIECE) {
-            case Pieces::PAWN:
-                piece_moves = (Pieces::get_pawn_captures(index, *this));
-                break;
-            case Pieces::KNIGHT:
-                piece_moves = Pieces::get_knight_moves(index, *this);
-                break;
-            case Pieces::BISHOP:
-                piece_moves = Pieces::get_bishop_moves(index, *this);
-                break;
-            case Pieces::ROOK:
-                piece_moves = Pieces::get_rook_moves(index, *this);
-                break;
-            case Pieces::QUEEN:
-                piece_moves = Pieces::get_bishop_moves(index, *this)
-                            | Pieces::get_rook_moves(index, *this);
-            case Pieces::KING:
-                piece_moves = Pieces::get_king_moves(index, *this);
-                break;
-        }
+            switch (board[index] & Pieces::FILTER_PIECE) {
+                case Pieces::PAWN:
+                    piece_moves = (Pieces::get_pawn_captures(index, *this));
+                    break;
+                case Pieces::KNIGHT:
+                    piece_moves = Pieces::get_knight_moves(index, *this);
+                    break;
+                case Pieces::BISHOP:
+                    piece_moves = Pieces::get_bishop_moves(index, *this);
+                    break;
+                case Pieces::ROOK:
+                    piece_moves = Pieces::get_rook_moves(index, *this);
+                    break;
+                case Pieces::QUEEN:
+                    piece_moves = Pieces::get_queen_moves(index, *this);
+                    break;
+                case Pieces::KING:
+                    piece_moves = Pieces::get_king_moves(index, *this);
+                    break;
+            }
     
-        attacking_squares |= piece_moves;
+            attacking_squares |= piece_moves;
 
-        if (attacking_squares & king_position) return true;
+            if (attacking_squares & king_position) return true;
         }   
     }
 
@@ -220,11 +220,11 @@ void Game::get_moves(std::vector<Move> & moves)
             int captured = board[target_pos];
             Move potential_move(pos, target_pos, piece, captured);
 
-            // move(potential_move);
-            // if (!in_check()) {
+            move(potential_move);
+            if (!in_check()) {
                 moves.push_back(potential_move);
-            // }
-            // undo();
+            }
+            undo();
         }
     }
 }

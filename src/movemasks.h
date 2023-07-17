@@ -7,6 +7,7 @@
 
 struct MagicEntry
 {
+    Bitboard * ptr;
     Bitboard mask;
     Magic magic;
     int shift;
@@ -28,7 +29,7 @@ class MoveMasks
 
     MagicEntry rook_magic_table[64];
     MagicEntry bishop_magic_table[64];
-    
+
     Magic get_random_magic();
     Magic get_random_small_magic();
 

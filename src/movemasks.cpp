@@ -131,8 +131,8 @@ void MoveMasks::initialize_magic_table()
     };
 
     for (int i = 0; i < 64; ++i) {
-        rook_magic_table[i] = MagicEntry{0ULL, 0ULL, rook_shift_bits[i]};
-        bishop_magic_table[i] = MagicEntry{0ULL, 0ULL, bishop_shift_bits[i]};
+        rook_magic_table[i] = MagicEntry{nullptr, 0ULL, 0ULL, 64 - rook_shift_bits[i]};
+        bishop_magic_table[i] = MagicEntry{nullptr, 0ULL, 0ULL, 64 - bishop_shift_bits[i]};
     }
 }
 
@@ -303,7 +303,7 @@ Magic MoveMasks::find_magic(int pos, Piece piece_type)
         Magic magic = get_random_small_magic();
         fill(magic_moves.begin(), magic_moves.end(), 0xFFFFFFFFFFFFFFFFULL);    // reset magic moves
         for (int j = 0; j < num_moves; ++j) {
-            Bitboard key = (blocker_combinations[j] * magic) >> (64 - index_bits);
+            Bitboard key = (blocker_combinations[j] * magic) >> index_bits;
             if (key >= num_magic_moves) goto next_magic;
             if (magic_moves[key] == 0xFFFFFFFFFFFFFFFF) {
                 magic_moves[key] = legal_moves[j];
@@ -321,7 +321,7 @@ Magic MoveMasks::find_magic(int pos, Piece piece_type)
             }
         } else {
             for (int j = 0; j < magic_moves.size(); ++j) {
-                rook_moves[pos][j] = magic_moves[j];
+                if (magic_moves[j] != 0xFFFFFFFFFFFFFFFFULL) rook_moves[pos][j] = magic_moves[j];
             }
         }
 
@@ -335,24 +335,28 @@ Magic MoveMasks::find_magic(int pos, Piece piece_type)
 
 Bitboard MoveMasks::get_bishop_move(Bitboard occupation, int pos)
 {
-    occupation  &= bishop_magic_table[pos].mask;
-    occupation  *= bishop_magic_table[pos].magic;
-    occupation >>= (64 - bishop_magic_table[pos].shift);
-    return bishop_moves[pos][occupation];
+    Bitboard * arr  = bishop_magic_table[pos].ptr;
+    occupation     &= bishop_magic_table[pos].mask;
+    occupation     *= bishop_magic_table[pos].magic;
+    occupation    >>= bishop_magic_table[pos].shift;
+    return arr[occupation];
 }
 
 Bitboard MoveMasks::get_rook_move(Bitboard occupation, int pos)
 {
-    occupation  &= rook_magic_table[pos].mask;
-    occupation  *= rook_magic_table[pos].magic;
-    occupation >>= (64 - rook_magic_table[pos].shift);
-    return rook_moves[pos][occupation];
+    Bitboard * arr  = rook_magic_table[pos].ptr;
+    occupation     &= rook_magic_table[pos].mask;
+    occupation     *= rook_magic_table[pos].magic;
+    occupation    >>= rook_magic_table[pos].shift;
+    return arr[occupation];
 }
 
 void MoveMasks::find_all_magics()
 {
     for (int i = 0; i < 64; ++i) {
         rook_magic_table[i].magic = find_magic(i, Pieces::ROOK);
+        rook_magic_table[i].ptr = rook_moves[i];
         bishop_magic_table[i].magic = find_magic(i, Pieces::BISHOP);
+        bishop_magic_table[i].ptr = bishop_moves[i];
     }
 }

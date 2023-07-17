@@ -28,10 +28,7 @@ class MoveMasks
 
     MagicEntry rook_magic_table[64];
     MagicEntry bishop_magic_table[64];
-
-    // const std::map<std::pair<MagicEntry, int>, int> ROOK_MAGIC;
-    // const std::map<std::pair<MagicEntry, int>, int> BISHOP_MAGIC;
-
+    
     Magic get_random_magic();
     Magic get_random_small_magic();
 

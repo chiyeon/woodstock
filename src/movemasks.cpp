@@ -317,7 +317,7 @@ Magic MoveMasks::find_magic(int pos, Piece piece_type)
         // printf("Magic fonud?!??!\n");
         if (piece_type == Pieces::BISHOP) {
             for (int j = 0; j < magic_moves.size(); ++j) {
-                bishop_moves[pos][j] = magic_moves[j];
+                if (magic_moves[j] != 0xFFFFFFFFFFFFFFFFULL) bishop_moves[pos][j] = magic_moves[j];
             }
         } else {
             for (int j = 0; j < magic_moves.size(); ++j) {
@@ -325,7 +325,6 @@ Magic MoveMasks::find_magic(int pos, Piece piece_type)
             }
         }
 
-        printf("found a magic with %d elements for position %d\n", element_count, pos);
         return magic;
         next_magic:;
     }

@@ -47,11 +47,11 @@ Bitboard Pieces::get_pawn_captures(int pos, Game & game)
     Bitboard movement = 0;
 
     if (game.is_blacks_turn()) {
-        movement |= (start << 7) & Bitboards::NOT_H_FILE;
-        movement |= (start << 9) & Bitboards::NOT_A_FILE;
+        movement |= (start >> 7) & Bitboards::NOT_H_FILE;
+        movement |= (start >> 9) & Bitboards::NOT_A_FILE;
     } else {
-        movement |= (start >> 7) & Bitboards::NOT_A_FILE;
-        movement |= (start >> 9) & Bitboards::NOT_H_FILE;
+        movement |= (start << 7) & Bitboards::NOT_A_FILE;
+        movement |= (start << 9) & Bitboards::NOT_H_FILE;
     }
 
     return movement;
@@ -76,8 +76,8 @@ Bitboard Pieces::get_queen_moves(int pos, Game & game)
 {
     Bitboard game_bb = game.get_game_bitboard();
     return
-        game.movemasks.get_bishop_move(game_bb, pos)
-        | game.movemasks.get_rook_move(game_bb, pos);
+        (game.movemasks.get_bishop_move(game_bb, pos)
+        | game.movemasks.get_rook_move(game_bb, pos));
 }
 
 Bitboard Pieces::get_king_moves(int pos, Game & game)

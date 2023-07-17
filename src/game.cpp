@@ -203,15 +203,16 @@ void Game::get_moves(std::vector<Move> & moves)
                 break;
             case Pieces::QUEEN:
                 piece_moves = Pieces::get_queen_moves(pos, *this);
+                break;
             case Pieces::KING:
                 piece_moves = Pieces::get_king_moves(pos, *this);
                 break;
         }
 
+        piece_moves &= not_ally_bitboard;
+
         // skip any pieces with no moves anyway
         if (piece_moves == 0) continue;
-
-        piece_moves &= not_ally_bitboard;
 
         std::vector<int> positions;
         Bitboards::bitboard_to_positions(positions, piece_moves);

@@ -45,9 +45,14 @@ int main()
 
     // printf("Took %dms\n", measure(fn));
 
+    // Game g("p7/1B5p/8/5B2/3p4/2B4p/5B2/8");
+    // g.print();
+    // std::vector<Move> s;
+    // g.get_moves(s);
+
     Game g;
     g.print();
-    measure_count_bulk_positions(g, 1, true);
+    measure_count_bulk_positions(g, 1);
     measure_count_bulk_positions(g, 2);
     measure_count_bulk_positions(g, 3);
     measure_count_bulk_positions(g, 4);

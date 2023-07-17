@@ -299,6 +299,7 @@ Magic MoveMasks::find_magic(int pos, Piece piece_type)
     int num_tries = 100000000;
 
     for (int i = 0; i < num_tries; ++i) {
+        int element_count = 0;
         Magic magic = get_random_small_magic();
         fill(magic_moves.begin(), magic_moves.end(), 0xFFFFFFFFFFFFFFFFULL);    // reset magic moves
         for (int j = 0; j < num_moves; ++j) {
@@ -306,6 +307,7 @@ Magic MoveMasks::find_magic(int pos, Piece piece_type)
             if (key >= num_magic_moves) goto next_magic;
             if (magic_moves[key] == 0xFFFFFFFFFFFFFFFF) {
                 magic_moves[key] = legal_moves[j];
+                element_count++;
             } else if (magic_moves[key] != legal_moves[j]) {
                 // not a good magic if there is a collision that ISNT the same legal move
                 goto next_magic;
@@ -322,6 +324,8 @@ Magic MoveMasks::find_magic(int pos, Piece piece_type)
                 rook_moves[pos][j] = magic_moves[j];
             }
         }
+
+        printf("found a magic with %d elements for position %d\n", element_count, pos);
         return magic;
         next_magic:;
     }

@@ -59,22 +59,41 @@ Bitboard Bitboards::get_column(int x)
 
 Bitboard Bitboards::get_diagonal_downwards_right(int x, int y)
 {
-    return diagonal_downwards_right_starters[x] >> (x + y * 8);
+    Bitboard output = 0ULL;
+    for (int i = 0; i < x; i++) {
+        output = (output >> 9) | (0b0000000001000000000000000000000000000000000000000000000000000000);
+    }
+    return (output >> ((7 - x) + (7 - y) * 8));
 }
 
 Bitboard Bitboards::get_diagonal_downwards_left(int x, int y)
 {
-    return diagonal_downwards_left_starters[(7 - x)] >> ((x + 1) + (y - 1) * 8);
+    Bitboard output = 0ULL;
+    for (int i = 0; i < (7 - x); i++) {
+        output = (output >> 7) | (0b000000100000000000000000000000000000000000000000000000000000000);
+    }
+    return (output >> ((7 - x) + (7 - y) * 8));
 }
 
 Bitboard Bitboards::get_diagonal_upwards_right(int x, int y)
 {
-    return diagonal_upwards_right_starters[std::max(7 - y, x)] << ((7 - y) * 8) >> x;
+    Bitboard output = 0ULL;
+    for (int i = 0; i < std::min(7 - y, x); i++) {
+        output = (output << 7) | (0b100000000000000);
+    }   //monkas
+    output >>= (7 - x);
+    output <<= (y * 8);
+    return output;
 }
 
 Bitboard Bitboards::get_diagonal_upwards_left(int x, int y)
 {
-    return diagonal_upwards_left_starters[std::max(7 - y, 7 - x)] << ((7 - x) + (7 - y) * 8);
+    Bitboard output = 0ULL;
+    for (int i = 0; i < std::min(7 - x, 7 - y); i++) {
+        output = (output << 9) | (0b1000000000);
+    }
+
+    return output << (x + y * 8);
 }
 
 Bitboard Bitboards::board_to_bitboard(Piece * board)
@@ -110,16 +129,9 @@ void Bitboards::bitboard_to_positions(std::vector<int> & positions, Bitboard bit
     positions.reserve(64);
     
     while (bitboard != 0) {
-        /*
-         * this function will forever remain a mystery...
-         * seems to be no difference between most/least significant bit calculation
-         */
         int lsb_pos = ffsll(bitboard);
         bitboard &= bitboard - 1;
         positions.push_back(lsb_pos - 1);      // not having this subtraction makes it slow?!?!?
-        // int msb_pos = __builtin_clzll(bitboard);
-        // bitboard &= ~Bitboards::get_i(msb_pos);
-        // positions.push_back(msb_pos);
     }
 }
 

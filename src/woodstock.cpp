@@ -8,13 +8,22 @@ int main()
 {
     printf("woodstock!\n");
   
-    // Game g;
+    // Game g("1p6/8/1R2p3/8/8/8/1R1p4/8");
     // g.print();
+    // std::vector<Move> s;
+    // g.get_moves(s);
 
     //test_switchcase_vs_loopbuild_for_diagonals();
 
-    Game g;
-    g.print();
+    // Bitboards::print(Bitboards::get_diagonal_downwards_left(4, 4));
+    // Bitboards::print(Bitboards::get_diagonal_downwards_left(0, 0));
+    // Bitboards::print(Bitboards::get_diagonal_downwards_left(0, 1));
+    // Bitboards::print(Bitboards::get_diagonal_downwards_left(1, 1));
+    // Bitboards::print(Bitboards::get_diagonal_downwards_left(1, 0));
+
+    // Game g;
+    // g.print();
+
     // std::vector<Move> moves = g.get_moves();
     // for (auto & move : moves) {
     //     printf("Move from %d to %d\n", move.from, move.to);
@@ -36,6 +45,13 @@ int main()
 
     // printf("Took %dms\n", measure(fn));
 
+    // Game g("p7/1B5p/8/5B2/3p4/2B4p/5B2/8");
+    // g.print();
+    // std::vector<Move> s;
+    // g.get_moves(s);
+
+    Game g;
+    g.print();
     measure_count_bulk_positions(g, 1);
     measure_count_bulk_positions(g, 2);
     measure_count_bulk_positions(g, 3);

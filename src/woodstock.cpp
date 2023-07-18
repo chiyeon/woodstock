@@ -27,128 +27,65 @@ int get_num_castles_at_depth(int depth, Game & g)
     return count;
 }
 
+int square_to_index(char * square) {
+    int x, y;
+
+    switch (square[0]) {
+        case 'a': x = 7;
+            break;
+        case 'b': x = 6;
+            break;
+        case 'c': x = 5;
+            break;
+        case 'd': x = 4;
+            break;
+        case 'e': x = 3;
+            break;
+        case 'f': x = 2;
+            break;
+        case 'g': x = 1;
+            break;
+        case 'h': x = 0;
+            break;
+    }
+
+    y = (int)(square[1]) - '1';
+
+    return y * 8 + x;
+}
+
 int main()
 {
     printf("woodstock!\n");
     
-    Game g("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R");
-    measure_count_bulk_positions(g, 1);
-    measure_count_bulk_positions(g, 2);
-    measure_count_bulk_positions(g, 3);
-    measure_count_bulk_positions(g, 4);
-    measure_count_bulk_positions(g, 5);
-    measure_count_bulk_positions(g, 6);
+    Game game;
+    std::vector<Move> moves;
 
-    // Game g("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
-    
+    do {
+        game.print();
 
-    // measure_count_bulk_positions(g, 1);
-    // measure_count_bulk_positions(g, 2);
-    // measure_count_bulk_positions(g, 3);
-    // measure_count_bulk_positions(g, 4);
-    // measure_count_bulk_positions(g, 5);
-    // measure_count_bulk_positions(g, 6);
+        moves.clear();
+        game.get_moves(moves);
 
-    // measure_count_bulk_positions(g, 3);
-    // printf("There were %d En Passants.\n", g.en_passant_count);
-    // g.en_passant_count = 0;
-    // measure_count_bulk_positions(g, 4);
-    // printf("There were %d En Passants.\n", g.en_passant_count);
-    // g.en_passant_count = 0;
+        char from[3], to[3];
+        printf("Move from: ");
+        scanf("%s", &from);
+        printf("To: ");
+        scanf("%s", &to);
 
-    // Game g("8/8/8/8/8/8/8/R3K2R");
-    // g.print();
-    // // g.switch_turns();
-    // // printf(g.in_check() ? "We are in check!\n" : "Not in check.\n");
-    // measure_count_bulk_positions(g, 1, true);
-    // g.print();
+        for (auto & move : moves) {
+            if (move.from == square_to_index(from) && move.to == square_to_index(to)) {
+                game.move(move);
+                printf("\n");
+                goto end;
+            }
+        }
 
-    // test en passant basic case
-    // Game g("8/8/8/8/p2p4/8/1P6/8");
-    // std::vector<Move> moves;
-    // g.get_moves(moves);
-    // g.move(moves[1]);
-    // // moves.clear();
-    // // g.get_moves(moves);
-    // // g.move(moves[0]);
-    // g.print();
-    // measure_count_bulk_positions(g, 1, true);
-    // g.print();
-  
-    // Game g("1p6/8/1R2p3/8/8/8/1R1p4/8");
-    // g.print();
-    // std::vector<Move> s;
-    // g.get_moves(s);
+        printf("Invalid move!\n");
 
-    //test_switchcase_vs_loopbuild_for_diagonals();
-
-    // Bitboards::print(Bitboards::get_diagonal_downwards_left(4, 4));
-    // Bitboards::print(Bitboards::get_diagonal_downwards_left(0, 0));
-    // Bitboards::print(Bitboards::get_diagonal_downwards_left(0, 1));
-    // Bitboards::print(Bitboards::get_diagonal_downwards_left(1, 1));
-    // Bitboards::print(Bitboards::get_diagonal_downwards_left(1, 0));
-
-    // Game g;
-    // g.print();
-
-    // std::vector<Move> moves = g.get_moves();
-    // for (auto & move : moves) {
-    //     printf("Move from %d to %d\n", move.from, move.to);
-    // }
-    // measure_count_bulk_positions(g, 1, true);
-
-    // auto fn = [&]() {
-    //     for (int i = 0; i < 100000; ++i) {
-    //         std::vector<Move> moves;
-    //         g.get_moves(moves);
-    //         for (int j = 0; j < moves.size(); ++j) {
-    //             g.move(moves[j]);
-    //             std::vector<int> pos;
-    //             Bitboards::bitboard_to_positions(pos, g.get_game_bitboard());
-    //             g.undo();
-    //         }
-    //     }
-    // };
-
-    // printf("Took %dms\n", measure(fn));
-
-    // Game g("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
-    // std::vector<Move> s;
-    // g.get_moves(s);
-    // g.move(s[0]);
-    // g.print();
-    // measure_count_bulk_positions(g, 1, true);
-
-    // Game g("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
-    // g.print();
-    // measure_count_bulk_positions(g, 1);
-    // measure_count_bulk_positions(g, 2);
-    // printf("There were %d En Passants.\n", g.en_passant_count);
-    // g.en_passant_count = 0;
-    // measure_count_bulk_positions(g, 3);
-    // printf("There were %d En Passants.\n", g.en_passant_count);
-    // g.en_passant_count = 0;
-    // measure_count_bulk_positions(g, 4);
-    // printf("There were %d En Passants.\n", g.en_passant_count);
-    // g.en_passant_count = 0;
-    // measure_count_bulk_positions(g, 5);
-    // measure_count_bulk_positions(g, 6);
-    // printf("There were %d En Passants.\n", g.en_passant_count);
-    // printf("There were %d captures.\n", g.captures);
-
-    // auto run_get_moves = [&]() {
-    //     std::vector<Move> moves = g.get_moves();
-    //     printf("Calculated %d moves. ", moves.size());
-    // };
-
-    // measure(run_get_moves);
-
-    // for (int i = 0; i < moves.size(); ++i) {
-    //     Bitboards::print(Bitboards::get_i(moves[i].to) | Bitboards::get_i(moves[i].from));
-    // }
-
-    // Bitboards::print(g.get_game_bitboard());
-    // printf("Number of pieces: %d\n", Bitboards::bit_count(g.get_game_bitboard()));
+        end:
+        printf("\n");
+    } while(moves.size() != 0);
 
     return 0;
 }

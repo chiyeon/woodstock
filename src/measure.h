@@ -12,6 +12,29 @@ int measure(auto fn)
     return std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
 }
 
+int get_num_castles_at_depth(int depth, Game & g)
+{
+    std::vector<Move> moves;
+    g.get_moves(moves);
+    int count = 0;
+
+    for (auto & move : moves) {
+        if (depth <= 1) {
+            if (move.flag == CASTLE_BOTH_ALLOWED
+            || move.flag == CASTLE_QUEENSIDE_ALLOWED
+            || move.flag == CASTLE_KINGSIDE_ALLOWED) {
+                count++;
+            }
+        } else {
+            g.move(move);
+            count += get_num_castles_at_depth(depth - 1, g);
+            g.undo();
+        }
+    }
+
+    return count;
+}
+
 int count_bulk_positions(Game & game, int depth, bool print_positions = false) {
     if (depth <= 0) return 1;
 

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Woodstock</title>
+
+   <link rel="stylesheet" href="style.css">
+</head>
+<body>
+   <div id="board"></div>
+
+   <script src="index.js"></script>
+   <script src="board.js"></script>
+   <script>
+      const set_board = (b) => {
+         let diffs = board.set_board(b)
+         board.update_chessboard(diffs);
+      }
+
+      let board = new Chessboard("board");
+
+      document.addEventListener("DOMContentLoaded", async () => {
+         const woodstock = await WoodstockModule();
+
+         setInterval(() => {
+            woodstock.ccall(
+               "make_best_move", // name of C function
+               null, // return type
+               null, // argument types
+               null, // arguments
+            );
+         }, 2000)
+      });
+   </script>
+   {{{ SCRIPT }}}
+</body>
+</html>

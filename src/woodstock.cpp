@@ -3,6 +3,7 @@
 #include "game.h"
 #include "measure.h"
 #include "bitboard.h"
+#include "search.h"
 
 int get_num_castles_at_depth(int depth, Game & g)
 {
@@ -59,10 +60,18 @@ int main()
     printf("woodstock!\n");
     
     Game game;
+    Search search(game);
     std::vector<Move> moves;
+    int search_depth = 5;
+
+    auto make_best_move = [&]() {
+        Move best_move = search.get_best_move(search_depth);
+        game.move(best_move);
+    };
 
     do {
         game.print();
+        printf("Evaluation: %f\n\n", search.evaluate_position());
 
         moves.clear();
         game.get_moves(moves);
@@ -77,13 +86,18 @@ int main()
             if (move.from == square_to_index(from) && move.to == square_to_index(to)) {
                 game.move(move);
                 printf("\n");
-                goto end;
+                goto ai_move;
             }
         }
 
-        printf("Invalid move!\n");
+        printf("Invalid move!\n\n");
+        continue;
 
-        end:
+        ai_move:
+        printf("Woodstock is thinking... ");
+
+        int time_elapsed = measure(make_best_move);
+        printf("Found best move at depth %d with %d evaluations in %dms!\n", search_depth, search.get_num_positions_evaluated(), time_elapsed);
         printf("\n");
     } while(moves.size() != 0);
 

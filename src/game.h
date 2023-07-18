@@ -21,11 +21,18 @@ class Game
     Bitboard white_king_bitboard = 0;
     Bitboard black_king_bitboard = 0;
 
+    Bitboard can_white_castle_kingside = true;
+    Bitboard can_white_castle_queenside = true;
+    Bitboard can_black_castle_kingside = true;
+    Bitboard can_black_castle_queenside = true;
+
     // TODO bitboards for pieces, ie white_pawn_bitboard
 
     std::stack<Move> history;
 
 public:
+    int en_passant_count = 0;
+    int captures = 0;
     MoveMasks movemasks;
 
     Game(std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
@@ -33,11 +40,14 @@ public:
     void read_fen(Piece * board, std::string fen);
     void print();
     Bitboard get_game_bitboard();
+    Bitboard get_white_bitboard();
+    Bitboard get_black_bitboard();
     Piece get(int index);
     Piece get(int x, int y);
 
     bool is_blacks_turn();
     bool is_whites_turn();
+    void switch_turns();
     Piece get_turn();
     bool in_check();
 

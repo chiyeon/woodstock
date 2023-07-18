@@ -78,7 +78,7 @@ void MoveMasks::calculate_king_moves(Bitboard * moveset)
             Bitboard movement = 0;
             Bitboard start = Bitboards::get(x, y);
 
-            movement |= (start >> 8);                           // south
+            movement |= (start >> 8);                           // south 
             movement |= (start >> 9) & Bitboards::NOT_A_FILE;   // south east
             movement |= (start >> 7) & Bitboards::NOT_H_FILE;   // south west
             movement |= (start >> 1) & Bitboards::NOT_A_FILE;   // east

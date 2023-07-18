@@ -25,8 +25,25 @@ int count_bulk_positions(Game & game, int depth, bool print_positions = false) {
         count += count_bulk_positions(game, depth - 1, print_positions);
         game.undo();
     }
-
     return count;
+}
+
+void print_num_positions_from_starting(Game & game, int depth)
+{
+    if (depth <= 0) return;
+
+    std::vector<Move> moves;
+    game.get_moves(moves);
+
+    for (int i = 0; i < moves.size(); ++i)
+    {
+        int count = 0;
+        game.move(moves[i]);
+        count += count_bulk_positions(game, depth - 1);
+        game.undo();
+
+        printf("%d to %d: %d moves\n", moves[i].from, moves[i].to, count);
+    }
 }
 
 void measure_count_bulk_positions(Game & game, int depth, bool print_positions = false) {

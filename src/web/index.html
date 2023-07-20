@@ -10,6 +10,8 @@
 <body>
    <div id="board"></div>
 
+   <button id="butt">Perform Best Move</button>
+
    <script src="index.js"></script>
    <script src="board.js"></script>
    <script>
@@ -23,14 +25,14 @@
       document.addEventListener("DOMContentLoaded", async () => {
          const woodstock = await WoodstockModule();
 
-         setInterval(() => {
+         butt.addEventListener("click", () => {
             woodstock.ccall(
                "make_best_move", // name of C function
                null, // return type
                null, // argument types
                null, // arguments
             );
-         }, 2000)
+         })
       });
    </script>
    {{{ SCRIPT }}}

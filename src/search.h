@@ -5,6 +5,8 @@
 
 class Search
 {
+   // friend struct MoveComparator;
+
    constexpr static int piece_values[7] = {
       0,
       10,
@@ -15,14 +17,14 @@ class Search
       2000
    };
 
-   constexpr static int MVV_LVA_table[8][8] = {
-      {0, 0, 0, 0, 0, 0, 0},       // victim K, attacker K, Q, R, B, N, P, None
-      {50, 51, 52, 53, 54, 55, 0}, // victim Q, attacker K, Q, R, B, N, P, None
-      {40, 41, 42, 43, 44, 45, 0}, // victim R, attacker K, Q, R, B, N, P, None
-      {30, 31, 32, 33, 34, 35, 0}, // victim B, attacker K, Q, R, B, N, P, None
-      {20, 21, 22, 23, 24, 25, 0}, // victim N, attacker K, Q, R, B, N, P, None
-      {10, 11, 12, 13, 14, 15, 0}, // victim P, attacker K, Q, R, B, N, P, None
-      {0, 0, 0, 0, 0, 0, }
+   constexpr static int MVV_LVA_table[7][8] = {
+      {0, 0, 0, 0, 0, 0, },
+      {0, 15, 14, 13, 12, 11, 10}, // victim P, attacker None, P, N, B, R, Q, K
+      {0, 25, 24, 23, 22, 21, 20}, // victim N, attacker None, P, N, B, R, Q, K
+      {0, 35, 34, 33, 32, 31, 30}, // victim B, attacker None, P, N, B, R, Q, K
+      {0, 45, 44, 43, 42, 41, 40}, // victim R, attacker None, P, N, B, R, Q, K
+      {0, 55, 54, 53, 52, 51, 50}, // victim Q, attacker None, P, N, B, R, Q, K
+      {0, 0, 0, 0, 0, 0, 0},       // victim K, attacker None, P, N, B, R, Q, K
    };
 
    constexpr static float black_pawn_table[64] = {
@@ -159,10 +161,12 @@ class Search
 
    Game & game;
    int alphabeta(int depth, int alpha, int beta, bool maximizing_player);
+   int alphabetamax(int depth, int alpha, int beta);
+   int alphabetamin(int depth, int alpha, int beta);
    int num_positions_evaluated = 0;
 
    std::vector<int> get_move_scores(const std::vector<Move> & moves);
-   void swap(std::vector<int> vec, int i, int j);
+   void swap(std::vector<int> & vec, int i, int j);
 
 public:
    Search(Game & game);
@@ -170,5 +174,21 @@ public:
    Move get_best_move(int depth);
    int get_num_positions_evaluated();
 };
+
+// struct MoveComparator
+// {
+//    bool operator()(const Move & lm, const Move & rm)
+//    {
+//       return Search::MVV_LVA_table[
+//          (lm.captured & Pieces::FILTER_PIECE)
+//       ][
+//          (lm.piece & Pieces::FILTER_PIECE)
+//       ] < Search::MVV_LVA_table[
+//          (rm.captured & Pieces::FILTER_PIECE)
+//       ][
+//          (rm.piece & Pieces::FILTER_PIECE)
+//       ];
+//    } 
+// };
 
 #endif

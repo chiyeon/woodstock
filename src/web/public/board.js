@@ -66,7 +66,8 @@ class Piece {
 
 class Chessboard {
    constructor(id) {
-      this.load_fen_string("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+      // this.load_fen_string("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+      this.load_fen_string("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
       this.create_chessboard(id);
       this.board = []
    }

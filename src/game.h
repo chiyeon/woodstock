@@ -50,6 +50,7 @@ public:
     void switch_turns();
     Piece get_turn();
     bool in_check();
+    bool is_in_check();
 
     void get_moves(std::vector<Move> & moves);
     void move(Move & move);

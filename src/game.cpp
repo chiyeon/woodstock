@@ -186,6 +186,58 @@ bool Game::in_check()
     return false;
 }
 
+// the REAL ONE
+bool Game::is_in_check()
+{
+    Bitboard axis_bitboard = is_whites_turn() ? black_bitboard : white_bitboard;
+
+    // for debugging
+    if (axis_bitboard == 0ULL) return false;
+
+    Bitboard king_position = 0ULL;
+    Piece target = Pieces::KING | (is_blacks_turn() ? Pieces::BLACK : Pieces::WHITE);
+    for (int i = 0; i < 64; ++i) {
+        if (board[i] == target) {
+            king_position = Bitboards::get_i(i);
+            break;
+        }
+    }
+
+    // if kind doesnt exist (testing) just return false
+    if (king_position == 0ULL) return false;
+
+    std::vector<int> axis_positions;
+    Bitboards::bitboard_to_positions(axis_positions, axis_bitboard);
+
+    for (auto & index : axis_positions) {
+        Bitboard piece_moves = 0;
+        switch (board[index] & Pieces::FILTER_PIECE) {
+            case Pieces::PAWN:
+                piece_moves = (Pieces::get_pawn_captures(index, *this));
+                break;
+            case Pieces::KNIGHT:
+                piece_moves = Pieces::get_knight_moves(index, *this);
+                break;
+            case Pieces::BISHOP:
+                piece_moves = Pieces::get_bishop_moves(index, *this);
+                break;
+            case Pieces::ROOK:
+                piece_moves = Pieces::get_rook_moves(index, *this);
+                break;
+            case Pieces::QUEEN:
+                piece_moves = Pieces::get_queen_moves(index, *this);
+                break;
+            case Pieces::KING:
+                piece_moves = Pieces::get_king_moves(index, *this);
+                break;
+        }
+
+        if (piece_moves & king_position) return true;
+    }
+
+    return false;
+}
+
 void Game::get_moves(std::vector<Move> & moves)
 {
     moves.reserve(Constants::MAX_CHESS_MOVES_PER_POSITION);

@@ -160,19 +160,21 @@ class Search
    };
 
    Game & game;
-   int alphabeta(int depth, int alpha, int beta, bool maximizing_player);
+   // int alphabeta(int depth, int alpha, int beta, bool maximizing_player);
+   int alphabeta(int depth, int alpha, int beta);
+   int negamax(int depth, int alpha, int beta);
    int alphabetamax(int depth, int alpha, int beta);
    int alphabetamin(int depth, int alpha, int beta);
-   int num_positions_evaluated = 0;
 
    std::vector<int> get_move_scores(const std::vector<Move> & moves);
    void swap(std::vector<int> & vec, int i, int j);
 
 public:
    Search(Game & game);
-   float evaluate_position();
+   float evaluate_position(Game & game, std::vector<Move> & moves);
    Move get_best_move(int depth);
-   int get_num_positions_evaluated();
+   int num_positions_evaluated = 0;
+
 };
 
 // struct MoveComparator

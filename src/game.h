@@ -42,8 +42,11 @@ public:
     Bitboard get_game_bitboard();
     Bitboard get_white_bitboard();
     Bitboard get_black_bitboard();
+    Piece * get_board();
     Piece get(int index);
     Piece get(int x, int y);
+
+    int * get_moves_at_square(int sq);
 
     bool is_blacks_turn();
     bool is_whites_turn();

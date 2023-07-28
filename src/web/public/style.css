@@ -37,6 +37,22 @@
    background-color: #ffed76;
 }
 
+.board .row .possible-move {
+   position: relative;
+}
+.board .row .possible-move::before {
+   position: absolute;
+   content: "";
+   border-radius: 999px;
+   left: 50%;
+   top: 50%;
+   transform: translate(-50%, -50%);
+   width: 30%;
+   height: 30%;
+   background-color: black;
+   opacity: 0.5;
+}
+
 .board .row .square img {
    width: 95%;
    height: 95%;

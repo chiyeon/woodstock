@@ -112,6 +112,35 @@ Piece Game::get(int x, int y)
     return board[y * 8 + x];
 }
 
+int * Game::get_moves_at_square(int sq)
+{
+    // TODO fix
+    // 27 is max num a single piece can cover
+    int out_moves[27] = { [0 ... 26 ] = -1};
+    int out_moves_index = 0;
+
+    for (int i = 0; i < 27; ++i) {
+        printf("%d ", out_moves[i]);
+    }
+    printf("%\n");
+
+    if (get(sq) == 0) return out_moves; // empty
+    if ((get(sq) & Pieces::FILTER_COLOR) != turn) return out_moves; // other team
+
+    std::vector<Move> moves;
+    get_moves(moves);
+
+    int moves_size = moves.size();
+    for (int i = 0; i < moves_size; ++i)
+    {
+        if (moves[i].from == sq) {
+            out_moves[out_moves_index++] = moves[i].to;
+        }
+    }
+
+    return out_moves;
+}
+
 bool Game::is_blacks_turn()
 {
     return turn == Pieces::BLACK;
@@ -1056,4 +1085,9 @@ void Game::undo()
             }
             break;
     }
+}
+
+Piece * Game::get_board()
+{
+    return board;
 }

@@ -16,8 +16,8 @@
    <script src="board.js"></script>
    <script>
       const set_board = (b) => {
-         let diffs = board.set_board(b)
-         board.update_chessboard(diffs);
+         board.set_board(b)
+         board.update_chessboard()
       }
 
       let board = new Chessboard("board");
@@ -33,6 +33,18 @@
                null, // arguments
             );
          })
+
+         for (let i = 0; i < 64; i++) {
+            let square = document.getElementById(`sq-${i}`)
+            square.addEventListener("click", () => {
+               woodstock.ccall(
+                  "highlight_possible_moves",
+                  null,
+                  [ "number" ],
+                  [ i ]
+               )
+            })
+         }
       });
    </script>
    {{{ SCRIPT }}}

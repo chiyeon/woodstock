@@ -4,7 +4,7 @@
 
 using Bitboard = uint64_t;
 using Magic = uint64_t;
-using Piece = short;
+using Piece = int;
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H

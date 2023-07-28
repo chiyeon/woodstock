@@ -66,9 +66,79 @@ void run_game_simulation(int depth1, int depth2)
     } while (moves.size() != 0);
 }
 
+
+#ifdef EMSCRIPTEN
+#ifdef __cplusplus
+#define EXTERN extern "C"
+#else
+#define EXTERN
+#endif
+
+// Game game("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
+Game game;
+Search search(game);
+int search_depth = 3;
+
+EM_JS(void, highlight_squares, (int sq1, int sq2), {
+    board.highlight_squares(sq1, sq2);
+});
+
+EM_JS(void, highlight_moves, (int * squares), {
+    board.remove_move_highlights();
+
+    // 27 = max num of moves a single piece can go
+    for (let i = 0; i < 27; i++) {
+        const INT_SIZE = 4;
+        let val = HEAP32[(squares + INT_SIZE * i) >> 2];
+
+        if (val == -1) return;
+        board.highlight_move(val);    // squares are -1 if no data
+    }
+});
+
+EM_JS(void, update_chessboard, (Piece * board_data), {
+    board.remove_move_highlights();
+
+    for (let i = 0; i < 64; i++) {
+        const INT_SIZE = 4;
+
+        board.board[i] = HEAP32[(board_data + INT_SIZE * i) >> 2];
+    }
+
+    board.update_chessboard();
+})
+
+EM_JS(bool, is_piece_selected, (), {
+    return board.selected_piece != -1;
+})
+
+EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char ** argv)
+{
+    Move best_move = search.get_best_move(search_depth);
+    game.move(best_move);
+
+    update_chessboard(game.get_board());
+    highlight_squares(best_move.from, best_move.to);
+}
+
+EXTERN EMSCRIPTEN_KEEPALIVE void highlight_possible_moves(int index)
+{
+    if (is_piece_selected()) {
+        printf("piece not selected\n");
+    } else {
+        // highlight pieces & select our piece
+        EM_ASM({board.selected_piece = $0}, index);
+
+        int * moves = game.get_moves_at_square(index);
+        highlight_moves(moves);
+    }
+}
+#else
 int main()
 {
     printf("woodstock!\n");
+
+    return 0;
 
     run_game_simulation(1, 3);
     return 0;
@@ -141,32 +211,4 @@ int main()
     return 0;
 }
 
-
-
-#ifdef EMSCRIPTEN
-#ifdef __cplusplus
-#define EXTERN extern "C"
-#else
-#define EXTERN
-#endif
-
-// Game game("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
-Game game;
-Search search(game);
-int search_depth = 5;
-
-EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char ** argv)
-{
-    Move best_move = search.get_best_move(search_depth);
-    game.move(best_move);
-
-    // :sob: :skull: :coffin:
-    std::string cmd = "set_board([";
-    for (int i = 63; i >= 0; --i) {
-        cmd += std::to_string(game.get(i)) + ",";
-    }
-    cmd += "])";
-
-    emscripten_run_script(cmd.c_str());
-}
 #endif

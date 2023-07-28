@@ -66,10 +66,12 @@ class Piece {
 
 class Chessboard {
    constructor(id) {
-      // this.load_fen_string("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-      this.load_fen_string("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
+      // quirk of how engien does indexes means this string is actually reversed!
+      this.load_fen_string("rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR");
+      // this.load_fen_string("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
+      // this.board = this.empty_board()
       this.create_chessboard(id);
-      this.board = []
+      this.selected_piece = -1;
    }
 
    static piece_to_img = {
@@ -104,20 +106,23 @@ class Chessboard {
    }
 
    set_board = (board) => {
-      let diffs = []
+      this.board = board;
+   }
+
+   empty_board = () => {
+      let out = []
       for (let i = 0; i < 64; i++) {
-         if (this.board[i] != board[i]) diffs.push(i);
+         out.push(0);
       }
 
-      this.board = board;
-      return diffs.length > 2 ? [] : diffs;
+      return out;
    }
 
    load_fen_string = (fen) => {
       let lines = fen.split("/")
       this.board = []
 
-      for (let i = 0; i < lines.length; i++) {
+      for (let i = lines.length - 1; i >= 0; i--) {
          let line = lines[i]
          for (let j = 0; j < line.length; j++) {
             // split into chars
@@ -142,10 +147,10 @@ class Chessboard {
       let root = document.getElementById(id)
       root.classList.add("board")
 
-      for (let y = 0; y < 8; y++) {
+      for (let y = 7; y >= 0; y--) {
          let row_el = document.createElement("div")
          row_el.classList.add("row")
-         for (let x = 0; x < 8; x++) {
+         for (let x = 7; x >= 0; x--) {
             let square = document.createElement("div")
             let index = y * 8 + x
             square.classList.add("square")
@@ -164,9 +169,9 @@ class Chessboard {
       }
    }
 
-   update_chessboard = (diffs) => {
-      for (let y = 0; y < 8; y++) {
-         for (let x = 0; x < 8; x++) {
+   update_chessboard = () => {
+      for (let y = 7; y >= 0; y--) {
+         for (let x = 7; x >= 0; x--) {
                let index = y * 8 + x
                let square = document.getElementById(`sq-${index}`)
 
@@ -185,19 +190,34 @@ class Chessboard {
          }
       }
 
-      this.highlight_squares(diffs);
+      //this.highlight_squares(diffs);
    }
 
-   highlight_squares = (squares) => {
+   highlight_squares = (square1, square2) => {
       let prev_squares = document.querySelectorAll(".last-move")
       for (let i = 0; i < prev_squares.length; i++) {
          prev_squares[i].classList.remove("last-move")
       }
 
+      let squares = [square1, square2]
+
       for (let i = 0; i < squares.length; i++) {
          let square = document.getElementById(`sq-${squares[i]}`)
          square.classList.add("last-move")
       }
+   }
+
+   remove_move_highlights = () => {
+      let prev_squares = document.querySelectorAll(".possible-move")
+      for (let i = 0; i < prev_squares.length; i++) {
+         prev_squares[i].classList.remove("possible-move");
+      }
+      this.selected_piece = -1;
+   }
+
+   // puts dot on one particular square
+   highlight_move = (square) => {
+      document.getElementById(`sq-${square}`).classList.add("possible-move");
    }
 
    make_move = (from, to, flag) => {

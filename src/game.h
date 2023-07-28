@@ -46,7 +46,9 @@ public:
     Piece get(int index);
     Piece get(int x, int y);
 
-    int * get_moves_at_square(int sq);
+    Move get_last_move();
+
+    std::vector<Move> get_moves_at_square(int sq);
 
     bool is_blacks_turn();
     bool is_whites_turn();

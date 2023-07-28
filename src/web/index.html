@@ -20,6 +20,8 @@
          board.update_chessboard()
       }
 
+      var make_ai_move;
+
       let board = new Chessboard("board");
 
       document.addEventListener("DOMContentLoaded", async () => {
@@ -34,11 +36,22 @@
             );
          })
 
+         make_ai_move = () => {
+            setTimeout(() => {
+               woodstock.ccall(
+               "make_best_move", // name of C function
+               null, // return type
+               null, // argument types
+               null, // arguments
+            );
+            }, 10)
+         }
+
          for (let i = 0; i < 64; i++) {
             let square = document.getElementById(`sq-${i}`)
             square.addEventListener("click", () => {
                woodstock.ccall(
-                  "highlight_possible_moves",
+                  "click_square",
                   null,
                   [ "number" ],
                   [ i ]

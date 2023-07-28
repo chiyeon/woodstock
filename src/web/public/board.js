@@ -160,8 +160,9 @@ class Chessboard {
 
             // check for pieces
             if (this.board[index] != Piece.EMPTY) {
-               let piece = document.createElement("img")
-               piece.src = Chessboard.piece_to_img[this.board[index]]
+               let piece = document.createElement("div")
+               piece.style = "background-image: url(" + Chessboard.piece_to_img[this.board[index]] + ")";
+               piece.classList.add("piece")
                square.appendChild(piece)
             }
          }
@@ -178,11 +179,12 @@ class Chessboard {
                // first animate it in, then pop it into existence
                if (this.board[index] != Piece.EMPTY) {
                   if (square.innerHTML == "") {
-                     let piece = document.createElement("img")
-                     piece.src = Chessboard.piece_to_img[this.board[index]]
+                     let piece = document.createElement("div")
+                     piece.style = "background-image: url(" + Chessboard.piece_to_img[this.board[index]] + ")";
+                     piece.classList.add("piece")
                      square.appendChild(piece)
                   } else {
-                     square.childNodes[0].src = Chessboard.piece_to_img[this.board[index]]
+                     square.childNodes[0].style = "background-image: url(" + Chessboard.piece_to_img[this.board[index]] + ")"
                   }
                } else {
                   square.innerHTML = ""

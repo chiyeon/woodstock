@@ -40,7 +40,7 @@
 .board .row .possible-move {
    position: relative;
 }
-.board .row .possible-move::before {
+.board .row .possible-move::after {
    position: absolute;
    content: "";
    border-radius: 999px;
@@ -53,8 +53,16 @@
    opacity: 0.5;
 }
 
-.board .row .square img {
+.board .row .possible-move .piece ~ * {
+   width: 100%;
+   height: 100%;
+   border-radius: 30%;
+   background-color: rgb(255, 99, 99) !important;
+}
+
+.board .row .square .piece {
    width: 95%;
    height: 95%;
-   z-index: 1;
+   z-index: 2;
+   background-size: cover;
 }

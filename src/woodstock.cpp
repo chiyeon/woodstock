@@ -66,7 +66,6 @@ void run_game_simulation(int depth1, int depth2)
     } while (moves.size() != 0);
 }
 
-
 #ifdef EMSCRIPTEN
 #ifdef __cplusplus
 #define EXTERN extern "C"
@@ -77,7 +76,9 @@ void run_game_simulation(int depth1, int depth2)
 // Game game("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
 Game game;
 Search search(game);
-int search_depth = 3;
+int search_depth = 5;
+
+std::vector<Move> selected_piece_moves;
 
 EM_JS(void, highlight_squares, (int sq1, int sq2), {
     board.highlight_squares(sq1, sq2);
@@ -108,29 +109,57 @@ EM_JS(void, update_chessboard, (Piece * board_data), {
     board.update_chessboard();
 })
 
-EM_JS(bool, is_piece_selected, (), {
-    return board.selected_piece != -1;
-})
-
 EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char ** argv)
 {
-    Move best_move = search.get_best_move(search_depth);
-    game.move(best_move);
+    auto make_best_move = [&]() {
+        Move best_move = search.get_best_move(search_depth);
+        game.move(best_move);
+    };
 
-    update_chessboard(game.get_board());
-    highlight_squares(best_move.from, best_move.to);
+    int time_elapsed = measure(make_best_move);
+    printf("Found best move at depth %d with %d evaluations in %dms!\n", search_depth, search.num_positions_evaluated, time_elapsed);
+    search.num_positions_evaluated = 0;
+
+    Move last_move = game.get_last_move();
+
+    update_chessboard(game.get_board());    
+    highlight_squares(last_move.from, last_move.to);
 }
 
-EXTERN EMSCRIPTEN_KEEPALIVE void highlight_possible_moves(int index)
+EXTERN EMSCRIPTEN_KEEPALIVE void click_square(int index)
 {
-    if (is_piece_selected()) {
-        printf("piece not selected\n");
+    std::vector<Move> moves = game.get_moves_at_square(index);
+    int moves_size = moves.size();
+
+    if (moves_size == 0 
+        && (game.get(index) & Pieces::FILTER_COLOR) != game.get_turn()) {
+        
+        for (auto & move : selected_piece_moves)
+        {
+            if (move.to == index) {
+                game.move(move);
+                update_chessboard(game.get_board());
+                highlight_squares(move.from, move.to);
+                EM_ASM({make_ai_move()});
+                break;
+            }
+        }
     } else {
+        /* USER IS HIGHLIGHTING A PIECE */
+        
         // highlight pieces & select our piece
         EM_ASM({board.selected_piece = $0}, index);
 
-        int * moves = game.get_moves_at_square(index);
-        highlight_moves(moves);
+        int move_indexes[27]; // 27 is maximum num of moves a single piece can make
+        
+        int i;
+        for (i = 0; i < moves_size; ++i) {
+            move_indexes[i] = moves[i].to;
+        }
+        move_indexes[i] = -1;
+
+        highlight_moves(move_indexes);
+        selected_piece_moves = moves;
     }
 }
 #else

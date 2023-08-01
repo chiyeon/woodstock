@@ -67,9 +67,19 @@ Bitboard Pieces::get_bishop_moves(int pos, Game & game)
     return game.movemasks.get_bishop_move(game.get_game_bitboard(), pos);
 }
 
+Bitboard Pieces::get_pseudolegal_bishop_moves(int pos, Game & game)
+{
+    return game.movemasks.get_bishop_move(0ULL, pos);
+}
+
 Bitboard Pieces::get_rook_moves(int pos, Game & game)
 {
     return game.movemasks.get_rook_move(game.get_game_bitboard(), pos);
+}
+
+Bitboard Pieces::get_pseudolegal_rook_moves(int pos, Game & game)
+{
+    return game.movemasks.get_rook_move(0ULL, pos);
 }
 
 Bitboard Pieces::get_queen_moves(int pos, Game & game)
@@ -78,6 +88,14 @@ Bitboard Pieces::get_queen_moves(int pos, Game & game)
     return
         (game.movemasks.get_bishop_move(game_bb, pos)
         | game.movemasks.get_rook_move(game_bb, pos));
+}
+
+Bitboard Pieces::get_pseudolegal_queen_moves(int pos, Game & game)
+{
+    return (
+        game.movemasks.get_bishop_move(0ULL, pos)
+        | game.movemasks.get_rook_move(0ULL, pos)
+    );
 }
 
 Bitboard Pieces::get_king_moves(int pos, Game & game)

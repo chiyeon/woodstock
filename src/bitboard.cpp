@@ -36,26 +36,28 @@ Bitboard Bitboards::get_row(int y)
     return 0b11111111ULL << (y * Constants::BOARD_SIZE);
 }
 
-// Bitboard Bitboards::get_row_segment(int y, int x1, int x2)
-// {
-//     Bitboard row = get_row(y);
-//     row = row >> (7 - (x2 - x1));               // truncate row
-//     row = row << ((7 - x2) + (7 - y) * 8);      // move to position
-//     return row;
-// }
+Bitboard Bitboards::get_row_segment(int y, int x1, int x2)
+{
+    Bitboard row = get_row(0);
+    row >>= (7 - (x2 - x1));            // truncate row
+    row <<= y * 8;                      // proper y position
+    row <<= ((7 - (x2 - x1)));
+    row >>= (7 - x1);
+    return row;
+}
 
 Bitboard Bitboards::get_column(int x)
 {
     return 0b0000000100000001000000010000000100000001000000010000000100000001ULL << (x);
 }
 
-// Bitboard Bitboards::get_column_segment(int x, int y1, int y2)
-// {
-//     Bitboard column = get_column(x);
-//     column = column >> (7 - (y2 - y1) * 8);     // truncate row
-//     column = column << ((y1 - y2) * 8);          // move to position
-//     return column;
-// }
+Bitboard Bitboards::get_column_segment(int x, int y1, int y2)
+{
+    Bitboard column = get_column(x);
+    column = column >> (7 - (y2 - y1) * 8);     // truncate row
+    column = column << ((7 - (y1 - y2)) * 8);          // move to position
+    return column;
+}
 
 Bitboard Bitboards::get_diagonal_downwards_right(int x, int y)
 {

@@ -167,9 +167,16 @@ int main()
 {
     printf("woodstock!\n");
 
+    Game a("8/8/8/8/rr6/8/8/K1N2q2");
+    measure_count_bulk_positions(a, 1, true);
     return 0;
 
-    run_game_simulation(1, 3);
+    Game g("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
+    for (int i = 1; i <= 5; ++i) {
+        measure_count_bulk_positions(g, i);
+    }
+
+    // run_game_simulation(3, 1);
     return 0;
     
     Game game;

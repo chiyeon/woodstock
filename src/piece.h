@@ -41,8 +41,11 @@ struct Pieces
     static Bitboard get_pawn_captures(int pos, Game & game);
     static Bitboard get_knight_moves(int pos, Game & game);
     static Bitboard get_bishop_moves(int pos, Game & game);
+    static Bitboard get_pseudolegal_bishop_moves(int pos, Game & game);
     static Bitboard get_rook_moves(int pos, Game & game);
+    static Bitboard get_pseudolegal_rook_moves(int pos, Game & game);
     static Bitboard get_queen_moves(int pos, Game & game);
+    static Bitboard get_pseudolegal_queen_moves(int pos, Game & game);
     static Bitboard get_king_moves(int pos, Game & game);
 
 private:

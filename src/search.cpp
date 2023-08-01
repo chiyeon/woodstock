@@ -124,8 +124,8 @@ Move Search::get_best_move(int depth)
    {
       game.move(move);
 
-      int eval = (game.is_blacks_turn() ? 1 : -1) * alphabeta(depth - 1, -100000000, 100000000);
-      // int eval = negamax(depth - 1, -10000, 10000);
+      // int eval = (game.is_blacks_turn() ? 1 : -1) * alphabeta(depth - 1, -100000000, 100000000);
+      int eval = negascout(depth - 1, -10000, 10000);
       // int eval = alphabeta(depth - 1, -10000, 10000);
 
       game.undo();
@@ -142,23 +142,31 @@ Move Search::get_best_move(int depth)
    return best_move;
 }
 
-int Search::negamax(int depth, int alpha, int beta)
+int Search::negascout(int depth, int alpha, int beta)
 {
    num_positions_evaluated++;
 
    std::vector<Move> moves;
    game.get_moves(moves);
    if (depth == 0) return evaluate_position(game, moves);
+
+   int b = beta;
    
    for (int i = 0; i < moves.size(); ++i) {
       Move move = moves[i];
-
       game.move(move);
-      int eval = -negamax(depth - 1, -beta, -alpha);
-      game.undo();
 
-      if (eval >= beta) return beta;
-      if (eval > alpha) alpha = eval;
+      int eval = -negascout(depth - 1, -b, -alpha);
+
+      if ((eval > alpha) && (eval < beta) && (i > 0))
+         eval = -negascout(depth - 1, -beta, -alpha);
+
+      alpha = std::max(alpha, eval);
+      if (alpha >= beta) 
+         return alpha;
+      b = alpha + 1;
+
+      game.undo();
    }
    return alpha;
 }

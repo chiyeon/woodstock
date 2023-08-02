@@ -46,6 +46,7 @@ struct Pieces
     static Bitboard get_pseudolegal_rook_moves(int pos, Game & game);
     static Bitboard get_queen_moves(int pos, Game & game);
     static Bitboard get_pseudolegal_queen_moves(int pos, Game & game);
+    static Bitboard get_queen_moves_using_blocker(int pos, Bitboard blocker, Game & game);
     static Bitboard get_king_moves(int pos, Game & game);
 
 private:

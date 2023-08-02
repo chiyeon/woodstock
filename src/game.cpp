@@ -279,9 +279,10 @@ void Game::get_moves(std::vector<Move> & moves)
     Bitboard not_ally_bitboard = ~ally_bitboard;
 
     Bitboard attacked_squares = 0ULL;
+    Bitboard attacked_squares_king_xray = 0ULL;
 
     // TODO switch this to use recorded individual pieces
-    Bitboard king_position;
+    Bitboard king_position;         // bitboard of the king
     int king_x = 0;
     int king_y = 0;
     Piece target = Pieces::KING | (is_blacks_turn() ? Pieces::BLACK : Pieces::WHITE);
@@ -306,8 +307,10 @@ void Game::get_moves(std::vector<Move> & moves)
     Bitboards::bitboard_to_positions(ally_piece_positions, ally_bitboard);
     Bitboards::bitboard_to_positions(axis_piece_positions, axis_bitboard);
 
-    Bitboard attacks_on_king = 0ULL;    // pieces that are attacking the king
+    Bitboard attacks_on_king = 0ULL;    // pieces + attacks against the king. These spaces can be blocked/captured to stop it
     int num_king_attackers = 0;         // determine if we cannot block a check
+
+    Bitboard blocker_no_king = game_bitboard & ~king_position;      // so we can "x-ray" the king. represents the game bitboard with the active king removed
 
     bool is_in_check = false;
 
@@ -315,6 +318,9 @@ void Game::get_moves(std::vector<Move> & moves)
     for (auto & pos : axis_piece_positions) {
         Piece piece = board[pos];
         Bitboard piece_captures = 0ULL;
+
+        int pos_x = pos % 8;
+        int pos_y = pos / 8;
 
         // for every piece, get moves based on type
         switch (piece & Pieces::FILTER_PIECE) {
@@ -325,7 +331,7 @@ void Game::get_moves(std::vector<Move> & moves)
                 switch_turns();
                 if (piece_captures & king_position) {
                     // we are attacking the king
-                    // dont need to record attack for jumping pieces
+                    attacks_on_king |= Bitboards::get_i(pos);
                     ++num_king_attackers;
                 }
                 break;
@@ -333,30 +339,34 @@ void Game::get_moves(std::vector<Move> & moves)
                 piece_captures = Pieces::get_knight_moves(pos, *this);
                 if (piece_captures & king_position) {
                     // we are attacking the king
+                    attacks_on_king |= Bitboards::get_i(pos);
                     ++num_king_attackers;
                 }
                 break;
             case Pieces::BISHOP:
-                piece_captures = Pieces::get_bishop_moves(pos, *this);
+                piece_captures = movemasks.get_bishop_move(blocker_no_king, pos);
+                // piece_captures = Pieces::get_bishop_moves(pos, *this);
                 if (piece_captures & king_position) {
                     // we are attacking the king
-                    attacks_on_king |= piece_captures;
+                    attacks_on_king |= Bitboards::get_between(king_x, king_y, pos_x, pos_y);
                     ++num_king_attackers;
                 }
                 break;
             case Pieces::ROOK:
-                piece_captures = Pieces::get_rook_moves(pos, *this);
+                piece_captures = movemasks.get_rook_move(blocker_no_king, pos);
+                // piece_captures = Pieces::get_rook_moves(pos, *this);
                 if (piece_captures & king_position) {
                     // we are attacking the king
-                    attacks_on_king |= piece_captures;
+                    attacks_on_king |= Bitboards::get_between(king_x, king_y, pos_x, pos_y);
                     ++num_king_attackers;
                 }
                 break;
             case Pieces::QUEEN:
-                piece_captures = Pieces::get_queen_moves(pos, *this);
+                piece_captures = movemasks.get_rook_move(blocker_no_king, pos) | movemasks.get_bishop_move(blocker_no_king, pos);
+                // piece_captures = Pieces::get_queen_moves(pos, *this);
                 if (piece_captures & king_position) {
                     // we are attacking the king
-                    attacks_on_king |= piece_captures;
+                    attacks_on_king |= Bitboards::get_between(king_x, king_y, pos_x, pos_y);
                     ++num_king_attackers;
                 }
                 break;
@@ -404,13 +414,13 @@ void Game::get_moves(std::vector<Move> & moves)
 
     // determining if we are pinned ONLY if our number of attackers
     // is less than 2. if its 2, we can ONLY move our king (or lose)
+    std::vector<Bitboard> pinned_spaces;        // if any of our pieces are in one of these spaces, they can only move in that area!
     if (num_king_attackers < 2) {
         std::vector<int> potential_pinner_positions;
-        Bitboards::bitboard_to_positions(potential_pinner_positions, Pieces::get_pseudolegal_queen_moves(king_x + king_y * 8, *this) & axis_bitboard);
+        Bitboards::bitboard_to_positions(potential_pinner_positions, Pieces::get_queen_moves_using_blocker(king_x + king_y * 8, axis_bitboard, *this) & axis_bitboard);
 
         for (auto & pos : potential_pinner_positions)
         {
-            Bitboard between = 0ULL;
             // get ray from king to pin pos
             // check if there is only 1 ally in that area
             // if so, that ally is restricted to that area (non inclusive of ally, inclusive of axis pieces)
@@ -418,49 +428,27 @@ void Game::get_moves(std::vector<Move> & moves)
             int pos_x = pos % 8;
             int pos_y = pos / 8;
 
-            if (king_x > pos_x) {
-                if (king_y > pos_y) {
-                    // south east
-                    between = Bitboards::get_diagonal_downwards_right(king_x - 1, king_y - 1) ^ Bitboards::get_diagonal_downwards_right(pos_x, pos_y);
-                } else if (king_y < pos_y) {
-                    // north east
-                    between = Bitboards::get_diagonal_upwards_right(king_x - 1, king_y + 1) ^ Bitboards::get_diagonal_upwards_right(pos_x, pos_y);
-                } else {
-                    // east
-                    between = Bitboards::get_row_segment(pos_y, pos_x, king_x - 1);
-                }
-            } else if (king_x < pos_x) {
-                if (king_y > pos_y) {
-                    // south west
-                    between = Bitboards::get_diagonal_downwards_left(king_x + 1, king_y - 1) ^ Bitboards::get_diagonal_downwards_left(pos_x, pos_y);
-                } else if (king_y < pos_y) {
-                    // north west
-                    between = Bitboards::get_diagonal_upwards_left(king_x - 1, king_y - 1) ^ Bitboards::get_diagonal_upwards_left(pos_x, pos_y);
-                } else {
-                    // west
-                    between = Bitboards::get_row_segment(pos_y, king_x - 1, pos_x);
-                }
-            } else {
-                if (king_y > pos_y) {
-                    // south
-                    between = Bitboards::get_column_segment(king_x, pos_y, king_y - 1);
-                } else {
-                    // north
-                    between = Bitboards::get_column_segment(king_x, king_y + 1, pos_y);
-                }
-            }
+            // calculate the in between
+            Bitboard between = Bitboards::get_between(king_x, king_y, pos_x, pos_y, (board[pos] & Pieces::FILTER_PIECE));
 
-            printf("In between pin:\n");
-            Bitboards::print(between);
+            // a piece is pinned if there is only one ally piece and nothing else here
+            std::vector<int> pinned_piece_positions;
+            Bitboards::bitboard_to_positions(pinned_piece_positions, between & ally_bitboard);
+
+            if (pinned_piece_positions.size() == 1) {
+                pinned_spaces.push_back(between);
+                // // this piece is pinned!
+                // printf("Piece at %d, %d is pinned!\n", pinned_piece_positions[0] % 8, pinned_piece_positions[0] / 8);
+            }
         }
     }
-
-    // printf("Pinned movement:\n");
-    // Bitboards::print(pinned_movement);
 
     for (auto & pos : ally_piece_positions) {
         Piece piece = board[pos];
         Bitboard piece_moves = 0ULL;
+
+        // if under attack by 2 pieces, the king can only move
+        if (num_king_attackers == 2 && (piece & Pieces::FILTER_PIECE) != Pieces::KING) continue;
 
         // for every piece, get moves based on type
         switch (piece & Pieces::FILTER_PIECE) {
@@ -526,8 +514,8 @@ void Game::get_moves(std::vector<Move> & moves)
                             // make sure there is a clear path
                             // and we dont pass through check
                             if ((
-                                Bitboards::BLACK_KINGSIDE_CASTLE & game_bitboard) == 0
-                                && (Bitboards::BLACK_KINGSIDE_CASTLE & attacked_squares) == 0
+                                Bitboards::BLACK_KINGSIDE_CASTLE_SPACES & game_bitboard) == 0
+                                && (Bitboards::BLACK_KINGSIDE_CASTLE_ATTACK_FREE & attacked_squares) == 0
                                 && board[56] == (Pieces::BLACK | Pieces::ROOK) // TODO REMOVE
                             ) {
                                 Move potential_move(
@@ -560,8 +548,8 @@ void Game::get_moves(std::vector<Move> & moves)
                             // make sure there is a clear path
                             // and we dont pass through check
                             if ((
-                                Bitboards::WHITE_KINGSIDE_CASTLE & game_bitboard) == 0
-                                && (Bitboards::WHITE_KINGSIDE_CASTLE & attacked_squares) == 0
+                                Bitboards::WHITE_KINGSIDE_CASTLE_SPACES & game_bitboard) == 0
+                                && (Bitboards::WHITE_KINGSIDE_CASTLE_ATTACK_FREE & attacked_squares) == 0
                                 && board[0] == (Pieces::WHITE | Pieces::ROOK) // TODO REMOVE
                             ) {
                                 Move potential_move(
@@ -590,17 +578,19 @@ void Game::get_moves(std::vector<Move> & moves)
         // omit capture of allied pieces
         piece_moves &= not_ally_bitboard;
 
-        // only allow movement of pieces that are pinned if we range in check
-        // determine if we are pinned, and if so get the range of movement
-        if (num_king_attackers == 1) {
+        // if we are in check by 1 attacker, we can kill it, block it, or move the king
+        if (num_king_attackers == 1 && (piece & Pieces::FILTER_PIECE) != Pieces::KING) {
             // we can block/kill this or move the king
             piece_moves &= attacks_on_king;
         }
 
-        // but what if we are pinned
-        // piece_moves &= pinned_movement;
-        // printf("Moves due to pin:\n");
-        // Bitboards::print(piece_moves);
+        // if we are pinned, limit movement
+        for (auto & space : pinned_spaces) {
+            if (Bitboards::get_i(pos) & space) {
+                piece_moves &= space;   // we are pinned!
+                break;
+            }
+        }
 
         // skip any pieces with no moves
         if (piece_moves == 0) continue;
@@ -629,6 +619,15 @@ void Game::get_moves(std::vector<Move> & moves)
                 }
             }
             moves.push_back(potential_move);
+
+            // move(potential_move);
+            // if (!in_check()) {
+            //     moves.push_back(potential_move);
+            // } else {
+            //     print();
+            //     printf("Bad move was: From %d to %d\n", potential_move.from, potential_move.to);
+            // }
+            // undo();
         }
     }
 }

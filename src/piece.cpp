@@ -98,6 +98,14 @@ Bitboard Pieces::get_pseudolegal_queen_moves(int pos, Game & game)
     );
 }
 
+Bitboard Pieces::get_queen_moves_using_blocker(int pos, Bitboard blocker, Game & game)
+{
+    return (
+        game.movemasks.get_bishop_move(blocker, pos)
+        | game.movemasks.get_rook_move(blocker, pos)
+    );
+}
+
 Bitboard Pieces::get_king_moves(int pos, Game & game)
 {
     return game.movemasks.get_king_move(pos);

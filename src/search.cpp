@@ -124,8 +124,8 @@ Move Search::get_best_move(int depth)
    {
       game.move(move);
 
-      // int eval = (game.is_blacks_turn() ? 1 : -1) * alphabeta(depth - 1, -100000000, 100000000);
-      int eval = negascout(depth - 1, -10000, 10000);
+      int eval = (game.is_blacks_turn() ? 1 : -1) * alphabeta(depth - 1, -100000000, 100000000);
+      // int eval = negascout(depth - 1, -10000, 10000);
       // int eval = alphabeta(depth - 1, -10000, 10000);
 
       game.undo();

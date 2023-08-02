@@ -39,10 +39,9 @@ Bitboard Bitboards::get_row(int y)
 Bitboard Bitboards::get_row_segment(int y, int x1, int x2)
 {
     Bitboard row = get_row(0);
-    row >>= (7 - (x2 - x1));            // truncate row
-    row <<= y * 8;                      // proper y position
-    row <<= ((7 - (x2 - x1)));
-    row >>= (7 - x1);
+    row >>= (7 - (x2 - x1));                // truncate row
+    row <<= (x2 - (x2 - x1));               // put it back
+    row <<= y * 8;                          // proper y position
     return row;
 }
 
@@ -54,8 +53,8 @@ Bitboard Bitboards::get_column(int x)
 Bitboard Bitboards::get_column_segment(int x, int y1, int y2)
 {
     Bitboard column = get_column(x);
-    column = column >> (7 - (y2 - y1) * 8);     // truncate row
-    column = column << ((7 - (y1 - y2)) * 8);          // move to position
+    column >>= (7 - (y2 - y1)) * 8;             // truncate column
+    column <<= (y2 - (y2 - y1)) * 8;
     return column;
 }
 
@@ -96,6 +95,112 @@ Bitboard Bitboards::get_diagonal_upwards_left(int x, int y)
     }
 
     return output << (x + y * 8);
+}
+
+Bitboard Bitboards::get_between(int x1, int y1, int x2, int y2)
+{
+    if (x1 > x2) {
+        if (y1 > y2) {
+            // south east
+            return Bitboards::get_diagonal_downwards_right(x1, y1) ^ Bitboards::get_diagonal_downwards_right(x2, y2);
+        } else if (y1 < y2) {
+            // north east
+            return Bitboards::get_diagonal_upwards_right(x1, y1) ^ Bitboards::get_diagonal_upwards_right(x2, y2);
+        } else {
+            // east
+            return Bitboards::get_row_segment(y2, x2, x1 - 1);
+        }
+    } else if (x1 < x2) {
+        if (y1 > y2) {
+            // south west
+            return Bitboards::get_diagonal_downwards_left(x1, y1) ^ Bitboards::get_diagonal_downwards_left(x2, y2);
+        } else if (y1 < y2) {
+            // north west
+            return Bitboards::get_diagonal_upwards_left(x1, y1) ^ Bitboards::get_diagonal_upwards_left(x2, y2);
+        } else {
+            // west
+            return Bitboards::get_row_segment(y2, x1 + 1, x2);
+        }
+    } else {
+        if (y1 > y2) {
+            // south
+            return Bitboards::get_column_segment(x1, y2, y1 - 1);
+        } else {
+            // north
+            return Bitboards::get_column_segment(x1, y1 + 1, y2);
+        }
+    }
+
+    return 0ULL;
+}
+
+Bitboard Bitboards::get_between(int x1, int y1, int x2, int y2, Piece piece)
+{
+    if (x1 > x2) {
+        if (y1 > y2) {
+            // south east
+            if (
+                (piece & Pieces::FILTER_PIECE) == Pieces::BISHOP
+                || (piece & Pieces::FILTER_PIECE) == Pieces::QUEEN
+            ) 
+                return Bitboards::get_diagonal_downwards_right(x1, y1) ^ Bitboards::get_diagonal_downwards_right(x2, y2);
+        } else if (y1 < y2) {
+            // north east
+            if (
+                (piece & Pieces::FILTER_PIECE) == Pieces::BISHOP
+                || (piece & Pieces::FILTER_PIECE) == Pieces::QUEEN
+            ) 
+                return Bitboards::get_diagonal_upwards_right(x1, y1) ^ Bitboards::get_diagonal_upwards_right(x2, y2);
+        } else {
+            // east
+            if (
+                (piece & Pieces::FILTER_PIECE) == Pieces::ROOK
+                || (piece & Pieces::FILTER_PIECE) == Pieces::QUEEN
+            ) 
+                return Bitboards::get_row_segment(y2, x2, x1 - 1);
+        }
+    } else if (x1 < x2) {
+        if (y1 > y2) {
+            // south west
+            if (
+                (piece & Pieces::FILTER_PIECE) == Pieces::BISHOP
+                || (piece & Pieces::FILTER_PIECE) == Pieces::QUEEN
+            ) 
+                return Bitboards::get_diagonal_downwards_left(x1, y1) ^ Bitboards::get_diagonal_downwards_left(x2, y2);
+        } else if (y1 < y2) {
+            // north west
+            if (
+                (piece & Pieces::FILTER_PIECE) == Pieces::BISHOP
+                || (piece & Pieces::FILTER_PIECE) == Pieces::QUEEN
+            ) 
+                return Bitboards::get_diagonal_upwards_left(x1, y1) ^ Bitboards::get_diagonal_upwards_left(x2, y2);
+        } else {
+            // west
+            if (
+                (piece & Pieces::FILTER_PIECE) == Pieces::ROOK
+                || (piece & Pieces::FILTER_PIECE) == Pieces::QUEEN
+            ) 
+                return Bitboards::get_row_segment(y2, x1 + 1, x2);
+        }
+    } else {
+        if (y1 > y2) {
+            // south
+            if (
+                (piece & Pieces::FILTER_PIECE) == Pieces::ROOK
+                || (piece & Pieces::FILTER_PIECE) == Pieces::QUEEN
+            ) 
+                return Bitboards::get_column_segment(x1, y2, y1 - 1);
+        } else {
+            // north
+            if (
+                (piece & Pieces::FILTER_PIECE) == Pieces::ROOK
+                || (piece & Pieces::FILTER_PIECE) == Pieces::QUEEN
+            ) 
+                return Bitboards::get_column_segment(x1, y1 + 1, y2);
+        }
+    }
+
+    return 0ULL;
 }
 
 Bitboard Bitboards::board_to_bitboard(Piece * board)

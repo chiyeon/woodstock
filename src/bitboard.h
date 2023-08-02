@@ -27,6 +27,9 @@ struct Bitboards
     static Bitboard get_diagonal_upwards_right(int x, int y);
     static Bitboard get_diagonal_upwards_left(int x, int y);
 
+    static Bitboard get_between(int x1, int y1, int x2, int y2);
+    static Bitboard get_between(int x1, int y1, int x2, int y2, Piece piece);
+
     static Bitboard board_to_bitboard(Piece * board);
     static Bitboard board_to_bitboard(Piece * board, Piece color);
     static int bit_count(Bitboard bitboard);
@@ -46,12 +49,14 @@ struct Bitboards
     const static Bitboard NOT_ROW_1;
     const static Bitboard NOT_ROW_8;
 
-    const static Bitboard BLACK_KINGSIDE_CASTLE = 0b11000000000000000000000000000000000000000000000000000000000;
-    const static Bitboard BLACK_QUEENSIDE_CASTLE_SPACES = 0b111000000000000000000000000000000000000000000000000000000000000;
-    const static Bitboard BLACK_QUEENSIDE_CASTLE_ATTACK_FREE = 0b11000000000000000000000000000000000000000000000000000000000000;
-    const static Bitboard WHITE_KINGSIDE_CASTLE = 0b110;
-    const static Bitboard WHITE_QUEENSIDE_CASTLE_SPACES = 0b1110000;
-    const static Bitboard WHITE_QUEENSIDE_CASTLE_ATTACK_FREE = 0b110000;
+    const static Bitboard BLACK_KINGSIDE_CASTLE_SPACES          =     0b11000000000000000000000000000000000000000000000000000000000;
+    const static Bitboard BLACK_KINGSIDE_CASTLE_ATTACK_FREE     =    0b111000000000000000000000000000000000000000000000000000000000;
+    const static Bitboard BLACK_QUEENSIDE_CASTLE_SPACES         = 0b111000000000000000000000000000000000000000000000000000000000000;
+    const static Bitboard BLACK_QUEENSIDE_CASTLE_ATTACK_FREE    =  0b11100000000000000000000000000000000000000000000000000000000000;
+    const static Bitboard WHITE_KINGSIDE_CASTLE_SPACES          =     0b110;
+    const static Bitboard WHITE_KINGSIDE_CASTLE_ATTACK_FREE     =    0b1110;
+    const static Bitboard WHITE_QUEENSIDE_CASTLE_SPACES         = 0b1110000;
+    const static Bitboard WHITE_QUEENSIDE_CASTLE_ATTACK_FREE    =  0b111000;
 
 private:
     static int get_most_significant_bit_position(Bitboard bitboard);

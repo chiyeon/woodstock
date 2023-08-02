@@ -51,6 +51,15 @@ struct Move
         , captured(captured)
         , flag(flag)
     { }
+
+    bool operator == (const Move & move)
+    {
+        return 
+            move.from == from &&
+            move.to == to &&
+            move.piece == piece &&
+            move.flag == flag;
+    }
 };
 
 #endif

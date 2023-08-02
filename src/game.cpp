@@ -117,6 +117,21 @@ Move Game::get_last_move()
     return history.top();
 }
 
+void Game::pop_last_move()
+{
+    history.pop();
+}
+
+void Game::push_to_history(Move move)
+{
+    history.push(move);
+}
+
+std::stack<Move> Game::get_history()
+{
+    return history;
+}
+
 std::vector<Move> Game::get_moves_at_square(int sq)
 {
     std::vector<Move> out_moves;
@@ -619,15 +634,18 @@ void Game::get_moves(std::vector<Move> & moves)
                 }
             }
             moves.push_back(potential_move);
+        }
+    }
 
-            // move(potential_move);
-            // if (!in_check()) {
-            //     moves.push_back(potential_move);
-            // } else {
-            //     print();
-            //     printf("Bad move was: From %d to %d\n", potential_move.from, potential_move.to);
-            // }
-            // undo();
+    if (moves.size() == 0) {
+        if (is_in_check) {
+            if (is_blacks_turn()) {
+                wcm = true;
+            } else {
+                bcm = true;
+            }
+        } else {
+            draw = true;
         }
     }
 }
@@ -805,6 +823,10 @@ void Game::undo()
 {
     // flip sides
     switch_turns();
+
+    bcm = false;
+    wcm = false;
+    draw = false;
 
     Move last_move = history.top();
     history.pop();

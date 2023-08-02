@@ -161,7 +161,7 @@ class Search
 
    Game & game;
    // int alphabeta(int depth, int alpha, int beta, bool maximizing_player);
-   int alphabeta(int depth, int alpha, int beta);
+   int alphabeta(int depth, int alpha, int beta, bool maximizing_player = false);
    int negascout(int depth, int alpha, int beta);
    int alphabetamax(int depth, int alpha, int beta);
    int alphabetamin(int depth, int alpha, int beta);

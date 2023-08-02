@@ -36,6 +36,10 @@ public:
     int num_castles                         = 0;
     MoveMasks movemasks;
 
+    bool draw = false;
+    bool wcm = false;
+    bool bcm = false;
+
     Game(std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
     Game(Game & g)                          = delete;
     void read_fen(Piece * board, std::string fen);
@@ -48,6 +52,9 @@ public:
     Piece get(int x, int y);
 
     Move get_last_move();
+    void pop_last_move();
+    void push_to_history(Move move);
+    std::stack<Move> get_history();
 
     std::vector<Move> get_moves_at_square(int sq);
 

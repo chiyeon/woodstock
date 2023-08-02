@@ -41,29 +41,24 @@ void run_game_simulation(int depth1, int depth2)
 {
     Game game;
     Search search(game);
-    std::vector<Move> moves;
 
     printf("Running simulation of depth %d vs depth %d. (WvB)\n", depth1, depth2);
     
     do {
-        moves.clear();
-        game.get_moves(moves);
-        float eval = search.evaluate_position(game, moves);
-        if (moves.size() == 0) {
-            if (eval < 0) {
-                game.print();
-                printf("Checkmate! %s wins!\n", game.is_whites_turn() ? "Black" : "White");
-            } else {
-                game.print();
-                printf("Draw!\n");
-            }
-            break;
-        }
-
         Move move = search.get_best_move(game.is_whites_turn() ? depth1 : depth2);
         game.move(move);
         printf("Move Made\n");
-    } while (moves.size() != 0);
+    } while (!game.bcm && !game.wcm && !game.draw);
+
+    game.print();
+
+    if (game.bcm) {
+        printf("Black wins!\n");
+    } else if (game.wcm) {
+        printf("White wins!\n");
+    } else {
+        printf("Draw.\n");
+    }
 }
 
 #ifdef EMSCRIPTEN
@@ -76,7 +71,7 @@ void run_game_simulation(int depth1, int depth2)
 // Game game("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
 Game game;
 Search search(game);
-int search_depth = 5;
+int search_depth = 3;
 
 std::vector<Move> selected_piece_moves;
 
@@ -111,6 +106,10 @@ EM_JS(void, update_chessboard, (Piece * board_data), {
 
 EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char ** argv)
 {
+    // do some resetting
+    selected_piece_moves.clear();
+    EM_ASM({board.selected_piece = undefined});
+
     auto make_best_move = [&]() {
         Move best_move = search.get_best_move(search_depth);
         game.move(best_move);
@@ -171,14 +170,14 @@ int main()
     // measure_count_bulk_positions(a, 1, true);
     // return 0;
 
-    Game g("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
-    // measure_count_bulk_positions(g, 1, true);
-    // return 0;
-    for (int i = 1; i <= 5; ++i) {
-        measure_count_bulk_positions(g, i);
-    }
+    // Game g("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
+    // // measure_count_bulk_positions(g, 1, true);
+    // // return 0;
+    // for (int i = 1; i <= 5; ++i) {
+    //     measure_count_bulk_positions(g, i);
+    // }
 
-    // run_game_simulation(3, 1);
+    run_game_simulation(1, 5);
     return 0;
     
     Game game;

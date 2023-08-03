@@ -8,9 +8,23 @@
    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-   <div id="board"></div>
+   <div id="loading-hint">
+      <p>Loading...</p>
+   </div>
+   
+   <main>
+      <div id="board"></div>
 
-   <button id="butt">Perform Best Move</button>
+      <div class="options">
+         <button id="ai-move-button">AI Move</button>
+         <button id="flip-board-button">Flip</button>
+         <select name="theme" id="theme-select">
+            <option value="john_pablok_improved" selected>John Pablok Improved</option>
+            <option value="wikipedia">Wikipedia</option>
+            <option value="pixels">Pixelated</option>
+         </select>
+      </div>
+   </main>
 
    <script src="index.js"></script>
    <script src="board.js"></script>
@@ -20,20 +34,36 @@
          board.update_chessboard()
       }
 
+      const hide_loading_hint = () => {
+         document.querySelector("#loading-hint").classList.add("hidden");
+      }
+
       var make_ai_move;
 
       let board = new Chessboard("board");
 
+      let ai_button_el = document.querySelector("#ai-move-button");
+      let flip_button_el = document.querySelector("#flip-board-button");
+
+      document.querySelector("#theme-select").addEventListener("change", (e) => {
+         board.theme = e.target.value;
+         board.update_chessboard();
+      })
+
       document.addEventListener("DOMContentLoaded", async () => {
          const woodstock = await WoodstockModule();
 
-         butt.addEventListener("click", () => {
+         ai_button_el.addEventListener("click", () => {
             woodstock.ccall(
                "make_best_move", // name of C function
                null, // return type
                null, // argument types
                null, // arguments
             );
+         })
+
+         flip_button_el.addEventListener("click", () => {
+            board.flip();
          })
 
          make_ai_move = () => {
@@ -54,7 +84,7 @@
                   "click_square",
                   null,
                   [ "number" ],
-                  [ i ]
+                  [ board.flipped ? 63 - i : i ]
                )
             })
          }

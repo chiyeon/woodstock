@@ -147,7 +147,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void click_square(int index)
         /* USER IS HIGHLIGHTING A PIECE */
         
         // highlight pieces & select our piece
-        EM_ASM({board.selected_piece = $0}, index);
+        EM_ASM({board.select_piece($0)}, index);
 
         int move_indexes[27]; // 27 is maximum num of moves a single piece can make
         
@@ -160,6 +160,14 @@ EXTERN EMSCRIPTEN_KEEPALIVE void click_square(int index)
         highlight_moves(move_indexes);
         selected_piece_moves = moves;
     }
+}
+
+int main()
+{
+    printf("woodstock!\n");
+
+    EM_ASM({hide_loading_hint()});
+    return 0;
 }
 #else
 int main()

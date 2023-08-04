@@ -284,7 +284,7 @@ void Game::get_moves(std::vector<Move> & moves)
     moves.reserve(Constants::MAX_CHESS_MOVES_PER_POSITION);
 
     /*
-     * note: it is MARGINALLY faster to not constnatly call is_blacks_turn.
+     * note: it is MARGINALLY faster to not constantly call is_blacks_turn.
      * marginally enough for me not to care?
      */
     Bitboard not_game_bitboard = ~game_bitboard;
@@ -293,8 +293,8 @@ void Game::get_moves(std::vector<Move> & moves)
     Bitboard not_axis_bitboard = ~axis_bitboard;
     Bitboard not_ally_bitboard = ~ally_bitboard;
 
-    Bitboard attacked_squares = 0ULL;
-    Bitboard attacked_squares_king_xray = 0ULL;
+    Bitboard attacked_squares = 0ULL;               // tiles attacked by the enemy
+    Bitboard attacked_squares_king_xray = 0ULL;     // tiles attacked by enemy (king not accounted for in blockers)
 
     // TODO switch this to use recorded individual pieces
     Bitboard king_position;         // bitboard of the king
@@ -652,6 +652,12 @@ void Game::get_moves(std::vector<Move> & moves)
 
 void Game::move(Move & move)
 {
+    wcm = false;
+    bcm = false;
+    draw = false;
+    wc = false;
+    bc = false;
+
     // update game bitboards
     Bitboard from_bitboard = Bitboards::get_i(move.from);
     Bitboard to_bitboard = Bitboards::get_i(move.to);
@@ -812,6 +818,9 @@ void Game::move(Move & move)
             break;
         }
     }
+
+    // calculate checks & stuff
+    // todo switch to toher one
 
     // flip sides
     switch_turns();

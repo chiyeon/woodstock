@@ -1,6 +1,7 @@
 #include "search.h"
 #include "bitboard.h"
 #include <algorithm>
+#include <limits.h>
 
 Search::Search(Game & game)
    : game(game)
@@ -16,24 +17,13 @@ void Search::swap(std::vector<int> & vec, int i, int j)
    vec[j] = tmp;
 }
 
-float Search::evaluate_position(Game & game, std::vector<Move> & moves)
+float Search::evaluate_position(Game & game)
 {
    float white_score = 0, black_score = 0;
 
    if (game.wcm) return 9999999999;
    else if (game.bcm) return -999999999;
    else if (game.draw) return 0;
-
-   // if (moves.size() == 0) {
-   //    // no moves available
-   //    if (game.is_in_check()) {
-   //       // checkmate
-   //       return (game.is_blacks_turn() ? 1 : -1) * 999999999;
-   //    } else {
-   //       // draw
-   //       return 0;
-   //    }
-   // }
 
    std::vector<int> wp_positions;
    std::vector<int> bp_positions;
@@ -116,7 +106,7 @@ Move Search::get_best_move(int depth)
 {
    num_positions_evaluated = 0;
 
-   int best_move_eval = -9999999;
+   int best_move_eval = -INT_MAX, alpha = -INT_MAX, beta = INT_MAX;
    Move best_move(0, 0, 0);
    Move second_best_move(0, 0, 0);
 
@@ -127,16 +117,17 @@ Move Search::get_best_move(int depth)
    {
       game.move(move);
 
-      // int eval = (game.is_blacks_turn() ? 1 : -1) * alphabeta(depth - 1, -100000000, 100000000);
-      // int eval = negascout(depth - 1, -10000, 10000);
-      int eval = alphabeta(depth - 1, -10000, 10000);
+      int eval = alphabeta(depth - 1, alpha, beta);
+      // int eval = negascout(depth - 1, alpha, beta);
+      // int eval = negamax(depth - 1 , alpha, beta);
 
       game.undo();
 
-      if (eval >= best_move_eval) {
-         second_best_move = best_move;
+      if (eval > best_move_eval) {
          best_move = move;
          best_move_eval = eval;
+
+         alpha = std::max(alpha, best_move_eval);
       }
    }
 
@@ -156,54 +147,22 @@ Move Search::get_best_move(int depth)
    return best_move;
 }
 
-int Search::negascout(int depth, int alpha, int beta)
-{
-   num_positions_evaluated++;
-
-   std::vector<Move> moves;
-   game.get_moves(moves);
-   if (depth == 0) return evaluate_position(game, moves);
-
-   int b = beta, eval = 0;
-   
-   for (int i = 0; i < moves.size(); ++i) {
-      Move move = moves[i];
-      game.move(move);
-
-      eval = -negascout(depth - 1, -b, -alpha);
-
-      if ((eval > alpha) && (eval < beta) && (i > 0) && (depth > 0))
-         eval = -negascout(depth - 1, -beta, -alpha);
-
-      alpha = std::max(alpha, eval);
-
-      game.undo();
-      
-      if (alpha >= beta) 
-         return alpha;
-      b = alpha + 1;
-   }
-   return alpha;
-}
-
-// int Search::alphabeta(int depth, int alpha, int beta)
+// int Search::negamax(int depth, int alpha, int beta)
 // {
 //    num_positions_evaluated++;
-//    int best_move_eval = -999999;
 
 //    std::vector<Move> moves;
 //    game.get_moves(moves);
-
-//    if (depth == 0) return (game.is_blacks_turn() ? -1 : 1) * evaluate_position(game, moves);
-   
+//    if (depth == 0) return (game.is_blacks_turn() ? 1 : -1) * evaluate_position(game, moves);
 //    std::vector<int> move_scores = get_move_scores(moves);
 //    int num_moves = moves.size();
 
-//    for (int i = 0 ; i < num_moves; ++i) 
+
+//    int max = -INT_MAX, eval = 0;
+//    for (int i = 0; i < num_moves; ++i)
 //    {
-//       // percolate priority moves to the top
-//       for (int j = i; j < num_moves; ++j)
-//       {
+//       for (int j = i; j < num_moves; ++j) {
+//          // if (move_scores[j] > move_scores[i]) swap(move_scores, i, j);
 //          if (move_scores[j] > move_scores[i]) {
 //             std::swap(move_scores[i], move_scores[j]);
 //             std::swap(moves[i], moves[j]);
@@ -211,36 +170,75 @@ int Search::negascout(int depth, int alpha, int beta)
 //       }
 
 //       game.move(moves[i]);
-//       best_move_eval = std::max(best_move_eval, -alphabeta(depth - 1, -beta, -alpha));
+//       eval = -negamax(depth - 1, -beta, -alpha);
 //       game.undo();
 
-//       alpha = std::max(alpha, best_move_eval);
-
-//       if (alpha >= beta) break;
+//       if (eval >= beta) return eval;
+//       if (eval > max) {
+//          max = eval;
+//          if (eval > alpha) alpha = eval;
+//       }
 //    }
-//    return best_move_eval;
+
+//    return max;
+// }
+
+// int Search::negascout(int depth, int alpha, int beta)
+// {
+//    num_positions_evaluated++;
+
+//    std::vector<Move> moves;
+//    game.get_moves(moves);
+//    if (depth == 0) return (game.is_blacks_turn() ? 1 : -1) * evaluate_position(game, moves);
+//    std::vector<int> move_scores = get_move_scores(moves);
+//    int num_moves = moves.size();
+
+//    int b = beta, eval = 0;
+   
+//    for (int i = 0; i < num_moves; ++i) {
+//       for (int j = i; j < num_moves; ++j) {
+//          if (move_scores[j] > move_scores[i]) {
+//             std::swap(move_scores[i], move_scores[j]);
+//             std::swap(moves[i], moves[j]);
+//          }
+//       }
+
+//       Move move = moves[i];
+//       game.move(move);
+
+//       eval = -negascout(depth - 1, -b, -alpha);
+
+//       if ((eval > alpha) && (eval < beta) && (i > 0))
+//             eval = -negascout(depth - 1, -beta, -alpha);
+
+//       alpha = std::max(alpha, eval);
+
+//       game.undo();
+      
+//       if (alpha >= beta)
+//          return alpha;
+//       b = alpha + 1;
+//    }
+//    return alpha;
 // }
 
 int Search::alphabeta(int depth, int alpha, int beta, bool maximizing_player)
 {
    num_positions_evaluated++;
 
+   if (depth == 0) return (game.is_blacks_turn() ? 1 : -1) * evaluate_position(game);
+
    std::vector<Move> moves;
    game.get_moves(moves);
-   if (depth == 0) return (game.is_blacks_turn() ? 1 : -1) * evaluate_position(game, moves);
-
    int num_moves = moves.size();
    std::vector<int> move_scores = get_move_scores(moves);
 
-   // std::sort(moves.begin(), moves.end(), MoveComparator());
-
    if (maximizing_player) {
-      int best_move_eval = -999999;
+      int best_move_eval = -INT_MAX;
 
       for (int i = 0; i < num_moves; ++i)
       {
          for (int j = i; j < num_moves; ++j) {
-            // if (move_scores[j] > move_scores[i]) swap(move_scores, i, j);
             if (move_scores[j] > move_scores[i]) {
                std::swap(move_scores[i], move_scores[j]);
                std::swap(moves[i], moves[j]);
@@ -259,12 +257,11 @@ int Search::alphabeta(int depth, int alpha, int beta, bool maximizing_player)
 
       return best_move_eval;
    } else {
-      int best_move_eval = 999999;
+      int best_move_eval = INT_MAX;
 
       for (int i = 0; i < num_moves; ++i)
       {
          for (int j = i; j < num_moves; ++j) {
-            // if (move_scores[j] > move_scores[i]) swap(move_scores, i, j);
             if (move_scores[j] > move_scores[i]) {
                std::swap(move_scores[i], move_scores[j]);
                std::swap(moves[i], moves[j]);

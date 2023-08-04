@@ -39,6 +39,8 @@ public:
     bool draw = false;
     bool wcm = false;
     bool bcm = false;
+    bool wc = false;
+    bool bc = false;
 
     Game(std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
     Game(Game & g)                          = delete;

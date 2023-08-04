@@ -177,16 +177,21 @@ int main()
     // Game a("8/8/8/8/8/8/8/Kr6");
     // measure_count_bulk_positions(a, 1, true);
     // return 0;
+    Game g;
+    int total_count = 0, i = 1;
 
-    // Game g("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
-    // // measure_count_bulk_positions(g, 1, true);
-    // // return 0;
-    // for (int i = 1; i <= 5; ++i) {
-    //     measure_count_bulk_positions(g, i);
-    // }
+    auto test_first_position = [&]() {
+        for (i = 1; i <= 6; ++i) {
+            total_count += measure_count_bulk_positions(g, i);
+        }
+    };
 
-    run_game_simulation(1, 5);
+    int time_elapsed = measure(test_first_position);
+    printf("\n\nTotal Num Nodes: %d\nTime Elapsed: %dms\nNodes Per Second: %d\n", total_count, time_elapsed, (int)(static_cast<float>(total_count) / (static_cast<float>(time_elapsed) / 1000.0)));
     return 0;
+
+    // run_game_simulation(1, 5);
+    // return 0;
     
     Game game;
     Search search(game);
@@ -203,7 +208,7 @@ int main()
 
         moves.clear();
         game.get_moves(moves);
-        float eval = search.evaluate_position(game, moves);
+        float eval = search.evaluate_position(game);
 
         printf("Evaluation: %f\n\n", eval);
 

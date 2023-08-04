@@ -69,7 +69,7 @@ void print_num_positions_from_starting(Game & game, int depth)
     }
 }
 
-void measure_count_bulk_positions(Game & game, int depth, bool print_positions = false) {
+int measure_count_bulk_positions(Game & game, int depth, bool print_positions = false) {
     int count = 0;
     auto fn = [&]() {
         count = count_bulk_positions(game, depth, print_positions);
@@ -78,4 +78,6 @@ void measure_count_bulk_positions(Game & game, int depth, bool print_positions =
     int time = measure(fn);
     
     printf("Depth: %d\tPositions: %d\tTime: %dms\n", depth, count, time);
+
+    return count;
 }

@@ -677,15 +677,17 @@ void Game::move(Move & move)
             game_bitboard |= to_bitboard;
             game_bitboard &= ~from_bitboard;
             game_bitboard &= ~en_passant_target;
-            if (is_blacks_turn()) {
-                black_bitboard |= to_bitboard;
-                black_bitboard &= ~from_bitboard;
-                white_bitboard &= ~en_passant_target;
-            } else {
-                white_bitboard |= to_bitboard;
-                white_bitboard &= ~from_bitboard;
-                black_bitboard &= ~en_passant_target;
-            }
+            set_bitboard<turn>(to_bitboard & ~from_bitboard);
+
+            // if (is_blacks_turn()) {
+            //     black_bitboard |= to_bitboard;
+            //     black_bitboard &= ~from_bitboard;
+            //     white_bitboard &= ~en_passant_target;
+            // } else {
+            //     white_bitboard |= to_bitboard;
+            //     white_bitboard &= ~from_bitboard;
+            //     black_bitboard &= ~en_passant_target;
+            // }
 
             break;
         }

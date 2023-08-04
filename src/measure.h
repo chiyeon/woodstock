@@ -81,3 +81,18 @@ int measure_count_bulk_positions(Game & game, int depth, bool print_positions = 
 
     return count;
 }
+
+void measure_nps_starting_position()
+{
+    Game g;
+    int total_count = 0, i = 1;
+
+    auto test_first_position = [&]() {
+        for (i = 1; i <= 6; ++i) {
+            total_count += measure_count_bulk_positions(g, i);
+        }
+    };
+
+    int time_elapsed = measure(test_first_position);
+    printf("\nTotal Num Nodes: %d\nTime Elapsed: %dms\nNodes Per Second: %d\n", total_count, time_elapsed, (int)(static_cast<float>(total_count) / (static_cast<float>(time_elapsed) / 1000.0)));
+}

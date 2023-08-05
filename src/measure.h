@@ -42,7 +42,8 @@ int count_bulk_positions(Game & game, int depth, bool print_positions = false) {
     game.get_moves(moves);
     int count = 0;
 
-    for (int i = 0; i < moves.size(); ++i) {
+    int moves_size = moves.size();
+    for (int i = 0; i < moves_size; ++i) {
         game.move(moves[i]);
         if (print_positions) game.print();
         count += count_bulk_positions(game, depth - 1, print_positions);
@@ -58,7 +59,8 @@ void print_num_positions_from_starting(Game & game, int depth)
     std::vector<Move> moves;
     game.get_moves(moves);
 
-    for (int i = 0; i < moves.size(); ++i)
+    int moves_size = moves.size();
+    for (int i = 0; i < moves_size; ++i)
     {
         int count = 0;
         game.move(moves[i]);

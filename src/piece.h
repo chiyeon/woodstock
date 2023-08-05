@@ -26,6 +26,7 @@ struct Pieces
 
     const static Piece FILTER_COLOR = 0b11000;
     const static Piece FILTER_PIECE = 0b00111;
+    const static Piece NO_FILTER    = 0b11111;
 
     static short get_color(Piece piece);
     static Piece get_piece(Piece piece);

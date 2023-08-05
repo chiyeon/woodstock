@@ -12,7 +12,7 @@ void Bitboards::print(Bitboard bitboard)
     printf("Representation of %llu\n", bitboard);
     for (int y = 0; y < 8; ++y) {
         for (int x = 0; x < 8; ++x) {
-            printf("%d ", (
+            printf("%llu ", (
                 bitboard
                 >> ((Constants::BOARD_SIZE * Constants::BOARD_SIZE - 1) - (x + y * Constants::BOARD_SIZE))
                 & 1
@@ -40,8 +40,9 @@ Bitboard Bitboards::get_row(int y)
 Bitboard Bitboards::get_row_segment(int y, int x1, int x2)
 {
     Bitboard row = get_row(0);
-    row >>= (7 - (x2 - x1));                // truncate row
-    row <<= (x2 - (x2 - x1));               // put it back
+    int size = x2 - x1;
+    row >>= (7 - size);                // truncate row
+    row <<= (x2 - size);               // put it back
     row <<= y * 8;                          // proper y position
     return row;
 }
@@ -54,8 +55,9 @@ Bitboard Bitboards::get_column(int x)
 Bitboard Bitboards::get_column_segment(int x, int y1, int y2)
 {
     Bitboard column = get_column(x);
-    column >>= (7 - (y2 - y1)) * 8;             // truncate column
-    column <<= (y2 - (y2 - y1)) * 8;
+    int size = y2 - y1;
+    column >>= (7 - size) * 8;             // truncate column
+    column <<= (y2 - size) * 8;
     return column;
 }
 
@@ -215,11 +217,11 @@ Bitboard Bitboards::board_to_bitboard(Piece * board)
     return bitboard;
 }
 
-Bitboard Bitboards::board_to_bitboard(Piece * board, Piece color)
+Bitboard Bitboards::board_to_bitboard(Piece * board, Piece filter, Piece accepted_value)
 {
     Bitboard bitboard = 0;
     for (int i = 0; i < 64; ++i) {
-        if (board[i] != 0 && ((board[i] & Pieces::FILTER_COLOR) == color)) {
+        if (board[i] != 0 && ((board[i] & filter) == accepted_value)) {
             bitboard |= get_i(i);
         }
     }
@@ -256,6 +258,11 @@ int Bitboards::pop_lsb(Bitboard & bitboard)
     int lsb_pos = __builtin_ctzll(bitboard);
     bitboard &= bitboard - 1;
     return lsb_pos;
+}
+
+int Bitboards::get_lsb(Bitboard bitboard)
+{
+    return __builtin_ctzll(bitboard);
 }
 
 bool Bitboards::contains_multiple_bits(Bitboard bitboard)

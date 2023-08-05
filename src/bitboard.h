@@ -31,12 +31,14 @@ struct Bitboards
     static Bitboard get_between(int x1, int y1, int x2, int y2, Piece piece);
 
     static Bitboard board_to_bitboard(Piece * board);
-    static Bitboard board_to_bitboard(Piece * board, Piece color);
+    static Bitboard board_to_bitboard(Piece * board, Piece filter, Piece accepted_value);
+
     static int bit_count(Bitboard bitboard);
     static void bitboard_to_positions(std::vector<int> & positions, Bitboard bitboard);
     static int bitboard_to_position(Bitboard bitboard);
 
     static int pop_lsb(Bitboard & bitboard);
+    static int get_lsb(Bitboard bitboard);
     static bool contains_multiple_bits(Bitboard bitboard);
     
     // change these to static values

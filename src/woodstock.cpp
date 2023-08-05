@@ -184,7 +184,6 @@ EXTERN EMSCRIPTEN_KEEPALIVE void undo()
 int main()
 {
     printf("woodstock!\n");
-
     EM_ASM({hide_loading_hint()});
     return 0;
 }
@@ -202,70 +201,70 @@ int main()
     measure_nps(5, "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");   // position 2
     return 0;
 
-    Game game;
-    Search search(game);
-    std::vector<Move> moves;
-    int search_depth = 5;
+    // Game game;
+    // Search search(game);
+    // std::vector<Move> moves;
+    // int search_depth = 5;
 
-    auto make_best_move = [&]() {
-        Move best_move = search.get_best_move(search_depth);
-        game.move(best_move);
-    };
+    // auto make_best_move = [&]() {
+    //     Move best_move = search.get_best_move(search_depth);
+    //     game.move(best_move);
+    // };
 
-    do {
-        game.print();
+    // do {
+    //     game.print();
 
-        moves.clear();
-        game.get_moves(moves);
-        float eval = search.evaluate_position(game);
+    //     moves.clear();
+    //     game.get_moves(moves);
+    //     float eval = search.evaluate_position(game);
 
-        printf("Evaluation: %f\n\n", eval);
+    //     printf("Evaluation: %f\n\n", eval);
 
-        if (moves.size() == 0) {
-            if (eval < 0) {
-                game.print();
-                printf("Checkmate! %s wins!\n", game.is_whites_turn() ? "Black" : "White");
-            } else {
-                game.print();
-                printf("Draw!\n");
-            }
-            break;
-        }
+    //     if (moves.size() == 0) {
+    //         if (eval < 0) {
+    //             game.print();
+    //             printf("Checkmate! %s wins!\n", game.is_whites_turn() ? "Black" : "White");
+    //         } else {
+    //             game.print();
+    //             printf("Draw!\n");
+    //         }
+    //         break;
+    //     }
 
-        char from[10], to[10];
-        printf("Move from: ");
-        scanf("%s", &from); 
+    //     char from[10], to[10];
+    //     printf("Move from: ");
+    //     scanf("%s", &from); 
 
-        if (from[0] == 'u') {
-            game.undo();
-            game.undo();
-            continue;
-        } else if (from[0] == 'z') {
-            goto ai_move;
-        }
+    //     if (from[0] == 'u') {
+    //         game.undo();
+    //         game.undo();
+    //         continue;
+    //     } else if (from[0] == 'z') {
+    //         goto ai_move;
+    //     }
 
-        printf("To: ");
-        scanf("%s", &to);
+    //     printf("To: ");
+    //     scanf("%s", &to);
 
-        for (auto & move : moves) {
-            if (move.from == square_to_index(from) && move.to == square_to_index(to)) {
-                game.move(move);
-                printf("\n");
-                goto ai_move;
-            }
-        }
+    //     for (auto & move : moves) {
+    //         if (move.from == square_to_index(from) && move.to == square_to_index(to)) {
+    //             game.move(move);
+    //             printf("\n");
+    //             goto ai_move;
+    //         }
+    //     }
 
-        printf("Invalid move!\n\n");
-        continue;
+    //     printf("Invalid move!\n\n");
+    //     continue;
 
-        ai_move:
-        printf("Woodstock is thinking... ");
+    //     ai_move:
+    //     printf("Woodstock is thinking... ");
 
-        int time_elapsed = measure(make_best_move);
-        printf("Found best move at depth %d with %d evaluations in %dms!\n", search_depth, search.num_positions_evaluated, time_elapsed);
-        search.num_positions_evaluated = 0;
-        printf("\n");
-    } while(moves.size() != 0);
+    //     int time_elapsed = measure(make_best_move);
+    //     printf("Found best move at depth %d with %d evaluations in %dms!\n", search_depth, search.num_positions_evaluated, time_elapsed);
+    //     search.num_positions_evaluated = 0;
+    //     printf("\n");
+    // } while(moves.size() != 0);
 
     return 0;
 }

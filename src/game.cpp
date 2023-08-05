@@ -35,9 +35,12 @@ void Game::read_fen(std::string fen)
     }
 
     // update our game bitboard representation
-    game_bitboard = Bitboards::board_to_bitboard(board);
-    white_bitboard = Bitboards::board_to_bitboard(board, Pieces::WHITE);
-    black_bitboard = Bitboards::board_to_bitboard(board, Pieces::BLACK);
+    game_bitboard           = Bitboards::board_to_bitboard(board);
+    white_bitboard          = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
+    black_bitboard          = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
+
+    white_king_bitboard     = Bitboards::board_to_bitboard(board, Pieces::NO_FILTER, Pieces::KING | Pieces::WHITE);
+    black_king_bitboard     = Bitboards::board_to_bitboard(board, Pieces::NO_FILTER, Pieces::KING | Pieces::BLACK);
 
     for (int i = 0; i < 64; ++i) {
         if ((board[i] & Pieces::FILTER_PIECE) == Pieces::KING) {
@@ -234,16 +237,7 @@ bool Game::last_move_resulted_in_check()
     // the turn has already flipped.
 
     Bitboard axis_bitboard = is_whites_turn() ? white_bitboard : black_bitboard;
- 
-    // TODO change
-    Bitboard king_position = 0ULL;
-    Piece target = Pieces::KING | (is_blacks_turn() ? Pieces::WHITE : Pieces::BLACK);
-    for (int i = 0; i < 64; ++i) {
-        if (board[i] == target) {
-            king_position = Bitboards::get_i(i);
-            break;
-        }
-    }
+    Bitboard king_position = is_whites_turn() ? black_king_bitboard : white_king_bitboard;
 
     if (axis_bitboard == 0ULL) return false;    // early escape
     if (king_position == 0ULL) return false;    // if kind doesnt exist (testing) just return false
@@ -285,20 +279,9 @@ bool Game::last_move_resulted_in_check()
 bool Game::is_in_check()
 {
     Bitboard axis_bitboard = is_whites_turn() ? black_bitboard : white_bitboard;
+    Bitboard king_position = is_blacks_turn() ? black_king_bitboard : white_king_bitboard;
 
-    // for debugging
-    if (axis_bitboard == 0ULL) return false;
-
-    Bitboard king_position = 0ULL;
-    Piece target = Pieces::KING | (is_blacks_turn() ? Pieces::BLACK : Pieces::WHITE);
-    for (int i = 0; i < 64; ++i) {
-        if (board[i] == target) {
-            king_position = Bitboards::get_i(i);
-            break;
-        }
-    }
-
-    // if kind doesnt exist (testing) just return false
+    if (axis_bitboard == 0ULL) return false;     // for debugging
     if (king_position == 0ULL) return false;
 
     std::vector<int> axis_positions;
@@ -340,32 +323,19 @@ void Game::get_moves(std::vector<Move> & moves)
     Bitboard not_game_bitboard = ~game_bitboard;
     Bitboard axis_bitboard = is_blacks_turn() ? white_bitboard : black_bitboard;
     Bitboard ally_bitboard = is_blacks_turn() ? black_bitboard : white_bitboard;
-    Bitboard not_axis_bitboard = ~axis_bitboard;
+    // Bitboard not_axis_bitboard = ~axis_bitboard;
     Bitboard not_ally_bitboard = ~ally_bitboard;
 
     Bitboard attacked_squares = 0ULL;               // tiles attacked by the enemy
-    Bitboard attacked_squares_king_xray = 0ULL;     // tiles attacked by enemy (king not accounted for in blockers)
 
-    // TODO switch this to use recorded individual pieces
-    Bitboard king_position;         // bitboard of the king
-    int king_x = 0;
-    int king_y = 0;
-    Piece target = Pieces::KING | (is_blacks_turn() ? Pieces::BLACK : Pieces::WHITE);
-    for (int i = 0; i < 64; ++i) {
-        if (board[i] == target) {
-            king_position = Bitboards::get_i(i);
-            king_x = i % 8;
-            king_y = i / 8;
-            break;
-        }
-    }
+    Bitboard king_position = is_blacks_turn() ? black_king_bitboard : white_king_bitboard;
+    int king_pos = Bitboards::get_lsb(king_position);
+    int king_x = king_pos % 8, king_y = king_pos / 8;
 
     Bitboard attacks_on_king = 0ULL;    // pieces + attacks against the king. These spaces can be blocked/captured to stop it
     int num_king_attackers = 0;         // determine if we cannot block a check
 
     Bitboard blocker_no_king = game_bitboard & ~king_position;      // so we can "x-ray" the king. represents the game bitboard with the active king removed
-
-    bool is_in_check = false;
 
     // determine danger zones first
     Bitboard axis_bitboard_i = axis_bitboard;
@@ -424,8 +394,8 @@ void Game::get_moves(std::vector<Move> & moves)
         attacked_squares |= piece_captures;
     }
 
-    // update if we are in check or not
-    is_in_check = attacked_squares & king_position;
+    // // update if we are in check or not
+    // is_in_check = attacked_squares & king_position;
 
     // determining if we are pinned ONLY if our number of attackers
     // is less than 2. if its 2, we can ONLY move our king (or lose)
@@ -489,7 +459,7 @@ void Game::get_moves(std::vector<Move> & moves)
                 // if first move ignore
                 if (history.empty()) break;                
                 // check if we can en passant
-                int y = pos / 8;
+                // int y = pos / 8;
                 int x = pos % 8;
                 Move last_move = get_last_move();
                 if (
@@ -561,18 +531,6 @@ void Game::get_moves(std::vector<Move> & moves)
         while (piece_moves != 0ULL) {
             int target_pos = Bitboards::pop_lsb(piece_moves);
             moves.push_back(Move(pos, target_pos, piece, board[target_pos]));
-        }
-    }
-
-    if (moves.size() == 0) {
-        if (is_in_check) {
-            if (is_blacks_turn()) {
-                wcm = true;
-            } else {
-                bcm = true;
-            }
-        } else {
-            draw = true;
         }
     }
 }
@@ -710,12 +668,16 @@ void Game::move(Move & move)
     switch (move.piece & Pieces::FILTER_PIECE) {
         case Pieces::KING:      // update for castling
             if (is_blacks_turn()) {
+                black_king_bitboard = to_bitboard;
+
                 if (!has_black_king_moved) {
                     has_black_king_moved = true;
                     move.flags |= Move::FIRST_MOVE;
                 }
             }
             else {
+                white_king_bitboard = to_bitboard;
+
                 if (!has_white_king_moved) {
                     has_white_king_moved = true;
                     move.flags |= Move::FIRST_MOVE;
@@ -741,13 +703,8 @@ void Game::move(Move & move)
             }
             break;
     }
-
-    // calculate checks & stuff
-    // todo switch to toher one
-
-    // flip sides
-    switch_turns();
-
+    
+    switch_turns(); // flip sides
     history.push(move);
 }
 
@@ -892,6 +849,16 @@ void Game::undo()
                 break;
             }
         }
+    }
+
+    switch (last_move.piece & Pieces::FILTER_PIECE) {
+        case Pieces::KING:
+            if (is_blacks_turn()) {
+                black_king_bitboard = from_bitboard;
+            } else {
+                white_king_bitboard = from_bitboard;
+            }
+            break;
     }
 }
 

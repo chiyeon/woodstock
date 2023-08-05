@@ -221,7 +221,7 @@ Magic MoveMasks::find_magic(int pos, Piece piece_type)
 
     // printf("Finding magics for %s\n", piece_type == Pieces::BISHOP ? "bishops" : "rooks");
 
-    Bitboard start_position = Bitboards::get_i(pos);
+    // Bitboard start_position = Bitboards::get_i(pos);
     Bitboard mask = (piece_type == Pieces::BISHOP) ? bishop_magic_table[pos].mask : rook_magic_table[pos].mask;
     std::vector<Bitboard> blocker_combinations = get_all_blocker_combinations(mask);
     int num_moves = blocker_combinations.size();
@@ -299,15 +299,15 @@ Magic MoveMasks::find_magic(int pos, Piece piece_type)
     int num_tries = 100000000;
 
     for (int i = 0; i < num_tries; ++i) {
-        int element_count = 0;
+        // int element_count = 0;
         Magic magic = get_random_small_magic();
         fill(magic_moves.begin(), magic_moves.end(), 0xFFFFFFFFFFFFFFFFULL);    // reset magic moves
         for (int j = 0; j < num_moves; ++j) {
             Bitboard key = (blocker_combinations[j] * magic) >> index_bits;
-            if (key >= num_magic_moves) goto next_magic;
+            if (key >= (Bitboard)num_magic_moves) goto next_magic;
             if (magic_moves[key] == 0xFFFFFFFFFFFFFFFF) {
                 magic_moves[key] = legal_moves[j];
-                element_count++;
+                // element_count++;
             } else if (magic_moves[key] != legal_moves[j]) {
                 // not a good magic if there is a collision that ISNT the same legal move
                 goto next_magic;
@@ -316,11 +316,13 @@ Magic MoveMasks::find_magic(int pos, Piece piece_type)
 
         // printf("Magic fonud?!??!\n");
         if (piece_type == Pieces::BISHOP) {
-            for (int j = 0; j < magic_moves.size(); ++j) {
+            int magic_moves_size = magic_moves.size();
+            for (int j = 0; j < magic_moves_size; ++j) {
                 if (magic_moves[j] != 0xFFFFFFFFFFFFFFFFULL) bishop_moves[pos][j] = magic_moves[j];
             }
         } else {
-            for (int j = 0; j < magic_moves.size(); ++j) {
+            int magic_moves_size = magic_moves.size();
+            for (int j = 0; j < magic_moves_size; ++j) {
                 if (magic_moves[j] != 0xFFFFFFFFFFFFFFFFULL) rook_moves[pos][j] = magic_moves[j];
             }
         }

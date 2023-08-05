@@ -5,6 +5,7 @@
 using Bitboard = uint64_t;
 using Magic = uint64_t;
 using Piece = int;
+using Flag = int;
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H

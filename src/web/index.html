@@ -16,6 +16,7 @@
       <div id="board"></div>
 
       <div class="options">
+         <button id="undo-button">Undo</button>
          <button id="ai-move-button">AI Move</button>
          <button id="flip-board-button">Flip</button>
          <select name="theme" id="theme-select">
@@ -23,6 +24,8 @@
             <option value="wikipedia">Wikipedia</option>
             <option value="pixels">Pixelated</option>
          </select>
+         <input type="text" placeholder="FEN String" id="fen-input" />
+         <button id="load-fen-button">Load</button>
       </div>
    </main>
 
@@ -42,8 +45,11 @@
 
       let board = new Chessboard("board");
 
+      let undo_button_el = document.querySelector("#undo-button")
       let ai_button_el = document.querySelector("#ai-move-button");
       let flip_button_el = document.querySelector("#flip-board-button");
+      let load_fen_el = document.querySelector("#load-fen-button");
+      let fen_input_el = document.querySelector("#fen-input")
 
       document.querySelector("#theme-select").addEventListener("change", (e) => {
          board.theme = e.target.value;
@@ -52,6 +58,15 @@
 
       document.addEventListener("DOMContentLoaded", async () => {
          const woodstock = await WoodstockModule();
+
+         undo_button_el.addEventListener("click", () => {
+            woodstock.ccall(
+               "undo",
+               null,
+               null,
+               null
+            )
+         })
 
          ai_button_el.addEventListener("click", () => {
             woodstock.ccall(
@@ -64,6 +79,14 @@
 
          flip_button_el.addEventListener("click", () => {
             board.flip();
+         })
+
+         load_fen_el.addEventListener("click", () => {
+            let fen_str = fen_input_el.value;
+            let buffer = woodstock._malloc(fen_str.length + 1);
+            woodstock.stringToUTF8(fen_str, buffer, fen_str.length + 1);
+            woodstock.ccall("load_fen", null, [ "number" ], [ buffer ]);
+            woodstock._free(buffer);
          })
 
          make_ai_move = () => {

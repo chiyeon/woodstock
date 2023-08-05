@@ -21,10 +21,16 @@ class Game
     Bitboard white_king_bitboard            = 0ULL;
     Bitboard black_king_bitboard            = 0ULL;
 
-    bool can_white_castle_kingside          = true;
-    bool can_white_castle_queenside         = true;
-    bool can_black_castle_kingside          = true;
-    bool can_black_castle_queenside         = true;
+    bool has_white_king_moved               = false;
+    bool has_white_queenside_rook_moved     = false;
+    bool has_white_kingside_rook_moved      = false;
+    bool has_black_king_moved               = false;
+    bool has_black_queenside_rook_moved     = false;
+    bool has_black_kingside_rook_moved      = false;
+
+
+    bool can_castle_kingside(Bitboard attacked_squares);
+    bool can_castle_queenside(Bitboard attacked_squares);
 
     // TODO bitboards for pieces, ie white_pawn_bitboard
 
@@ -42,6 +48,9 @@ class Game
         else return black_bitboard;
     }
 
+    // Bitboard get_attacked_squares(Bitboard pieces);
+    // Bitboard get_attacked_squares_ignore_king(Bitboard pieces);
+
 public:
     int en_passant_count                    = 0;
     int captures                            = 0;
@@ -56,7 +65,7 @@ public:
 
     Game(std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
     Game(Game & g)                      = delete;
-    void read_fen(Piece * board, std::string fen);
+    void read_fen(std::string fen);
     void print();
     Bitboard get_game_bitboard();
     Bitboard get_white_bitboard();
@@ -66,6 +75,7 @@ public:
     Piece get(int x, int y);
 
     Move get_last_move();
+    bool is_history_empty();
     void pop_last_move();
     void push_to_history(Move move);
     std::stack<Move> get_history();
@@ -76,7 +86,7 @@ public:
     bool is_whites_turn();
     void switch_turns();
     Piece get_turn();
-    bool in_check();
+    bool last_move_resulted_in_check();
     bool is_in_check();
 
     void get_moves(std::vector<Move> & moves);

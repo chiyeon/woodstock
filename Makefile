@@ -2,7 +2,7 @@ CFILES=src/*.cpp
 CMP_ARGS=-Wall -Wfatal-errors -std=c++2a -flto -fassociative-math -ffast-math -fomit-frame-pointer -Wunused-variable -Wsign-compare
 
 G++_ARGS=-O3 -march=native
-EMCC_ARGS=-O3 -s TOTAL_STACK=4MB -s ASSERTIONS=2 --shell-file src/web/index.html -s MODULARIZE -s WASM=1 -s EXPORT_NAME="WoodstockModule" -s EXPORTED_RUNTIME_METHODS='["ccall"]'
+EMCC_ARGS=-Os -s TOTAL_STACK=4MB -s ASSERTIONS=2 --shell-file src/web/index.html -s MODULARIZE -s WASM=1 -s EXPORT_NAME="WoodstockModule" -s EXPORTED_RUNTIME_METHODS='["ccall", "stringToUTF8"]' -s EXPORTED_FUNCTIONS='["_malloc", "_free"]'
 
 clean:
 	rm -rf -f build/
@@ -21,3 +21,7 @@ serve: build/
 
 test: build/
 	./build/woodstock.o
+
+debug: cbuild test
+
+web: build serve

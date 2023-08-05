@@ -121,7 +121,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char ** argv)
 
     Move last_move = game.get_last_move();
 
-    update_chessboard(game.get_board());    
+    update_chessboard(game.get_board());
     highlight_squares(last_move.from, last_move.to);
 }
 
@@ -139,7 +139,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void click_square(int index)
                 game.move(move);
                 update_chessboard(game.get_board());
                 highlight_squares(move.from, move.to);
-                EM_ASM({make_ai_move()});
+                // EM_ASM({make_ai_move()});
                 break;
             }
         }
@@ -162,6 +162,25 @@ EXTERN EMSCRIPTEN_KEEPALIVE void click_square(int index)
     }
 }
 
+EXTERN EMSCRIPTEN_KEEPALIVE void load_fen(char * fen)
+{
+    game.read_fen((std::string)fen);
+    update_chessboard(game.get_board());
+}
+
+EXTERN EMSCRIPTEN_KEEPALIVE void undo()
+{
+    game.undo();
+    update_chessboard(game.get_board());
+
+    if (game.is_history_empty()) {
+        EM_ASM({board.remove_highlight_squares()});
+    } else {
+        Move last_move = game.get_last_move();
+        highlight_squares(last_move.from, last_move.to);
+    }
+}
+
 int main()
 {
     printf("woodstock!\n");
@@ -174,7 +193,9 @@ int main()
 {
     printf("woodstock!\n");
 
-    measure_nps_starting_position();
+    measure_nps(6);      // measure start position
+    printf("\n\n");
+    measure_nps(5, "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");   // position 2
     return 0;
 
     Game game;
@@ -209,7 +230,7 @@ int main()
 
         char from[10], to[10];
         printf("Move from: ");
-        scanf("%s", &from);
+        scanf("%s", &from); 
 
         if (from[0] == 'u') {
             game.undo();

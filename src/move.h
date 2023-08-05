@@ -3,37 +3,26 @@
 
 #include "constants.h"
 
-enum MoveFlag
-{
-    NOTHING,
-    EN_PASSANT,
-    PROMOTION,
-    CASTLE_BOTH_ALLOWED,        // todo fix this :sob:
-    CASTLE_KINGSIDE_ALLOWED,
-    CASTLE_QUEENSIDE_ALLOWED,
-    KING_FIRST_MOVE,
-    KINGSIDE_ROOK_FIRST_MOVE,
-    QUEENSIDE_ROOK_FIRST_MOVE,
-    PROMOTION_QUEEN,
-    PROMOTION_ROOK,
-    PROMOTION_KNIGHT,
-    PROMOTION_BISHOP,
-};
-
 struct Move
 {
+    const static Flag NOTHING           =    0b0;
+    const static Flag EN_PASSANT        =    0b1;
+    const static Flag PROMOTION         =   0b10;
+    const static Flag FIRST_MOVE        =   0b11;
+    const static Flag CASTLE            =  0b100;
+
     int from;
     int to;
     Piece piece;
     Piece captured;
-    MoveFlag flag;
+    Flag flags;
 
     Move(int from, int to, Piece piece)
         : from(from)
         , to(to)
         , piece(piece)
         , captured(0)
-        , flag(NOTHING)
+        , flags(NOTHING)
     { }
 
     Move(int from, int to, Piece piece, Piece captured)
@@ -41,15 +30,15 @@ struct Move
         , to(to)
         , piece(piece)
         , captured(captured)
-        , flag(NOTHING)
+        , flags(NOTHING)
     { }
 
-    Move(int from, int to, Piece piece, Piece captured, MoveFlag flag)
+    Move(int from, int to, Piece piece, Piece captured, Flag flags)
         : from(from)
         , to(to)
         , piece(piece)
         , captured(captured)
-        , flag(flag)
+        , flags(flags)
     { }
 
     bool operator == (const Move & move)
@@ -58,7 +47,7 @@ struct Move
             move.from == from &&
             move.to == to &&
             move.piece == piece &&
-            move.flag == flag;
+            move.flags == flags;
     }
 };
 

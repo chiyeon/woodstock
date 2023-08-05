@@ -2,7 +2,7 @@ body {
    background-color: #272827;
 }
 
-p, a, button, ul, li, h1, h2, h3 {
+p, a, button, ul, li, h1, h2, h3, input {
    font-family: Helvetica, sans-serif;
 }
 
@@ -38,7 +38,7 @@ main {
    margin: auto;
 }
 
-button, select {
+button, select, input {
    border: none;
    background-color: #6b8263;
    color: white;
@@ -46,6 +46,11 @@ button, select {
    font-size: 1em;
    padding: 0.5em;
    cursor: pointer;
+}
+
+input {
+   background-color: #f1eddc;
+   color: #6b8263;
 }
 
 button:hover, select:hover {

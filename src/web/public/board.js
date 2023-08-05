@@ -233,6 +233,13 @@ class Chessboard {
       this.selected_piece = this.flipped ? 63 - piece : piece;
    }
 
+   remove_highlight_squares = () => {
+      let prev_squares = document.querySelectorAll(".last-move")
+      for (let i = 0; i < prev_squares.length; i++) {
+         prev_squares[i].classList.remove("last-move")
+      }
+   }
+
    highlight_squares = (square1, square2) => {
       let prev_squares = document.querySelectorAll(".last-move")
       for (let i = 0; i < prev_squares.length; i++) {

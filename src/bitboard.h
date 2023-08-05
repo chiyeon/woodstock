@@ -35,6 +35,9 @@ struct Bitboards
     static int bit_count(Bitboard bitboard);
     static void bitboard_to_positions(std::vector<int> & positions, Bitboard bitboard);
     static int bitboard_to_position(Bitboard bitboard);
+
+    static int pop_lsb(Bitboard & bitboard);
+    static bool contains_multiple_bits(Bitboard bitboard);
     
     const static Bitboard A_FILE;
     const static Bitboard H_FILE;

@@ -2,6 +2,7 @@
 #include <vector>
 #include <cmath>
 #include <strings.h>
+
 #include "bitboard.h"
 #include "constants.h"
 #include "piece.h"
@@ -236,15 +237,30 @@ void Bitboards::bitboard_to_positions(std::vector<int> & positions, Bitboard bit
     positions.reserve(64);
     
     while (bitboard != 0) {
-        int lsb_pos = ffsll(bitboard);
+        positions.push_back(__builtin_ctzll(bitboard));
         bitboard &= bitboard - 1;
-        positions.push_back(lsb_pos - 1);      // not having this subtraction makes it slow?!?!?
     }
 }
 
 int Bitboards::bitboard_to_position(Bitboard bitboard)
 {
     return ffsll(bitboard);
+}
+
+int Bitboards::pop_lsb(Bitboard & bitboard)
+{
+    // int lsb_pos = ffsll(bitboard);
+    // bitboard &= bitboard - 1;
+    // return lsb_pos - 1;
+    // these are about the same, this one seems to be better
+    int lsb_pos = __builtin_ctzll(bitboard);
+    bitboard &= bitboard - 1;
+    return lsb_pos;
+}
+
+bool Bitboards::contains_multiple_bits(Bitboard bitboard)
+{
+    return bitboard & (bitboard - 1);
 }
 
 const Bitboard Bitboards::A_FILE = get_column(7);

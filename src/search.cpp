@@ -25,13 +25,9 @@ float Search::evaluate_position(Game & game)
    else if (game.bcm) return -999999999;
    else if (game.draw) return 0;
 
-   std::vector<int> wp_positions;
-   std::vector<int> bp_positions;
-
-   Bitboards::bitboard_to_positions(wp_positions, game.get_white_bitboard());
-   Bitboards::bitboard_to_positions(bp_positions, game.get_black_bitboard());
-
-   for (auto & pos : wp_positions) {
+   Bitboard white_bitboard = game.get_white_bitboard();
+   while (white_bitboard != 0ULL) {
+      int pos = Bitboards::pop_lsb(white_bitboard);
       int piece_type = (game.get(pos) & Pieces::FILTER_PIECE);
 
       white_score += piece_values[piece_type];
@@ -58,7 +54,9 @@ float Search::evaluate_position(Game & game)
       }
    }
 
-   for (auto & pos : bp_positions) {
+   Bitboard black_bitboard = game.get_black_bitboard();
+   while (black_bitboard != 0ULL) {
+      int pos = Bitboards::pop_lsb(black_bitboard);
       int piece_type = (game.get(pos) & Pieces::FILTER_PIECE);
 
       black_score += piece_values[piece_type];

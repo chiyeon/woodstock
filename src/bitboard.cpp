@@ -262,16 +262,3 @@ bool Bitboards::contains_multiple_bits(Bitboard bitboard)
 {
     return bitboard & (bitboard - 1);
 }
-
-const Bitboard Bitboards::A_FILE = get_column(7);
-const Bitboard Bitboards::H_FILE = get_column(0);
-const Bitboard Bitboards::AB_FILE = get_column(7) | get_column(6);
-const Bitboard Bitboards::GH_FILE = get_column(0) | get_column(1);
-const Bitboard Bitboards::NOT_A_FILE = ~get_column(7);
-const Bitboard Bitboards::NOT_H_FILE = ~get_column(0);
-const Bitboard Bitboards::NOT_AB_FILE = ~(get_column(7) | get_column(6));
-const Bitboard Bitboards::NOT_GH_FILE = ~(get_column(0) | get_column(1));
-const Bitboard Bitboards::ROW_1 = get_row(0);
-const Bitboard Bitboards::ROW_8 = get_row(7);
-const Bitboard Bitboards::NOT_ROW_1 = ~get_row(0);
-const Bitboard Bitboards::NOT_ROW_8 = ~get_row(7);

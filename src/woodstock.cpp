@@ -110,12 +110,23 @@ EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char ** argv)
     selected_piece_moves.clear();
     EM_ASM({board.selected_piece = undefined});
 
+    bool move_exists = false;
+
     auto make_best_move = [&]() {
         Move best_move = search.get_best_move(search_depth);
-        game.move(best_move);
+        if (best_move.to != best_move.from && best_move.to != 0) {
+            game.move(best_move);
+            move_exists = true;
+        }
     };
 
     int time_elapsed = measure(make_best_move);
+
+    if (!move_exists) {
+        printf("No moves exist.\n");
+        return;
+    }
+
     printf("Found best move at depth %d with %d evaluations in %dms!\n", search_depth, search.num_positions_evaluated, time_elapsed);
     search.num_positions_evaluated = 0;
 
@@ -139,7 +150,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void click_square(int index)
                 game.move(move);
                 update_chessboard(game.get_board());
                 highlight_squares(move.from, move.to);
-                // EM_ASM({make_ai_move()});
+                EM_ASM({make_ai_move()});
                 break;
             }
         }
@@ -192,8 +203,18 @@ int main()
 {
     printf("woodstock!\n");
 
-    // Game g("8/5P2/8/8/8/8/8/8");
-    // measure_count_bulk_positions(g, 1, true);
+    // bug occurs when searching beyond checkmates.
+    // Game g("8/8/8/5N2/6p1/5k1p/2R4p/1K4n1");
+    // Search search(g);
+
+    // g.print();
+    // // measure_count_bulk_positions(g, 1, true);
+    // for (int i = 0; i < 1; i++) {
+    //     Move b = search.get_best_move(5);
+    //     printf("Move from %d to %d as piece %d. Flags are: %d.\n", b.from, b.to, b.piece, b.flags);
+    //     // g.move(b);
+    // }
+    // g.print();
     // return 0;
 
     measure_nps(6);      // measure start position

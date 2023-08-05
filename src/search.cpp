@@ -21,8 +21,8 @@ float Search::evaluate_position(Game & game)
 {
    float white_score = 0, black_score = 0;
 
-   if (game.wcm) return 9999999999;
-   else if (game.bcm) return -999999999;
+   if (game.wcm) return -9999999999;
+   else if (game.bcm) return 999999999;
    else if (game.draw) return 0;
 
    Bitboard white_bitboard = game.get_white_bitboard();
@@ -105,7 +105,7 @@ Move Search::get_best_move(int depth)
    num_positions_evaluated = 0;
 
    int best_move_eval = -INT_MAX, alpha = -INT_MAX, beta = INT_MAX;
-   Move best_move(0, 0, 0);
+   Move best_move(0, 0, 0, 0, 0);
    Move second_best_move(0, 0, 0);
 
    std::vector<Move> moves;
@@ -224,10 +224,9 @@ int Search::alphabeta(int depth, int alpha, int beta, bool maximizing_player)
 {
    num_positions_evaluated++;
 
-   if (depth == 0) return (game.is_blacks_turn() ? 1 : -1) * evaluate_position(game);
-
    std::vector<Move> moves;
    game.get_moves(moves);
+   if (depth == 0 || game.wcm || game.bcm || game.draw) return (game.is_blacks_turn() ? 1 : -1) * evaluate_position(game);
    int num_moves = moves.size();
    std::vector<int> move_scores = get_move_scores(moves);
 

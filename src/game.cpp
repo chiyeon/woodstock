@@ -41,16 +41,6 @@ void Game::read_fen(std::string fen)
 
     white_king_bitboard     = Bitboards::board_to_bitboard(board, Pieces::NO_FILTER, Pieces::KING | Pieces::WHITE);
     black_king_bitboard     = Bitboards::board_to_bitboard(board, Pieces::NO_FILTER, Pieces::KING | Pieces::BLACK);
-
-    for (int i = 0; i < 64; ++i) {
-        if ((board[i] & Pieces::FILTER_PIECE) == Pieces::KING) {
-            if ((board[i] & Pieces::FILTER_COLOR) == Pieces::BLACK) {
-                black_king_bitboard = Bitboards::get_i(i);
-            } else {
-                white_king_bitboard = Bitboards::get_i(i);
-            }
-        }
-    }
 }
 
 void Game::print()
@@ -284,10 +274,9 @@ bool Game::is_in_check()
     if (axis_bitboard == 0ULL) return false;     // for debugging
     if (king_position == 0ULL) return false;
 
-    std::vector<int> axis_positions;
-    Bitboards::bitboard_to_positions(axis_positions, axis_bitboard);
-
-    for (auto & index : axis_positions) {
+    while (axis_bitboard != 0ULL)
+    {
+        int index = Bitboards::pop_lsb(axis_bitboard);
         Bitboard piece_moves = 0;
         switch (board[index] & Pieces::FILTER_PIECE) {
             case Pieces::PAWN:
@@ -318,6 +307,13 @@ bool Game::is_in_check()
 
 void Game::get_moves(std::vector<Move> & moves)
 {
+    if (wcm || bcm) return;
+
+    wcm = false;
+    bcm = false;
+    draw = false;
+    wc = false;
+    bc = false;
     moves.reserve(Constants::MAX_CHESS_MOVES_PER_POSITION);
 
     Bitboard not_game_bitboard = ~game_bitboard;
@@ -394,8 +390,8 @@ void Game::get_moves(std::vector<Move> & moves)
         attacked_squares |= piece_captures;
     }
 
-    // // update if we are in check or not
-    // is_in_check = attacked_squares & king_position;
+    // update if we are in check or not
+    bool is_in_check = attacked_squares & king_position;
 
     // determining if we are pinned ONLY if our number of attackers
     // is less than 2. if its 2, we can ONLY move our king (or lose)
@@ -533,6 +529,14 @@ void Game::get_moves(std::vector<Move> & moves)
             moves.push_back(Move(pos, target_pos, piece, board[target_pos]));
         }
     }
+
+    if (moves.size() == 0) {
+        if (is_in_check) {
+            is_blacks_turn() ? bcm = true : wcm = true;
+        } else {
+            draw = true;
+        }
+    }
 }
 
 bool Game::can_castle_kingside(Bitboard attacked_squares)
@@ -571,12 +575,6 @@ bool Game::can_castle_queenside(Bitboard attacked_squares)
 
 void Game::move(Move & move)
 {
-    wcm = false;
-    bcm = false;
-    draw = false;
-    wc = false;
-    bc = false;
-
     // update game bitboards
     Bitboard from_bitboard = Bitboards::get_i(move.from);
     Bitboard to_bitboard = Bitboards::get_i(move.to);

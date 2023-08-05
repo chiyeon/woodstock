@@ -5,11 +5,18 @@
 
 struct Move
 {
-    const static Flag NOTHING           =    0b0;
-    const static Flag EN_PASSANT        =    0b1;
-    const static Flag PROMOTION         =   0b10;
-    const static Flag FIRST_MOVE        =   0b11;
-    const static Flag CASTLE            =  0b100;
+    const static Flag NOTHING           =     0b0;
+    const static Flag EN_PASSANT        =     0b1;
+    const static Flag PROMOTION         =    0b10;
+    const static Flag FIRST_MOVE        =   0b100;   // not assigned until the move is made. used for undo()
+    const static Flag CASTLE            =  0b1000;
+
+    static Flag pop_flag(Flag & flags)
+    {
+        int trailing_zeroes = __builtin_ctz(flags);
+        flags &= flags - 1;
+        return 1 << trailing_zeroes;
+    }
 
     int from;
     int to;

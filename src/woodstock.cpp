@@ -193,6 +193,10 @@ int main()
 {
     printf("woodstock!\n");
 
+    // Game g("8/5P2/8/8/8/8/8/8");
+    // measure_count_bulk_positions(g, 1, true);
+    // return 0;
+
     measure_nps(6);      // measure start position
     printf("\n\n");
     measure_nps(5, "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");   // position 2

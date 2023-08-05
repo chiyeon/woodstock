@@ -39,6 +39,7 @@ struct Bitboards
     static int pop_lsb(Bitboard & bitboard);
     static bool contains_multiple_bits(Bitboard bitboard);
     
+    // change these to static values
     const static Bitboard A_FILE;
     const static Bitboard H_FILE;
     const static Bitboard AB_FILE;

@@ -583,8 +583,8 @@ void Game::move(Move & move)
     board[move.from] = Pieces::EMPTY;
     board[move.to] = move.piece;
 
-    game_bitboard &= ~from_bitboard;
-    game_bitboard |= to_bitboard;
+    // game_bitboard &= ~from_bitboard;
+    // game_bitboard |= to_bitboard;
 
     if (is_blacks_turn()) {
         black_bitboard &= ~from_bitboard;
@@ -610,7 +610,7 @@ void Game::move(Move & move)
             Bitboard en_passant_target = Bitboards::get_i(target_square);
 
             // update bitboards
-            game_bitboard &= ~en_passant_target;
+            // game_bitboard &= ~en_passant_target;
 
             if (is_blacks_turn()) {
                 white_bitboard &= ~en_passant_target;
@@ -626,8 +626,8 @@ void Game::move(Move & move)
                 board[move.to + 2] = Pieces::EMPTY;
                 board[move.to - 1] = Pieces::ROOK | turn;
 
-                game_bitboard &= ~(to_bitboard << 2);
-                game_bitboard |= (to_bitboard >> 1);
+                // game_bitboard &= ~(to_bitboard << 2);
+                // game_bitboard |= (to_bitboard >> 1);
 
                 if (is_blacks_turn()) {
                     black_bitboard &= ~(to_bitboard << 2);
@@ -644,8 +644,8 @@ void Game::move(Move & move)
                 board[move.to - 1] = Pieces::EMPTY;
                 board[move.to + 1] = Pieces::ROOK | turn;
 
-                game_bitboard &= ~(to_bitboard >> 1);
-                game_bitboard |= (to_bitboard << 1);
+                // game_bitboard &= ~(to_bitboard >> 1);
+                // game_bitboard |= (to_bitboard << 1);
 
                 if (is_blacks_turn()) {
                     black_bitboard &= ~(to_bitboard >> 1);
@@ -701,6 +701,8 @@ void Game::move(Move & move)
             }
             break;
     }
+
+    game_bitboard = black_bitboard | white_bitboard;
     
     switch_turns(); // flip sides
     history.push(move);
@@ -726,8 +728,8 @@ void Game::undo()
     board[last_move.to] = last_move.captured == 0 ? Pieces::EMPTY : last_move.captured;
     board[last_move.from] = last_move.piece;
 
-    game_bitboard |= from_bitboard;
-    game_bitboard &= ~to_bitboard;
+    // game_bitboard |= from_bitboard;
+    // game_bitboard &= ~to_bitboard;
 
     if (is_blacks_turn()) {
         black_bitboard |= from_bitboard;
@@ -735,7 +737,7 @@ void Game::undo()
 
         if (last_move.captured != 0) {
             white_bitboard |= to_bitboard;
-            game_bitboard |= to_bitboard;
+            // game_bitboard |= to_bitboard;
         }
     } else {
         white_bitboard |= from_bitboard;
@@ -743,7 +745,7 @@ void Game::undo()
 
         if (last_move.captured != 0) {
             black_bitboard |= to_bitboard;
-            game_bitboard |= to_bitboard;
+            // game_bitboard |= to_bitboard;
         }
     }
 
@@ -759,8 +761,8 @@ void Game::undo()
                 board[target_square] = last_move.captured;
                 Bitboard en_passant_target = Bitboards::get_i(target_square);
 
-                game_bitboard |= en_passant_target;
-                game_bitboard &= ~to_bitboard;       // undo from above
+                // game_bitboard |= en_passant_target;
+                // game_bitboard &= ~to_bitboard;       // undo from above
 
                 if (is_blacks_turn()) {
                     white_bitboard |= en_passant_target;
@@ -780,8 +782,8 @@ void Game::undo()
                     board[last_move.to + 2] = Pieces::ROOK | turn;
                     board[last_move.to - 1] = Pieces::EMPTY;
 
-                    game_bitboard |= (to_bitboard << 2);
-                    game_bitboard &= ~(to_bitboard >> 1);
+                    // game_bitboard |= (to_bitboard << 2);
+                    // game_bitboard &= ~(to_bitboard >> 1);
 
                     if (is_blacks_turn()) {
                         black_bitboard |= (to_bitboard << 2);
@@ -800,8 +802,8 @@ void Game::undo()
                     board[last_move.to - 1] = Pieces::ROOK | turn;
                     board[last_move.to + 1] = Pieces::EMPTY;
 
-                    game_bitboard |= (to_bitboard >> 1);
-                    game_bitboard &= ~(to_bitboard << 1);
+                    // game_bitboard |= (to_bitboard >> 1);
+                    // game_bitboard &= ~(to_bitboard << 1);
 
                     if (is_blacks_turn()) {
                         black_bitboard |= (to_bitboard >> 1);
@@ -858,6 +860,8 @@ void Game::undo()
             }
             break;
     }
+
+    game_bitboard = black_bitboard | white_bitboard;
 }
 
 Piece * Game::get_board()

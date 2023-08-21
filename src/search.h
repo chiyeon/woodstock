@@ -2,6 +2,7 @@
 #define SEARCH_H
 
 #include "game.h"
+#include "zobrist.h"
 
 class Search
 {
@@ -160,6 +161,7 @@ class Search
    };
 
    Game & game;
+   ZobristHasher hasher;
    // int alphabeta(int depth, int alpha, int beta, bool maximizing_player);
    int alphabeta(int depth, int alpha, int beta, bool maximizing_player = false);
    int negascout(int depth, int alpha, int beta);

@@ -4,6 +4,7 @@
 
 using Bitboard = uint64_t;
 using Magic = uint64_t;
+using Hash = uint64_t;
 using Piece = unsigned int;
 using Flag = unsigned int;
 

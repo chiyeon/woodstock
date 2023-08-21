@@ -2,6 +2,7 @@
 #include <vector>
 #include "game.h"
 #include "move.h"
+#include "search.h"
 
 int measure(auto fn)
 {
@@ -52,6 +53,24 @@ int count_bulk_positions(Game & game, int depth, bool print_positions = false) {
     return count;
 }
 
+int count_and_eval_bulk_positions(Game & game, Search & search, int depth, int best_move_search_depth, bool print_positions = false) {
+    if (depth <= 0) return 1;
+
+    std::vector<Move> moves;
+    game.get_moves(moves);
+    int count = 0;
+
+    int moves_size = moves.size();
+    for (int i = 0; i < moves_size; ++i) {
+        game.move(moves[i]);
+        if (print_positions) game.print();
+        search.get_best_move(best_move_search_depth);
+        count += count_bulk_positions(game, depth - 1, print_positions);
+        game.undo();
+    }
+    return count;
+}
+
 void print_num_positions_from_starting(Game & game, int depth)
 {
     if (depth <= 0) return;
@@ -84,6 +103,19 @@ int measure_count_bulk_positions(Game & game, int depth, bool print_positions = 
     return count;
 }
 
+int measure_count_and_eval_bulk_positions(Game & game, Search & search, int depth, int best_move_search_depth, bool print_positions = false) {
+    int count = 0;
+    auto fn = [&]() {
+        count = count_and_eval_bulk_positions(game, search, depth, best_move_search_depth, print_positions);
+    };
+
+    int time = measure(fn);
+    
+    printf("Depth: %d\tPositions: %d\tTime: %dms\n", depth, count, time);
+
+    return count;
+}
+
 void measure_nps(int max_depth, std::string position = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
 {
     Game g(position);
@@ -92,6 +124,22 @@ void measure_nps(int max_depth, std::string position = "rnbqkbnr/pppppppp/8/8/8/
     auto test_first_position = [&]() {
         for (i = 1; i <= max_depth; ++i) {
             total_count += measure_count_bulk_positions(g, i);
+        }
+    };
+
+    int time_elapsed = measure(test_first_position);
+    printf("\nTotal Num Nodes: %d\nTime Elapsed: %dms\nNodes Per Second: %d\n", total_count, time_elapsed, (int)(static_cast<float>(total_count) / (static_cast<float>(time_elapsed) / 1000.0)));
+}
+
+void measure_nps_with_eval(int max_depth, int search_depth, std::string position = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
+{
+    Game g(position);
+    Search search(g);
+    int total_count = 0, i = 1;
+
+    auto test_first_position = [&]() {
+        for (i = 1; i <= max_depth; ++i) {
+            total_count += measure_count_and_eval_bulk_positions(g, search, i, search_depth);
         }
     };
 

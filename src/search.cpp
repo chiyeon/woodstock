@@ -21,9 +21,11 @@ float Search::evaluate_position(Game & game)
 {
    float white_score = 0, black_score = 0;
 
-   if (game.wcm) return -9999999999;
-   else if (game.bcm) return 999999999;
-   else if (game.draw) return 0;
+   // if (game.wcm) return -9999999999;
+   // else if (game.bcm) return 999999999;
+   // else if (game.draw) return 0;
+
+   if (game.king_in_check()) white_score = 0;
 
    Bitboard white_bitboard = game.get_white_bitboard();
    while (white_bitboard != 0ULL) {
@@ -223,10 +225,25 @@ Move Search::get_best_move(int depth)
 int Search::alphabeta(int depth, int alpha, int beta, bool maximizing_player)
 {
    num_positions_evaluated++;
+   
+   if (depth == 0) {
+      int eval = evaluate_position(game);
+      // hasher.store_entry(game.get_board(), depth, eval);
+      return (game.is_blacks_turn() ? 1 : -1) * eval;
+      // // recall from transposition table or build
+      // TranspositionEntry entry = hasher.get_entry(game.get_board());
+      // if (entry.key == 0ULL) {
+      //    // entry doesn't exist
+      //    int eval = evaluate_position(game);
+      //    hasher.store_entry(game.get_board(), depth, eval);
 
+      //    return (game.is_blacks_turn() ? 1 : -1) * eval;
+      // } else {
+      //    return (game.is_blacks_turn() ? 1 : -1) * entry.eval;
+      // }
+   }
    std::vector<Move> moves;
    game.get_moves(moves);
-   if (depth == 0 || game.wcm || game.bcm || game.draw) return (game.is_blacks_turn() ? 1 : -1) * evaluate_position(game);
    int num_moves = moves.size();
    std::vector<int> move_scores = get_move_scores(moves);
 

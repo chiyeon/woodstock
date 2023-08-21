@@ -48,17 +48,18 @@ void run_game_simulation(int depth1, int depth2)
         Move move = search.get_best_move(game.is_whites_turn() ? depth1 : depth2);
         game.move(move);
         printf("Move Made\n");
-    } while (!game.bcm && !game.wcm && !game.draw);
+    // } while (!game.bcm && !game.wcm && !game.draw);
+    } while (false);
 
     game.print();
 
-    if (game.bcm) {
-        printf("Black wins!\n");
-    } else if (game.wcm) {
-        printf("White wins!\n");
-    } else {
-        printf("Draw.\n");
-    }
+    // if (game.bcm) {
+    //     printf("Black wins!\n");
+    // } else if (game.wcm) {
+    //     printf("White wins!\n");
+    // } else {
+    //     printf("Draw.\n");
+    // }
 }
 
 #ifdef EMSCRIPTEN
@@ -217,9 +218,25 @@ int main()
     // g.print();
     // return 0;
 
-    measure_nps(6);      // measure start position
-    printf("\n\n");
-    measure_nps(5, "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");   // position 2
+    // Game g;
+    // g.print();
+    // std::vector<Move> moves;
+    // g.get_moves(moves);
+    // g.move(moves[3]);
+    // g.print();
+    // g.undo();
+    // g.print();
+    // g.move(moves[12]);
+    // g.print();
+    // g.undo();
+    // g.print();
+
+    measure_nps_with_eval(6, 5);
+    measure_nps(6);
+
+    // measure_nps(6);      // measure start position
+    // printf("\n\n");
+    // measure_nps(5, "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");   // position 2
     return 0;
 
     // Game game;

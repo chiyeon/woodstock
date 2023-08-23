@@ -151,7 +151,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void click_square(int index)
                 game.move(move);
                 update_chessboard(game.get_board());
                 highlight_squares(move.from, move.to);
-                EM_ASM({make_ai_move()});
+                // EM_ASM({make_ai_move()});
                 break;
             }
         }
@@ -231,12 +231,25 @@ int main()
     // g.undo();
     // g.print();
 
-    measure_nps_with_eval(6, 5);
-    measure_nps(6);
-
-    // measure_nps(6);      // measure start position
+    // measure_nps_with_eval(6, 5);
+    // measure_nps(6);
     // printf("\n\n");
     // measure_nps(5, "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");   // position 2
+    Game g("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
+    for (int i = 1; i <= 5; ++i) {
+        printf("%d castles at depth %d\n", get_num_flags_at_depth(i, Move::CASTLE, g), i);
+        printf("%d en passants at depth %d\n", get_num_flags_at_depth(i, Move::EN_PASSANT, g), i);
+    }
+
+    // Game g2;
+    // for (int i = 1; i <= 6; ++i) {
+    //     printf("%d castles at depth %d\n", get_num_flags_at_depth(i, Move::CASTLE, g2), i);
+    //     printf("%d en passants at depth %d\n", get_num_flags_at_depth(i, Move::EN_PASSANT, g2), i);
+    // }
+    // Game g;
+    // measure_count_bulk_positions(g, 2, true);
+
+    // measure_nps(6);      // measure start position
     return 0;
 
     // Game game;

@@ -16,9 +16,9 @@ class Game
     Piece board[64];
     Piece turn                              = Pieces::WHITE;
     Piece not_turn                          = Pieces::BLACK;
-    Bitboard game_bitboard                  = 0ULL;
-    Bitboard color_bitboards[17]            = {0ULL, 0ULL};
-    Bitboard piece_bitboards[17][7];
+    bool black_turn                         = false;
+    Bitboard game_bb                        = 0ULL;
+    Bitboard piece_bbs[23];                 // 23 from max "value" (BLACK | KING = 22)
 
     bool has_white_king_moved               = false;
     bool has_white_queenside_rook_moved     = false;
@@ -49,7 +49,7 @@ public:
     void read_fen(std::string fen);
     void print();
     Bitboard get_game_bitboard();
-    Bitboard get_color_bitboard(Piece color);
+    Bitboard get_piece_bb(Piece filter);
     Piece * get_board();
     Piece get(int index);
     Piece get(int x, int y);

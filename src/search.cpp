@@ -27,7 +27,7 @@ float Search::evaluate_position(Game & game)
 
    if (game.king_in_check()) white_score = 0;
 
-   Bitboard white_bitboard = game.get_white_bitboard();
+   Bitboard white_bitboard = game.get_piece_bb(Pieces::WHITE);
    while (white_bitboard != 0ULL) {
       int pos = Bitboards::pop_lsb(white_bitboard);
       int piece_type = (game.get(pos) & Pieces::FILTER_PIECE);
@@ -56,7 +56,7 @@ float Search::evaluate_position(Game & game)
       }
    }
 
-   Bitboard black_bitboard = game.get_black_bitboard();
+   Bitboard black_bitboard = game.get_piece_bb(Pieces::BLACK);
    while (black_bitboard != 0ULL) {
       int pos = Bitboards::pop_lsb(black_bitboard);
       int piece_type = (game.get(pos) & Pieces::FILTER_PIECE);

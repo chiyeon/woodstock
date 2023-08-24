@@ -661,6 +661,7 @@ void Game::move(Move & move)
 
                     piece_bbs[turn] ^= rook_fromto;
                     piece_bbs[Pieces::ROOK | turn] ^= rook_fromto;
+                    // game_bb ^= rook_fromto;
 
                     is_blacks_turn() ? has_black_queenside_rook_moved = true : has_white_queenside_rook_moved = true;
                 } else {    // kingside
@@ -673,6 +674,7 @@ void Game::move(Move & move)
 
                     piece_bbs[turn] ^= rook_fromto;
                     piece_bbs[Pieces::ROOK | turn] ^= rook_fromto;
+                    // game_bb ^= rook_fromto;
 
                     is_blacks_turn() ? has_black_kingside_rook_moved = true : has_white_kingside_rook_moved = true;
                 }
@@ -711,8 +713,6 @@ void Game::move(Move & move)
                         has_black_queenside_rook_moved = true;
                         move.flags |= Move::FIRST_MOVE;
                     }
-
-                    piece_bbs[turn | Pieces::ROOK] ^= fromto_bb;
                 } else {
                     if (move.from == 0 && !has_white_kingside_rook_moved) {
                         has_white_kingside_rook_moved = true;
@@ -721,11 +721,18 @@ void Game::move(Move & move)
                         has_white_queenside_rook_moved = true;
                         move.flags |= Move::FIRST_MOVE;
                     }
-
-                    piece_bbs[turn | Pieces::ROOK] ^= fromto_bb;
                 }
                 break;
         }
+
+    Bitboard gbb = Bitboards::board_to_bitboard(board);
+    if (game_bb != gbb) {
+        printf("ERROR:\n");
+        Bitboards::print(gbb);
+        game_bb = gbb;
+        print();
+        printf("\n\n");
+    }
 
     // game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
 

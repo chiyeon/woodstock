@@ -13,6 +13,7 @@
 
 class Game
 {
+public:
     Piece board[64];
     Piece turn                              = Pieces::WHITE;
     Piece not_turn                          = Pieces::BLACK;
@@ -44,7 +45,7 @@ public:
     // bool wc                                 = false;
     // bool bc                                 = false;
 
-    Game(std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+    Game(std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     Game(Game & g)                      = delete;
     void read_fen(std::string fen);
     void print();

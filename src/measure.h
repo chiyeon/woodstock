@@ -4,7 +4,8 @@
 #include "move.h"
 #include "search.h"
 
-int measure(auto fn)
+template <typename function>
+int measure(function&& fn)
 {
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     fn();
@@ -67,6 +68,55 @@ int count_and_eval_bulk_positions(Game & game, Search & search, int depth, int b
         game.undo();
     }
     return count;
+}
+
+void run_perft(std::string fen, const std::initializer_list<int> & correct_counts)
+{
+    int total_count = 0;
+    int current_count = 0;
+    int time_elapsed = 0;
+    int depth = 1;
+    Game game(fen);
+
+    auto fn = [&]() {
+        current_count = count_bulk_positions(game, depth);
+    };
+
+    for (auto & correct_count : correct_counts) {
+        time_elapsed += measure(fn);
+
+        if (correct_count != current_count) {
+            printf("\tERROR! Expected count of %d at depth %d, received %d.\n", correct_count, depth, current_count);
+        }
+
+        total_count += current_count;
+        ++depth;
+    }
+
+    printf("\t%d NPS at depth %d.\n", (int)(static_cast<float>(total_count) / (static_cast<float>(time_elapsed) / 1000.0)), depth - 1);
+}
+
+void run_perft_suite()
+{
+    printf("Running Perft Suite. All positions/counts are based on https://www.chessprogramming.org/Perft_Results.\n\n");
+
+    printf("Position 1\n");
+    run_perft("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", {20, 400, 8902, 197281, 4865609, 119060324});
+    
+    printf("Position 2\n");
+    run_perft("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq", {48, 2039, 97862, 4085603, 193690690});
+    
+    printf("Position 3\n");
+    run_perft("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -", {14, 191, 2812, 43238, 674624, 11030083});
+    
+    printf("Position 4\n");
+    run_perft("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq", {6, 264, 9467, 422333, 15833292});
+    
+    printf("Position 5\n");
+    run_perft("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ", {44, 1486, 62379, 2103487});
+    
+    printf("Position 6\n");
+    run_perft("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w -", {46, 2079, 89890, 3894594});
 }
 
 void print_num_positions_from_starting(Game & game, int depth)

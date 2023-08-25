@@ -2,6 +2,7 @@
 #include <cctype>
 #include <vector>
 #include <stack>
+#include <sstream>
 #include "game.h"
 #include "piece.h"
 #include "move.h"
@@ -13,28 +14,70 @@ Game::Game(std::string fen)
 
 void Game::read_fen(std::string fen)
 {
-    has_white_king_moved                = false;
-    has_white_queenside_rook_moved      = false;
-    has_white_kingside_rook_moved       = false;
-    has_black_king_moved                = false;
-    has_black_queenside_rook_moved      = false;
-    has_black_kingside_rook_moved       = false;
+    // Unable to castle by default, fixed when reading castling rights!
+    has_white_king_moved                = true;
+    has_white_queenside_rook_moved      = true;
+    has_white_kingside_rook_moved       = true;
+    has_black_king_moved                = true;
+    has_black_queenside_rook_moved      = true;
+    has_black_kingside_rook_moved       = true;
 
-    int fen_length = fen.size();
+    std::istringstream ss(fen);
+
+    std::string next;
+    ss >> next;       // first 'word' is the board pieces
+
+    int fen_length = next.size();
     int index = 63;
     for (int i = 0; i < fen_length; ++i) {
         // read number of spaces
-        if (isdigit(fen[i])) {
-            int num_spaces = int(fen[i] - '0');
+        if (isdigit(next[i])) {
+            int num_spaces = int(next[i] - '0');
             for (int j = 0; j < num_spaces; ++j) {
                 board[index--] = Pieces::EMPTY;
             }
-        } else if (fen[i] != '/') {
-            board[index] = Pieces::piece_from_name_short(fen[i]);
+        } else if (next[i] != '/') {
+            board[index] = Pieces::piece_from_name_short(next[i]);
             piece_bbs[board[index]] |= Bitboards::get_i(index);
             index--;
         }
     }
+
+    ss >> next;     // next is current turn
+    if (next == "w") {
+        turn = Pieces::WHITE;
+        not_turn = Pieces::BLACK;
+        black_turn = false;
+    } else {
+        turn = Pieces::BLACK;
+        not_turn = Pieces::WHITE;
+        black_turn = true;
+    }
+
+    ss >> next;     // then castling rights
+    int cr_size = next.size();
+    for (int i = 0; i < cr_size; ++i) {
+        switch(next[i]) {
+            case 'k':
+                has_black_king_moved = false;
+                has_black_kingside_rook_moved = false;
+                break;
+            case 'q':
+                has_black_king_moved = false;
+                has_black_queenside_rook_moved = false;
+                break;
+            case 'K':
+                has_white_king_moved = false;
+                has_white_kingside_rook_moved = false;
+                break;
+            case 'Q':
+                has_white_king_moved = false;
+                has_white_queenside_rook_moved = false;
+                break;
+        }
+    }
+
+    // we dont care about whats next c:
 
     // update our game bitboard representation
     game_bb = Bitboards::board_to_bitboard(board);
@@ -88,22 +131,6 @@ void Game::print()
     // printf("\n");
     // printf("Zobrist Hash: %lu", hasher.compute_hash(board));
     printf("\n");
-    // printf("    %c%c - %c%c\n",
-    //     can_white_castle_kingside ? 'K' : 'x',
-    //     can_white_castle_queenside ? 'Q' : 'x',
-    //     can_black_castle_kingside ? 'k' : 'x',
-    //     can_black_castle_queenside ? 'q' : 'x'
-    // );
-    
-    printf("\n");
-
-    // printf("Game bitboard:\n");
-    // Bitboards::print(game_bitboard);
-    // printf("White bitboard:\n");
-    // Bitboards::print(white_bitboard);
-    // printf("Black bitboard:\n");
-    // Bitboards::print(black_bitboard);
-    // printf("\n\n\n");
 }
 
 Bitboard Game::get_game_bitboard()
@@ -654,8 +681,8 @@ void Game::move(Move & move)
                 game_bb                     ^= en_passant_target;
                 piece_bbs[not_turn]         ^= en_passant_target;
                 piece_bbs[captured]         ^= en_passant_target;
-                // piece_bbs[not_turn]         ^= to_bb;
-                // piece_bbs[Moves::get_captured(move)]    ^= to_bb;
+                piece_bbs[not_turn]         ^= to_bb;
+                piece_bbs[captured]         ^= to_bb;
                 break;
             }
             case Moves::CASTLE:

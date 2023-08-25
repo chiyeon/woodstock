@@ -76,6 +76,7 @@ void run_perft(std::string fen, const std::initializer_list<int> & correct_count
     int current_count = 0;
     int time_elapsed = 0;
     int depth = 1;
+    int errors = 0;
     Game game(fen);
 
     auto fn = [&]() {
@@ -87,10 +88,15 @@ void run_perft(std::string fen, const std::initializer_list<int> & correct_count
 
         if (correct_count != current_count) {
             printf("\tERROR! Expected count of %d at depth %d, received %d.\n", correct_count, depth, current_count);
+            ++errors;
         }
 
         total_count += current_count;
         ++depth;
+    }
+
+    if (errors == 0) {
+        printf("\tPassed.\n");
     }
 
     printf("\t%d NPS at depth %d.\n", (int)(static_cast<float>(total_count) / (static_cast<float>(time_elapsed) / 1000.0)), depth - 1);
@@ -113,10 +119,10 @@ void run_perft_suite()
     run_perft("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq", {6, 264, 9467, 422333, 15833292});
     
     printf("Position 5\n");
-    run_perft("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ", {44, 1486, 62379, 2103487});
+    run_perft("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ", {44, 1486, 62379, 2103487, 89941194});
     
     printf("Position 6\n");
-    run_perft("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w -", {46, 2079, 89890, 3894594});
+    run_perft("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w -", {46, 2079, 89890, 3894594, 164075551});
 }
 
 void print_num_positions_from_starting(Game & game, int depth)

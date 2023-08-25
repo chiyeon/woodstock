@@ -235,6 +235,8 @@ int main()
 
     run_perft_suite();
 
+    // measure_nps(5, "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ");
+
     // measure_nps(6);
     // printf("\n\n");
     // measure_nps(5, "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");   // position 2

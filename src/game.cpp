@@ -330,12 +330,15 @@ bool Game::king_in_check()
     // check if the current turn's person is in check
     int king_pos = Bitboards::get_lsb(piece_bbs[turn | Pieces::KING]);
     int not_turn = get_not_turn();
+    switch_turns();
+    Bitboard pc = Pieces::get_pawn_captures(king_pos, *this);
+    switch_turns();
     return (
         piece_bbs[not_turn | Pieces::QUEEN] & Pieces::get_queen_moves(king_pos, *this)
         || piece_bbs[not_turn | Pieces::ROOK] & Pieces::get_rook_moves(king_pos, *this)
         || piece_bbs[not_turn | Pieces::BISHOP] & Pieces::get_bishop_moves(king_pos, *this)
         || piece_bbs[not_turn | Pieces::KNIGHT] & Pieces::get_knight_moves(king_pos, *this)
-        || piece_bbs[not_turn | Pieces::PAWN] & Pieces::get_pawn_captures(king_pos, *this)
+        || piece_bbs[not_turn | Pieces::PAWN] & pc
     );
 }
 
@@ -472,6 +475,8 @@ void Game::get_moves(std::vector<Move> & moves)
                 piece_moves = Pieces::get_pawn_moves(pos, *this) & not_game_bitboard;
                 piece_moves |= (Pieces::get_pawn_captures(pos, *this) & axis_bitboard);
 
+                // piece_moves = Pieces::get_pawn_forward<black_turn>(Bitboards::get_i(pos));
+
                 // check for promotions
                 if ((piece_moves & Bitboards::ROW_1) != 0 || (piece_moves & Bitboards::ROW_8) != 0) {
                     Bitboard pm_i = piece_moves;
@@ -485,6 +490,7 @@ void Game::get_moves(std::vector<Move> & moves)
 
                             move(potential_move);
                             if (!last_move_resulted_in_check()) moves.push_back(potential_move);
+                            // if (!king_in_check()) moves.push_back(potential_move);
                             undo();
                         }
                     }
@@ -640,12 +646,11 @@ void Game::move(Move & move)
                 board[target_square] = Pieces::EMPTY;
                 Bitboard en_passant_target = Bitboards::get_i(target_square);
 
-                game_bb                     ^= to_bb;
                 game_bb                     ^= en_passant_target;
                 piece_bbs[not_turn]         ^= en_passant_target;
                 piece_bbs[move.captured]    ^= en_passant_target;
-                piece_bbs[turn]             ^= to_bb;
-                piece_bbs[move.piece]       ^= to_bb;
+                // piece_bbs[not_turn]         ^= to_bb;
+                // piece_bbs[move.captured]    ^= to_bb;
                 break;
             }
             case Move::CASTLE:
@@ -724,17 +729,18 @@ void Game::move(Move & move)
                 }
                 break;
         }
+    // game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
 
-    Bitboard gbb = Bitboards::board_to_bitboard(board);
-    if (game_bb != gbb) {
+    Bitboard gbb = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
+    if (piece_bbs[Pieces::WHITE] != gbb) {
         printf("ERROR:\n");
         Bitboards::print(gbb);
-        game_bb = gbb;
+        piece_bbs[Pieces::WHITE] = gbb;
+        piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
         print();
         printf("\n\n");
     }
 
-    // game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
 
     // game_bb = Bitboards::board_to_bitboard(board);
     // Piece all_pieces[12] = {

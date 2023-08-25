@@ -41,6 +41,29 @@ Bitboard Pieces::get_pawn_moves(int pos, Game & game)
     return movement;
 }
 
+template <bool is_black>
+Bitboard Pieces::get_pawn_forward(Bitboard occ)
+{
+    if constexpr (is_black) return occ >> 8;
+    else return occ << 8;
+}
+
+template <bool is_black>
+Bitboard Pieces::get_pawn_forward_two(Bitboard occ)
+{
+    if constexpr (is_black) return occ >> 16;
+    else return occ << 16;
+}
+
+template <bool is_black>
+Bitboard Pieces::get_pawn_captures(Bitboard occ)
+{
+    if constexpr (is_black) 
+        return ((occ >> 7) & Bitboards::NOT_H_FILE) | ((occ >> 9) & Bitboards::NOT_A_FILE);
+    else
+        return ((occ << 7) & Bitboards::NOT_A_FILE) | ((occ << 9) & Bitboards::NOT_H_FILE);
+}
+
 Bitboard Pieces::get_pawn_captures(int pos, Game & game)
 {
     Bitboard start = Bitboards::get_i(pos);

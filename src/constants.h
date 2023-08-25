@@ -2,11 +2,12 @@
 // it appears uint64_t == unsigned long long for emcc
 #include <stdint.h>
 
-using Bitboard = uint64_t;
-using Magic = uint64_t;
-using Hash = uint64_t;
-using Piece = unsigned int;
-using Flag = unsigned int;
+using Bitboard  = uint64_t;
+using Magic     = uint64_t;
+using Hash      = uint64_t;
+using Piece     = unsigned int;
+using Flag      = unsigned int;
+using Move      = unsigned int;     // bits used: flags, captured, piece, to, from [32 -> 1]
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H

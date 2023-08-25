@@ -67,7 +67,7 @@ void Game::print()
     int last_move_from = -1;
 
     if (!history.empty()) {
-        last_move_from = history.top().from;
+        last_move_from = Moves::get_from(history.top());
     }
 
     for (int y = 7; y >= 0; --y) {
@@ -164,7 +164,7 @@ std::vector<Move> Game::get_moves_at_square(int sq)
     int moves_size = moves.size();
     for (int i = 0; i < moves_size; ++i)
     {
-        if (moves[i].from == sq) {
+        if (Moves::get_from(moves[i]) == sq) {
             out_moves.push_back(moves[i]);
         }
     }
@@ -486,7 +486,7 @@ void Game::get_moves(std::vector<Move> & moves)
 
                         Piece pieces[4] = {Pieces::QUEEN | turn, Pieces::ROOK | turn, Pieces::BISHOP | turn, Pieces::KNIGHT | turn};
                         for (int i = 0; i < 4; ++i) {
-                            Move potential_move(pos, target_pos, pieces[i], captured, Move::PROMOTION);
+                            Move potential_move = Moves::create(pos, target_pos, pieces[i], captured, Moves::PROMOTION);
 
                             move(potential_move);
                             if (!last_move_resulted_in_check()) moves.push_back(potential_move);
@@ -505,16 +505,16 @@ void Game::get_moves(std::vector<Move> & moves)
                 Move last_move = get_last_move();
                 if (
                     //((is_blacks_turn() && y == 3) || (!is_blacks_turn() && y == 4))     // our piece is in the right position
-                    (last_move.piece & Pieces::FILTER_PIECE) == Pieces::PAWN         // enemy's last move was a double pawn jump
-                    &&(std::abs(last_move.to - pos) == 1)
-                    && (std::abs(last_move.to % 8 - x) == 1)
-                    && std::abs(last_move.to - last_move.from) == 16
+                    (Moves::get_piece(last_move) & Pieces::FILTER_PIECE) == Pieces::PAWN         // enemy's last move was a double pawn jump
+                    &&(std::abs(Moves::get_to(last_move) - pos) == 1)
+                    && (std::abs(Moves::get_to(last_move) % 8 - x) == 1)
+                    && std::abs(Moves::get_to(last_move) - Moves::get_from(last_move)) == 16
                 ) {
                     // rather than add overhead later, we can just manually add the move now
-                    int target_pos = is_blacks_turn() ? last_move.to - 8 : last_move.to + 8;
+                    int target_pos = is_blacks_turn() ? Moves::get_to(last_move) - 8 : Moves::get_to(last_move) + 8;
 
-                    Move potential_move(
-                        pos, target_pos, piece, last_move.piece, Move::EN_PASSANT
+                    Move potential_move = Moves::create(
+                        pos, target_pos, piece, Moves::get_piece(last_move), Moves::EN_PASSANT
                     );
                     move(potential_move);
                     if (!last_move_resulted_in_check()) {
@@ -541,12 +541,12 @@ void Game::get_moves(std::vector<Move> & moves)
                 piece_moves &= ~attacked_squares;       // we cannot move into attacked squares
 
                 if (can_castle_kingside(attacked_squares)) {
-                    Move potential_move(pos, pos - 2, piece, Pieces::EMPTY, Move::CASTLE);
+                    Move potential_move = Moves::create(pos, pos - 2, piece, Pieces::EMPTY, Moves::CASTLE);
                     moves.push_back(potential_move);
                 }
 
                 if (can_castle_queenside(attacked_squares)) {
-                    Move potential_move(pos, pos + 2, piece, Pieces::EMPTY, Move::CASTLE);
+                    Move potential_move = Moves::create(pos, pos + 2, piece, Pieces::EMPTY, Moves::CASTLE);
                     moves.push_back(potential_move);
                 }
                 break;
@@ -571,7 +571,7 @@ void Game::get_moves(std::vector<Move> & moves)
         // convert set bits to individual moves
         while (piece_moves != 0ULL) {
             int target_pos = Bitboards::pop_lsb(piece_moves);
-            moves.push_back(Move(pos, target_pos, piece, board[target_pos]));
+            moves.push_back(Moves::create(pos, target_pos, piece, board[target_pos]));
         }
     }
 
@@ -620,45 +620,50 @@ bool Game::can_castle_queenside(Bitboard attacked_squares)
 
 void Game::move(Move & move)
 {
-    board[move.from]    = Pieces::EMPTY;
-    board[move.to]      = move.piece;
+    const int from = Moves::get_from(move), to = Moves::get_to(move);
+    const Piece piece = Moves::get_piece(move), captured = Moves::get_captured(move);
+    Flag flags = Moves::get_flags(move);
 
-    Bitboard from_bb    = Bitboards::get_i(move.from);
-    Bitboard to_bb      = Bitboards::get_i(move.to);
+    board[from]    = Pieces::EMPTY;
+    board[to]      = piece;
+
+    Bitboard from_bb    = Bitboards::get_i(from);
+    Bitboard to_bb      = Bitboards::get_i(to);
     Bitboard fromto_bb  = from_bb ^ to_bb;
 
     game_bb                         ^= fromto_bb;
     piece_bbs[turn]                 ^= fromto_bb;
-    piece_bbs[move.piece]           ^= fromto_bb;
+    piece_bbs[piece]                ^= fromto_bb;
 
-    if (move.captured != 0) {
+    if (captured != 0) {
         game_bb                     |= to_bb;
         piece_bbs[not_turn]         ^= to_bb;
-        piece_bbs[move.captured]    ^= to_bb;
+        piece_bbs[captured]         ^= to_bb;
     }
 
+    // at this point, we should only have one flag!
     // if we have flags edit piece_bbs manually. otherwise automate it with fromto
-    if (move.flags != 0) {
-        switch(move.flags) {
-            case Move::EN_PASSANT:
+    if (flags != 0) {
+        switch(flags) {
+            case Moves::EN_PASSANT:
             { 
-                int target_square = is_blacks_turn() ? move.to + 8 : move.to - 8;
+                int target_square = is_blacks_turn() ? Moves::get_to(move) + 8 : Moves::get_to(move) - 8;
                 board[target_square] = Pieces::EMPTY;
                 Bitboard en_passant_target = Bitboards::get_i(target_square);
 
                 game_bb                     ^= en_passant_target;
                 piece_bbs[not_turn]         ^= en_passant_target;
-                piece_bbs[move.captured]    ^= en_passant_target;
+                piece_bbs[captured]         ^= en_passant_target;
                 // piece_bbs[not_turn]         ^= to_bb;
-                // piece_bbs[move.captured]    ^= to_bb;
+                // piece_bbs[Moves::get_captured(move)]    ^= to_bb;
                 break;
             }
-            case Move::CASTLE:
+            case Moves::CASTLE:
             {
                 // king vs queenside rook
-                if (move.to > move.from) {  // queenside
-                    board[move.to + 2] = Pieces::EMPTY;
-                    board[move.to - 1] = Pieces::ROOK | turn;
+                if (to > from) {  // queenside
+                    board[to + 2] = Pieces::EMPTY;
+                    board[to - 1] = Pieces::ROOK | turn;
 
                     Bitboard rook_to = (to_bb >> 1);
                     Bitboard rook_from = (to_bb << 2);
@@ -670,8 +675,8 @@ void Game::move(Move & move)
 
                     is_blacks_turn() ? has_black_queenside_rook_moved = true : has_white_queenside_rook_moved = true;
                 } else {    // kingside
-                    board[move.to - 1] = Pieces::EMPTY;
-                    board[move.to + 1] = Pieces::ROOK | turn;
+                    board[to - 1] = Pieces::EMPTY;
+                    board[to + 1] = Pieces::ROOK | turn;
 
                     Bitboard rook_to = (to_bb << 1);
                     Bitboard rook_from = (to_bb >> 1);
@@ -685,61 +690,61 @@ void Game::move(Move & move)
                 }
                 break;
             }
-            case Move::PROMOTION:
+            case Moves::PROMOTION:
                 piece_bbs[turn | Pieces::PAWN] ^= to_bb;
-                piece_bbs[move.piece] |= to_bb;
+                piece_bbs[piece] |= to_bb;
             break;
         }
     }
 
-    switch (move.piece & Pieces::FILTER_PIECE) {
+    switch (piece & Pieces::FILTER_PIECE) {
             case Pieces::KING:      // update for castling
                 // piece_bbs[turn | Pieces::KING] = to_bb;
 
                 if (is_blacks_turn()) {
                     if (!has_black_king_moved) {
                         has_black_king_moved = true;
-                        move.flags |= Move::FIRST_MOVE;
+                        Moves::add_flag(move, Moves::FIRST_MOVE);
                     }
                 }
                 else {
                     if (!has_white_king_moved) {
                         has_white_king_moved = true;
-                        move.flags |= Move::FIRST_MOVE;
+                        Moves::add_flag(move, Moves::FIRST_MOVE);
                     }
                 }
                 break;
             case Pieces::ROOK:      // update for castling
                 if (is_blacks_turn()) {
-                    if (move.from == 56 && !has_black_kingside_rook_moved) {
+                    if (from == 56 && !has_black_kingside_rook_moved) {
                         has_black_kingside_rook_moved = true;
-                        move.flags |= Move::FIRST_MOVE;
-                    } else if (move.from == 63 && !has_black_queenside_rook_moved) {
+                        Moves::add_flag(move, Moves::FIRST_MOVE);
+                    } else if (from == 63 && !has_black_queenside_rook_moved) {
                         has_black_queenside_rook_moved = true;
-                        move.flags |= Move::FIRST_MOVE;
+                        Moves::add_flag(move, Moves::FIRST_MOVE);
                     }
                 } else {
-                    if (move.from == 0 && !has_white_kingside_rook_moved) {
+                    if (from == 0 && !has_white_kingside_rook_moved) {
                         has_white_kingside_rook_moved = true;
-                        move.flags |= Move::FIRST_MOVE;
-                    } else if (move.from == 7 && !has_white_queenside_rook_moved) {
+                        Moves::add_flag(move, Moves::FIRST_MOVE);
+                    } else if (from == 7 && !has_white_queenside_rook_moved) {
                         has_white_queenside_rook_moved = true;
-                        move.flags |= Move::FIRST_MOVE;
+                        Moves::add_flag(move, Moves::FIRST_MOVE);
                     }
                 }
                 break;
         }
     // game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
 
-    Bitboard gbb = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
-    if (piece_bbs[Pieces::WHITE] != gbb) {
-        printf("ERROR:\n");
-        Bitboards::print(gbb);
-        piece_bbs[Pieces::WHITE] = gbb;
-        piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
-        print();
-        printf("\n\n");
-    }
+    // Bitboard gbb = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
+    // if (piece_bbs[Pieces::WHITE] != gbb) {
+    //     printf("ERROR:\n");
+    //     Bitboards::print(gbb);
+    //     piece_bbs[Pieces::WHITE] = gbb;
+    //     piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
+    //     print();
+    //     printf("\n\n");
+    // }
 
 
     // game_bb = Bitboards::board_to_bitboard(board);
@@ -775,54 +780,56 @@ void Game::undo()
     Move move = history.top();
     history.pop();
 
-    board[move.from]    = move.piece;
-    board[move.to]      = move.captured == 0 ? Pieces::EMPTY : move.captured;
+    int from = Moves::get_from(move), to = Moves::get_to(move);
+    Piece piece = Moves::get_piece(move), captured = Moves::get_captured(move);
+    Flag flags = Moves::get_flags(move);
 
-    Bitboard from_bb    = Bitboards::get_i(move.from);
-    Bitboard to_bb      = Bitboards::get_i(move.to);
+    board[from]    = piece;
+    board[to]      = captured;
+
+    Bitboard from_bb    = Bitboards::get_i(from);
+    Bitboard to_bb      = Bitboards::get_i(to);
     Bitboard fromto_bb  = from_bb ^ to_bb;
 
     game_bb                         ^= fromto_bb;
     piece_bbs[turn]                 ^= fromto_bb;
-    piece_bbs[move.piece]           ^= fromto_bb;
+    piece_bbs[piece]               ^= fromto_bb;
 
-    if (move.captured != 0) {
+    if (captured != 0) {
         game_bb                     |= to_bb;
         piece_bbs[not_turn]         |= to_bb;
-        piece_bbs[move.captured]    |= to_bb;
+        piece_bbs[captured]    |= to_bb;
     }
 
-    Flag flags = move.flags;
-
     while (flags != 0) {
-        int flag = Move::pop_flag(flags);
+        int flag = Moves::pop_flag(flags);
         switch(flag) {
-            case Move::EN_PASSANT:
+            case Moves::EN_PASSANT:
             {
-                board[move.to] = Pieces::EMPTY;
-                int target_square = is_blacks_turn() ? move.to + 8 : move.to - 8;
-                board[target_square] = move.captured;
+                board[to] = Pieces::EMPTY;
+                int target_square = is_blacks_turn() ? to + 8 : to - 8;
+                board[target_square] = captured;
                 Bitboard en_passant_target = Bitboards::get_i(target_square);
 
                 game_bb                     |= en_passant_target;
                 game_bb                     ^= to_bb;
                 piece_bbs[not_turn]         |= en_passant_target;
                 piece_bbs[not_turn]         ^= to_bb;
-                piece_bbs[move.captured]    |= en_passant_target;
-                piece_bbs[move.captured]    ^= to_bb;
+                piece_bbs[captured]         |= en_passant_target;
+                piece_bbs[captured]         ^= to_bb;
                 piece_bbs[turn]             ^= to_bb;
-                piece_bbs[move.piece]       ^= to_bb;
+                piece_bbs[piece]            ^= to_bb;
                 
                 break;
             }
-            case Move::CASTLE:
+            case Moves::CASTLE:
             {
                 // castling with our king is ALWAYS a first move for the king & rook
 
                 // king vs queenside rook
-                if (move.to > move.from) {  // queenside
-                    board[move.to + 2] = Pieces::ROOK | turn;
-                    board[move.to - 1] = Pieces::EMPTY;
+                if (to > from) {  // queenside
+                    board[to + 2] = Pieces::ROOK | turn;
+                    board[to - 1] = Pieces::EMPTY;
 
                     Bitboard rook_to = (to_bb << 2);
                     Bitboard rook_from = (to_bb >> 1);
@@ -833,8 +840,8 @@ void Game::undo()
 
                     is_blacks_turn() ? has_black_queenside_rook_moved = false : has_white_queenside_rook_moved = false;
                 } else {    // kingside
-                    board[move.to - 1] = Pieces::ROOK | turn;
-                    board[move.to + 1] = Pieces::EMPTY;
+                    board[to - 1] = Pieces::ROOK | turn;
+                    board[to + 1] = Pieces::EMPTY;
 
                     Bitboard rook_to = (to_bb >> 1);
                     Bitboard rook_from = (to_bb << 1);
@@ -847,29 +854,29 @@ void Game::undo()
                 }
                 break;
             }
-            case Move::PROMOTION:
+            case Moves::PROMOTION:
             {
-                board[move.from] = Pieces::PAWN | turn;
+                board[from] = Pieces::PAWN | turn;
                 piece_bbs[Pieces::PAWN | turn] |= from_bb;
-                piece_bbs[move.piece] ^= to_bb;
+                piece_bbs[piece] ^= to_bb;
                 break;
             }
-            case Move::FIRST_MOVE:
+            case Moves::FIRST_MOVE:
             {
-                switch (move.piece & Pieces::FILTER_PIECE) {
+                switch (piece & Pieces::FILTER_PIECE) {
                     case Pieces::KING:
                         is_blacks_turn() ? has_black_king_moved = false : has_white_king_moved = false;
                         break;
                     case Pieces::ROOK:
                         if (is_blacks_turn()) {
-                            if (move.from == 56)
+                            if (from == 56)
                                 has_black_kingside_rook_moved = false;
-                            else if (move.from == 63)
+                            else if (from == 63)
                                 has_black_queenside_rook_moved = false;
                         } else {
-                            if (move.from == 0)
+                            if (from == 0)
                                 has_white_kingside_rook_moved = false;
-                            else if (move.from == 7)
+                            else if (from == 7)
                                 has_white_queenside_rook_moved = false;
                         }
                         break;

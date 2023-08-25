@@ -21,7 +21,7 @@ int get_num_flags_at_depth(int depth, Flag flag, Game & g)
 
     for (auto & move : moves) {
         if (depth <= 1) {
-            if (move.flags & flag) {
+            if (Moves::get_flags(move) & flag) {
                 count++;
             }
         } else {
@@ -84,7 +84,7 @@ void print_num_positions_from_starting(Game & game, int depth)
         count += count_bulk_positions(game, depth - 1);
         game.undo();
 
-        printf("%d to %d: %d moves\n", moves[i].from, moves[i].to, count);
+        printf("%d to %d: %d moves\n", Moves::get_from(moves[i]), Moves::get_to(moves[i]), count);
     }
 }
 

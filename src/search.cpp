@@ -96,7 +96,7 @@ std::vector<int> Search::get_move_scores(const std::vector<Move> & moves)
 
    for (auto & move : moves)
    {
-      scored_moves.push_back(MVV_LVA_table[(move.captured & Pieces::FILTER_PIECE)][(move.piece & Pieces::FILTER_PIECE)]);
+      scored_moves.push_back(MVV_LVA_table[(Moves::get_captured(move) & Pieces::FILTER_PIECE)][(Moves::get_piece(move) & Pieces::FILTER_PIECE)]);
    }
    
    return scored_moves;
@@ -107,8 +107,8 @@ Move Search::get_best_move(int depth)
    num_positions_evaluated = 0;
 
    int best_move_eval = -INT_MAX, alpha = -INT_MAX, beta = INT_MAX;
-   Move best_move(0, 0, 0, 0, 0);
-   Move second_best_move(0, 0, 0);
+   Move best_move = 0;
+   Move second_best_move = 0;
 
    std::vector<Move> moves;
    game.get_moves(moves);

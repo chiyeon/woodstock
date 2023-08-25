@@ -115,7 +115,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char ** argv)
 
     auto make_best_move = [&]() {
         Move best_move = search.get_best_move(search_depth);
-        if (best_move.to != best_move.from && best_move.to != 0) {
+        if (Moves::get_to(best_move) != Moves::get_from(best_move) && Moves::get_to(best_move) != 0) {
             game.move(best_move);
             move_exists = true;
         }
@@ -134,7 +134,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char ** argv)
     Move last_move = game.get_last_move();
 
     update_chessboard(game.get_board());
-    highlight_squares(last_move.from, last_move.to);
+    highlight_squares(Moves::get_from(last_move), Moves::get_to(last_move));
 }
 
 EXTERN EMSCRIPTEN_KEEPALIVE void click_square(int index)
@@ -147,10 +147,10 @@ EXTERN EMSCRIPTEN_KEEPALIVE void click_square(int index)
         
         for (auto & move : selected_piece_moves)
         {
-            if (move.to == index) {
+            if (Moves::get_to(move) == index) {
                 game.move(move);
                 update_chessboard(game.get_board());
-                highlight_squares(move.from, move.to);
+                highlight_squares(Moves::get_from(move), Moves::get_to(move));
                 // EM_ASM({make_ai_move()});
                 break;
             }
@@ -165,7 +165,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void click_square(int index)
         
         int i;
         for (i = 0; i < moves_size; ++i) {
-            move_indexes[i] = moves[i].to;
+            move_indexes[i] = Moves::get_to(moves[i]);
         }
         move_indexes[i] = -1;
 
@@ -189,7 +189,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void undo()
         EM_ASM({board.remove_highlight_squares()});
     } else {
         Move last_move = game.get_last_move();
-        highlight_squares(last_move.from, last_move.to);
+        highlight_squares(Moves::get_from(last_move), Moves::get_to(last_move));
     }
 }
 

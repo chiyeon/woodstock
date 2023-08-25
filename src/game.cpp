@@ -658,14 +658,12 @@ void Game::move(Move & move)
     board[from]         = Pieces::EMPTY;
     board[to]           = piece;
 
-    if (captured == 0) {        // QUIET move
-        game_bb             ^= fromto_bb;
-        piece_bbs[turn]     ^= fromto_bb;
-        piece_bbs[piece]    ^= fromto_bb;
-    } else {
-        game_bb             ^= from_bb;
-        piece_bbs[turn]     ^= fromto_bb;
-        piece_bbs[piece]    ^= fromto_bb;
+    game_bb             ^= fromto_bb;
+    piece_bbs[turn]     ^= fromto_bb;
+    piece_bbs[piece]    ^= fromto_bb;
+
+    if (captured != 0) {
+        game_bb             ^= to_bb;
         piece_bbs[not_turn] ^= to_bb;
         piece_bbs[captured] ^= to_bb;
     }
@@ -732,8 +730,6 @@ void Game::move(Move & move)
 
     switch (piece & Pieces::FILTER_PIECE) {
         case Pieces::KING:      // update for castling
-            // piece_bbs[turn | Pieces::KING] = to_bb;
-
             if (is_blacks_turn()) {
                 if (!has_black_king_moved) {
                     has_black_king_moved = true;
@@ -824,14 +820,12 @@ void Game::undo()
     board[from]         = piece;
     board[to]           = captured;
 
-    if (captured == 0) {
-        game_bb             ^= fromto_bb;
-        piece_bbs[turn]     ^= fromto_bb;
-        piece_bbs[piece]    ^= fromto_bb;
-    } else {
-        game_bb             ^= from_bb;
-        piece_bbs[turn]     ^= fromto_bb;
-        piece_bbs[piece]    ^= fromto_bb;
+    game_bb             ^= fromto_bb;
+    piece_bbs[turn]     ^= fromto_bb;
+    piece_bbs[piece]    ^= fromto_bb;
+    
+    if (captured != 0) {
+        game_bb             ^= to_bb;
         piece_bbs[not_turn] ^= to_bb;
         piece_bbs[captured] ^= to_bb;
     }

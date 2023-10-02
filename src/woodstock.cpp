@@ -233,7 +233,7 @@ int main()
 
     // measure_nps_with_eval(6, 5);
 
-    // run_perft_suite();
+    run_perft_suite();
     // measure_nps(6);
 
     // measure_nps(5, "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ");
@@ -241,11 +241,11 @@ int main()
     // measure_nps(6);
     // printf("\n\n");
     // measure_nps(5, "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");   // position 2
-    Game g("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
-    for (int i = 1; i <= 5; ++i) {
-        printf("%d en passants at depth %d\n", get_num_flags_at_depth(i, Moves::EN_PASSANT, g), i);
-        printf("%d castles at depth %d\n", get_num_flags_at_depth(i, Moves::CASTLE, g), i);
-    }
+    // Game g("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
+    // for (int i = 1; i <= 5; ++i) {
+    //     printf("%d en passants at depth %d\n", get_num_flags_at_depth(i, Moves::EN_PASSANT, g), i);
+    //     printf("%d castles at depth %d\n", get_num_flags_at_depth(i, Moves::CASTLE, g), i);
+    // }
 
     // printf("\n\n");
 

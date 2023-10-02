@@ -658,15 +658,31 @@ void Game::move(Move & move)
     board[from]         = Pieces::EMPTY;
     board[to]           = piece;
 
-    game_bb             ^= fromto_bb;
-    piece_bbs[turn]     ^= fromto_bb;
-    piece_bbs[piece]    ^= fromto_bb;
+    // game_bb             ^= fromto_bb;
+    // piece_bbs[turn]     ^= fromto_bb;
+    // piece_bbs[piece]    ^= fromto_bb;
+
+    game_bb |= to_bb;
+    game_bb &= ~from_bb;
+
+    piece_bbs[turn] |= to_bb;
+    piece_bbs[turn] &= ~from_bb;
+
+    piece_bbs[piece] |= to_bb;
+    piece_bbs[piece] &= ~from_bb;
 
     if (captured != 0) {
-        game_bb             ^= to_bb;
-        piece_bbs[not_turn] ^= to_bb;
-        piece_bbs[captured] ^= to_bb;
+        // game_bb             |= to_bb;
+        // piece_bbs[not_turn] |= to_bb;
+        // piece_bbs[captured] |= to_bb;
+
+        piece_bbs[not_turn] &= ~to_bb;
+        piece_bbs[captured] &= ~to_bb;
     }
+
+    piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
+    piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
+    game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
 
     switch(flags) {
         case Moves::EN_PASSANT:
@@ -726,6 +742,9 @@ void Game::move(Move & move)
             piece_bbs[piece]                |= to_bb;
             break;
         }
+        piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
+        piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
+        game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
     }
 
     switch (piece & Pieces::FILTER_PIECE) {
@@ -763,7 +782,6 @@ void Game::move(Move & move)
             }
             break;
         }
-    // game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
 
     // Bitboard gbb = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
     // if (piece_bbs[Pieces::WHITE] != gbb) {
@@ -797,6 +815,7 @@ void Game::move(Move & move)
     // }
     // piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
     // piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
+    // game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
     
     switch_turns(); // flip sides
     history.push(move);
@@ -825,10 +844,14 @@ void Game::undo()
     piece_bbs[piece]    ^= fromto_bb;
     
     if (captured != 0) {
-        game_bb             ^= to_bb;
-        piece_bbs[not_turn] ^= to_bb;
-        piece_bbs[captured] ^= to_bb;
+        game_bb             |= to_bb;
+        piece_bbs[not_turn] |= to_bb;
+        piece_bbs[captured] |= to_bb;
     }
+
+    piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
+    piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
+    game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
 
     while (flags != 0) {
         int flag = Moves::pop_flag(flags);
@@ -919,6 +942,9 @@ void Game::undo()
                 }
                 break;
             }
+            piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
+            piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
+            game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
         }
     }
 

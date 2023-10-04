@@ -680,9 +680,14 @@ void Game::move(Move & move)
         piece_bbs[captured] &= ~to_bb;
     }
 
-    piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
-    piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
-    game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
+    //piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
+    //piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
+    //game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
+
+    // at this point we dont care if its the first move
+    // instead of looping through we can just filter FIRST_MOVE which
+    // interferes with castling for the AI !
+    flags &= ~Moves::FIRST_MOVE;
 
     switch(flags) {
         case Moves::EN_PASSANT:
@@ -742,9 +747,9 @@ void Game::move(Move & move)
             piece_bbs[piece]                |= to_bb;
             break;
         }
-        piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
-        piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
-        game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
+        //piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
+        //piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
+        //game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
     }
 
     switch (piece & Pieces::FILTER_PIECE) {
@@ -813,9 +818,9 @@ void Game::move(Move & move)
     // for (int i = 0; i < 12; ++i) {
     //     piece_bbs[all_pieces[i]] = Bitboards::board_to_bitboard(board, Pieces::NO_FILTER, all_pieces[i]);
     // }
-    // piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
-    // piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
-    // game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
+    piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
+    piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
+    game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
     
     switch_turns(); // flip sides
     history.push(move);
@@ -849,9 +854,9 @@ void Game::undo()
         piece_bbs[captured] |= to_bb;
     }
 
-    piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
-    piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
-    game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
+    //piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
+    //piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
+    //game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
 
     while (flags != 0) {
         int flag = Moves::pop_flag(flags);
@@ -942,9 +947,9 @@ void Game::undo()
                 }
                 break;
             }
-            piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
-            piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
-            game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
+            //piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
+            //piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
+            //game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
         }
     }
 
@@ -971,6 +976,9 @@ void Game::undo()
     // }
     // piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
     // piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
+    piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
+    piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
+    game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK]; 
 }
 
 Piece * Game::get_board()

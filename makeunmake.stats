@@ -1,0 +1,45 @@
+Oct 4 2023
+Update fixes make/unmake and allows bitboards for each piece type
+
+ran on thinkpad t480s
+
+compiled with g++
+Position 1
+   Passed.
+   16635290 NPS at depth 6.
+Position 2
+   Passed.
+   23227637 NPS at depth 5.
+Position 3
+   Passed.
+   17804487 NPS at depth 6.
+Position 4
+   Passed.
+   20382659 NPS at depth 5.
+Position 5
+   Passed.
+   20274838 NPS at depth 5.
+Position 6
+   Passed.
+   23219419 NPS at depth 5.
+
+
+compiled with clang
+Position 1
+   Passed.
+   19156255 NPS at depth 6.
+Position 2
+   Passed.
+   23604466 NPS at depth 5.
+Position 3
+   Passed.
+   17204922 NPS at depth 6.
+Position 4
+   Passed.
+   20853028 NPS at depth 5.
+Position 5
+   Passed.
+   20652150 NPS at depth 5.
+Position 6
+   Passed.
+   23978051 NPS at depth 5.

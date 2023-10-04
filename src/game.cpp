@@ -658,10 +658,10 @@ void Game::move(Move & move)
     board[from]         = Pieces::EMPTY;
     board[to]           = piece;
 
-    // game_bb             ^= fromto_bb;
-    // piece_bbs[turn]     ^= fromto_bb;
-    // piece_bbs[piece]    ^= fromto_bb;
-
+    game_bb             ^= fromto_bb;
+    piece_bbs[turn]     ^= fromto_bb;
+    piece_bbs[piece]    ^= fromto_bb;
+/*
     game_bb |= to_bb;
     game_bb &= ~from_bb;
 
@@ -669,20 +669,16 @@ void Game::move(Move & move)
     piece_bbs[turn] &= ~from_bb;
 
     piece_bbs[piece] |= to_bb;
-    piece_bbs[piece] &= ~from_bb;
+    piece_bbs[piece] &= ~from_bb;*/
 
     if (captured != 0) {
-        // game_bb             |= to_bb;
-        // piece_bbs[not_turn] |= to_bb;
-        // piece_bbs[captured] |= to_bb;
+        game_bb             |= to_bb;
+        //piece_bbs[not_turn] ^= to_bb;
+        //piece_bbs[captured] ^= to_bb;
 
         piece_bbs[not_turn] &= ~to_bb;
         piece_bbs[captured] &= ~to_bb;
     }
-
-    //piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
-    //piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
-    //game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
 
     // at this point we dont care if its the first move
     // instead of looping through we can just filter FIRST_MOVE which
@@ -702,9 +698,9 @@ void Game::move(Move & move)
             game_bb             ^= ep_square_bb;
 
             // there was nothing in the to slot to begin with, so switch it back
-            game_bb             ^= to_bb;
-            piece_bbs[not_turn] ^= to_bb;
-            piece_bbs[captured] ^= to_bb;
+            //game_bb             ^= to_bb;
+            //piece_bbs[not_turn] ^= to_bb;
+            //piece_bbs[captured] ^= to_bb;
             break;
         }
         case Moves::CASTLE:
@@ -818,9 +814,9 @@ void Game::move(Move & move)
     // for (int i = 0; i < 12; ++i) {
     //     piece_bbs[all_pieces[i]] = Bitboards::board_to_bitboard(board, Pieces::NO_FILTER, all_pieces[i]);
     // }
-    piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
-    piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
-    game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
+    //piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
+    //piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
+    //game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
     
     switch_turns(); // flip sides
     history.push(move);
@@ -876,8 +872,8 @@ void Game::undo()
                 piece_bbs[not_turn]     ^= to_bb;
                 piece_bbs[captured]     |= ep_square_bb;
                 piece_bbs[captured]     ^= to_bb;
-                piece_bbs[turn]         ^= to_bb;
-                piece_bbs[piece]        ^= to_bb;
+                //piece_bbs[turn]         ^= to_bb;
+                //piece_bbs[piece]        ^= to_bb;
                 
                 break;
             }
@@ -976,9 +972,9 @@ void Game::undo()
     // }
     // piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
     // piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
-    piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
-    piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
-    game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK]; 
+    //piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
+    //piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
+    //game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK]; 
 }
 
 Piece * Game::get_board()

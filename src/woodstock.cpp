@@ -151,7 +151,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void click_square(int index)
                 game.move(move);
                 update_chessboard(game.get_board());
                 highlight_squares(Moves::get_from(move), Moves::get_to(move));
-                // EM_ASM({make_ai_move()});
+                EM_ASM({make_ai_move()});
                 break;
             }
         }

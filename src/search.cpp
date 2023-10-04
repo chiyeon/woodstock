@@ -230,6 +230,7 @@ int Search::alphabeta(int depth, int alpha, int beta, bool maximizing_player)
       int eval = evaluate_position(game);
       // hasher.store_entry(game.get_board(), depth, eval);
       return (game.is_blacks_turn() ? 1 : -1) * eval;
+      //return -eval;
       // // recall from transposition table or build
       // TranspositionEntry entry = hasher.get_entry(game.get_board());
       // if (entry.key == 0ULL) {

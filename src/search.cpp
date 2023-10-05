@@ -25,7 +25,7 @@ float Search::evaluate_position(Game & game)
    // else if (game.bcm) return 999999999;
    // else if (game.draw) return 0;
 
-   if (game.king_in_check()) white_score = 0;
+   if (game.is_king_in_check_hard()) white_score = 0;
 
    Bitboard white_bitboard = game.get_piece_bb(Pieces::WHITE);
    while (white_bitboard != 0ULL) {
@@ -227,8 +227,18 @@ int Search::alphabeta(int depth, int alpha, int beta, bool maximizing_player)
    num_positions_evaluated++;
    
    if (depth == 0) {
+      /*TranspositionEntry entry = hasher.get_entry(game.get_board());
+      if (entry.key == 0ULL) {
+         int eval = evaluate_position(game);
+         hasher.store_entry(game.get_board(), depth, eval);
+
+         return (game.is_blacks_turn() ? 1 : -1) * eval;
+      } else {
+         return (game.is_blacks_turn() ? 1 : -1) * entry.eval;
+      }*/
+
       int eval = evaluate_position(game);
-      // hasher.store_entry(game.get_board(), depth, eval);
+      hasher.store_entry(game.get_board(), depth, eval);
       return (game.is_blacks_turn() ? 1 : -1) * eval;
       //return -eval;
       // // recall from transposition table or build

@@ -31,6 +31,9 @@ public:
     bool can_castle_kingside(Bitboard attacked_squares);
     bool can_castle_queenside(Bitboard attacked_squares);
 
+    bool no_moves_left                      = false;
+    bool king_in_check                      = false;
+
     std::stack<Move> history;
 public:
     int en_passant_count                    = 0;
@@ -71,8 +74,9 @@ public:
     bool last_move_resulted_in_check();
     bool is_in_check();
 
-    bool king_in_check();
-    bool no_moves_left();
+    bool is_king_in_check_hard();
+    bool is_king_in_check();
+    bool are_no_moves_left();
     bool is_checkmated();
 
     void get_moves(std::vector<Move> & moves);

@@ -88,7 +88,6 @@ public:
       srand(time(NULL));
 
       TranspositionEntry e;
-      printf("%d bytes\n", sizeof(e));
    }
    ZobristHasher(ZobristHasher & hasher) = delete;
 

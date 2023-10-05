@@ -352,7 +352,7 @@ bool Game::is_in_check()
     return false;
 }
 
-bool Game::king_in_check()
+bool Game::is_king_in_check_hard()
 {
     // check if the current turn's person is in check
     int king_pos = Bitboards::get_lsb(piece_bbs[turn | Pieces::KING]);
@@ -369,21 +369,27 @@ bool Game::king_in_check()
     );
 }
 
-bool Game::no_moves_left()
+bool Game::is_king_in_check()
 {
-    
+   return king_in_check;
+}
+
+bool Game::are_no_moves_left()
+{
+   return no_moves_left; 
 }
 
 bool Game::is_checkmated()
 {
-    bool can_king_move = false;
-
+    return no_moves_left && king_in_check;
 
 }
 
 void Game::get_moves(std::vector<Move> & moves)
 {
     moves.reserve(Constants::MAX_CHESS_MOVES_PER_POSITION);
+    no_moves_left = false;
+    king_in_check = false;
 
     Bitboard not_game_bitboard = ~game_bb;
     Bitboard axis_bitboard = piece_bbs[not_turn];
@@ -601,6 +607,9 @@ void Game::get_moves(std::vector<Move> & moves)
             moves.push_back(Moves::create(pos, target_pos, piece, board[target_pos]));
         }
     }
+
+    no_moves_left = moves.size() == 0;
+    king_in_check = is_in_check;
 
     // if (moves.size() == 0) {
     //     if (is_in_check) {

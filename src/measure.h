@@ -125,6 +125,32 @@ void run_perft_suite()
     run_perft("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w -", {46, 2079, 89890, 3894594, 164075551});
 }
 
+void run_ai_test()
+{
+   Game game;
+   Search search(game);
+   int search_depth = 5;
+
+   int max_turns = 100;
+   int turns = 0;
+
+   auto fn = [&]() {
+      while (turns < max_turns && !game.is_checkmated() && !game.are_no_moves_left()) {
+         Move best_move = search.get_best_move(3);
+         if (Moves::get_to(best_move) != Moves::get_from(best_move)) {
+            game.move(best_move);
+         } else {
+            return;
+         }
+         turns++;
+      }
+   };
+
+   float time_elapsed = measure(fn);
+
+   printf("Simulated at depth %d in %d turns. %d TPS.\n", search_depth, turns, (int)(static_cast<float>(turns) / (static_cast<float>(time_elapsed) / 1000.0)));
+}
+
 void print_num_positions_from_starting(Game & game, int depth)
 {
     if (depth <= 0) return;

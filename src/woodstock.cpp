@@ -204,6 +204,8 @@ int main()
 {
     printf("woodstock!\n");
 
+    run_ai_test();
+
     // bug occurs when searching beyond checkmates.
     // Game g("8/8/8/5N2/6p1/5k1p/2R4p/1K4n1");
     // Search search(g);
@@ -233,7 +235,7 @@ int main()
 
     // measure_nps_with_eval(6, 5);
 
-    run_perft_suite();
+    //run_perft_suite();
     // measure_nps(6);
 
     // measure_nps(5, "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ");

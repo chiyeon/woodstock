@@ -170,10 +170,17 @@ class Search
    std::vector<int> get_move_scores(const std::vector<Move> & moves);
    void swap(std::vector<int> & vec, int i, int j);
 
+   time_t search_start_time;
+   float max_search_duration = 3.0;
+   int max_search_depth = 25;
+
+   bool out_of_time();
+
 public:
    Search(Game & game);
    float evaluate_position(Game & game);
    Move get_best_move(int depth);
+   Move get_best_move_iterative_deepening(int & depth_searched);
    int num_positions_evaluated = 0;
 
 };

@@ -102,6 +102,28 @@ std::vector<int> Search::get_move_scores(const std::vector<Move> & moves)
    return scored_moves;
 }
 
+Move Search::get_best_move_iterative_deepening(int & depth)
+{
+   Move best_move = 0;
+
+   search_start_time = time(NULL);
+   int current_depth;
+   for (current_depth = 1; current_depth < max_search_depth && !out_of_time(); ++current_depth)
+   {
+      best_move = get_best_move(current_depth); 
+   }
+
+   depth = current_depth;
+
+   return best_move;
+}
+
+bool Search::out_of_time()
+{
+   time_t now = time(NULL);
+   return difftime(now, search_start_time) > max_search_duration;
+}
+
 Move Search::get_best_move(int depth)
 {
    num_positions_evaluated = 0;
@@ -109,6 +131,11 @@ Move Search::get_best_move(int depth)
    int best_move_eval = -INT_MAX, alpha = -INT_MAX, beta = INT_MAX;
    Move best_move = 0;
    Move second_best_move = 0;
+
+   TranspositionEntry entry = hasher.get_entry(game.get_board());
+   if (entry.key != 0ULL && entry.depth >= depth) {
+      return entry.best_move;
+   }
 
    std::vector<Move> moves;
    game.get_moves(moves);
@@ -129,7 +156,10 @@ Move Search::get_best_move(int depth)
 
          alpha = std::max(alpha, best_move_eval);
       }
-   }
+   } 
+
+   // store into transposition table
+   hasher.store_entry(game.get_board(), depth, 0, best_move);
 
    // can do this better later. just prevents us from making our last last move
    // if (game.get_history().size() > 1) {
@@ -225,6 +255,10 @@ Move Search::get_best_move(int depth)
 int Search::alphabeta(int depth, int alpha, int beta, bool maximizing_player)
 {
    num_positions_evaluated++;
+
+   if (out_of_time()) {
+      return -1;
+   }
    
    if (depth == 0) {
       /*TranspositionEntry entry = hasher.get_entry(game.get_board());
@@ -238,8 +272,8 @@ int Search::alphabeta(int depth, int alpha, int beta, bool maximizing_player)
       }*/
 
       int eval = evaluate_position(game);
-      hasher.store_entry(game.get_board(), depth, eval);
-      return (game.is_blacks_turn() ? 1 : -1) * eval;
+      //hasher.store_entry(game.get_board(), depth, eval);
+      return (game.is_blacks_turn() ? -1 : 1) * eval;
       //return -eval;
       // // recall from transposition table or build
       // TranspositionEntry entry = hasher.get_entry(game.get_board());

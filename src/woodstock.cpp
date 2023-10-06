@@ -112,9 +112,12 @@ EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char ** argv)
     EM_ASM({board.selected_piece = undefined});
 
     bool move_exists = false;
+    int depth_searched = 0;
+    int time_elapsed_search = 0;
 
     auto make_best_move = [&]() {
-        Move best_move = search.get_best_move(search_depth);
+        //Move best_move = search.get_best_move(search_depth);
+        Move best_move = search.get_best_move_iterative_deepening(depth_searched);
         if (Moves::get_to(best_move) != Moves::get_from(best_move) && Moves::get_to(best_move) != 0) {
             game.move(best_move);
             move_exists = true;
@@ -128,7 +131,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char ** argv)
         return;
     }
 
-    printf("Found best move at depth %d with %d evaluations in %dms!\n", search_depth, search.num_positions_evaluated, time_elapsed);
+    printf("Found best move at depth %d with %d evaluations in %dms!\n", depth_searched, search.num_positions_evaluated, time_elapsed);
     search.num_positions_evaluated = 0;
 
     Move last_move = game.get_last_move();

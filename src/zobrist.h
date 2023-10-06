@@ -11,22 +11,26 @@ struct TranspositionEntry
    Hash key;            // associated zobrist key
    int depth;           // depth ascertained at
    int eval;            // evaluation of board
-   // best move todo
+   //uint32_t best_move;  // Move is 64 bits. we can save storage as we only need to/from
+   Move best_move;
 
    TranspositionEntry()
       : key(0ULL)
       , depth(0)
       , eval(0)
+      , best_move(0)
    { }
 
-   TranspositionEntry(Hash key, int depth, int eval)
+   TranspositionEntry(Hash key, int depth, int eval, Move best_move)
       : key(key)
       , depth(depth)
       , eval(eval)
+      //, best_move(static_cast<uint32_t>(best_move))
+      , best_move(best_move)
    { }
 };
 
-const int hashtable_size = 100000;
+const int hashtable_size = 1128889;
 
 class ZobristHasher
 {
@@ -91,11 +95,11 @@ public:
    }
    ZobristHasher(ZobristHasher & hasher) = delete;
 
-   void store_entry(Piece * board, int depth, int eval)
+   void store_entry(Piece * board, int depth, int eval, Move best_move)
    {
       Hash zobrist_key = compute_zobrist_key(board);
       int key = zobrist_key % hashtable_size;
-      HashTable[key] = TranspositionEntry(zobrist_key, depth, eval);
+      HashTable[key] = TranspositionEntry(zobrist_key, depth, eval, best_move);
    }
 
    TranspositionEntry get_entry(Piece * board)

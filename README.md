@@ -5,6 +5,16 @@ This branch contains the woodstock chess engine and AI in C++, to be compiled to
 
 ### Dependencies
 - `make`
-- `g++` for normal compilation
+- `g++` or `clang`
 - `emscripten` for compiling to web assembly
-- `lite-server` on `npm` for debug web page serving
+- `python` for debug web page serving
+
+### Features
+- Magic Bitboards for sliding pieces
+- Minimaxing with Alpha-Beta pruning
+- Playable on Browser with WebAssembly
+- Load from FEN string
+- Transposition Table with Zobrist Hashing (WIP)
+- Iterative Deepening Search (WIP)
+- UCI Compliant (TODO)
+- PGN Export (TODO)

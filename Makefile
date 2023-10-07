@@ -21,7 +21,7 @@ build_clang_binary: clean ${CFILES}
 	clang ${CMP_ARGS} ${G++_ARGS} ${CFILES} -o build/woodstock.o
 
 serve: build/
-	lite-server
+	python -m http.server --directory ./build
 
 run_binary: build/
 	./build/woodstock.o

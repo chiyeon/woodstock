@@ -154,9 +154,9 @@ Move Search::get_best_move(int depth)
       game.move(move);
 
       // false b/c we already did the first depth!
-      // int eval = alphabeta(depth - 1, alpha, beta, false);
+      int eval = alphabeta(depth - 1, alpha, beta, false);
       // int eval = -negascout(depth - 1, -beta, -alpha);
-      int eval = -negamax(depth - 1, -beta, -alpha);
+      // int eval = -negamax(depth - 1, -beta, -alpha);
 
       game.undo();
 
@@ -197,12 +197,10 @@ int Search::negamax(int depth, int alpha, int beta)
    std::vector<int> move_scores = get_move_scores(moves);
    int num_moves = moves.size();
 
-
    int max = -INT_MAX, eval = 0;
    for (int i = 0; i < num_moves; ++i)
    {
       for (int j = i; j < num_moves; ++j) {
-         // if (move_scores[j] > move_scores[i]) swap(move_scores, i, j);
          if (move_scores[j] > move_scores[i]) {
             std::swap(move_scores[i], move_scores[j]);
             std::swap(moves[i], moves[j]);

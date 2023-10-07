@@ -175,6 +175,7 @@ class Search
    int max_search_depth = 25;
 
    bool out_of_time();
+   bool completed_search = false;
 
 public:
    Search(Game & game);

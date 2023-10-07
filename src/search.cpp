@@ -105,16 +105,19 @@ std::vector<int> Search::get_move_scores(const std::vector<Move> & moves)
 Move Search::get_best_move_iterative_deepening(int & depth)
 {
    Move best_move = 0;
+   Move prev_best_move = 0;
 
    search_start_time = time(NULL);
    int current_depth;
    for (current_depth = 1; current_depth < max_search_depth && !out_of_time(); ++current_depth)
    {
+      prev_best_move = best_move;
       best_move = get_best_move(current_depth); 
    }
 
    depth = current_depth;
 
+   return completed_search ? best_move : prev_best_move;
    return best_move;
 }
 
@@ -126,6 +129,7 @@ bool Search::out_of_time()
 
 Move Search::get_best_move(int depth)
 {
+   completed_search = true;
    num_positions_evaluated = 0;
 
    int best_move_eval = -INT_MAX, alpha = -INT_MAX, beta = INT_MAX;
@@ -256,7 +260,8 @@ int Search::alphabeta(int depth, int alpha, int beta, bool maximizing_player)
 {
    num_positions_evaluated++;
 
-   if (out_of_time()) {
+   if (!completed_search || out_of_time()) {
+      completed_search = false;
       return -1;
    }
    

@@ -102,6 +102,11 @@ std::vector<int> Search::get_move_scores(const std::vector<Move> & moves)
    return scored_moves;
 }
 
+void Search::start_search_timer()
+{
+   search_start_time = time(NULL);
+}
+
 Move Search::get_best_move_iterative_deepening(int & depth)
 {
    Move best_move = 0;
@@ -165,15 +170,15 @@ Move Search::get_best_move(int depth)
    // store into transposition table
    hasher.store_entry(game.get_board(), depth, 0, best_move);
 
-   // can do this better later. just prevents us from making our last last move
-   // if (game.get_history().size() > 1) {
-   //    Move last_move = game.get_last_move();
-   //    game.pop_last_move();
-   //    if (game.get_last_move() == best_move) {
-   //       game.push_to_history(last_move);
-   //       return second_best_move;
-   //    }
-   // }
+   //can do this better later. just prevents us from making our last last move
+   if (game.get_history().size() > 2) {
+      Move last_move = game.get_last_move();
+      game.pop_last_move();
+      if (game.get_last_move() == best_move) {
+         game.push_to_history(last_move);
+         return second_best_move;
+      }
+   }
 
    // printf("Found best move at depth %d with %d positions\n", depth, num_positions_evaluated);
    // num_positions_evaluated = 0;

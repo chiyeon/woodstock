@@ -358,7 +358,20 @@ void MoveMasks::find_all_magics()
     for (int i = 0; i < 64; ++i) {
         rook_magic_table[i].magic = find_magic(i, Pieces::ROOK);
         rook_magic_table[i].ptr = rook_moves[i];
+
+
         bishop_magic_table[i].magic = find_magic(i, Pieces::BISHOP);
         bishop_magic_table[i].ptr = bishop_moves[i];
     }
 }
+
+// void MoveMasks::load_precalculated_magics()
+// {
+//     for (int i  = 0; i < 64; ++i) {
+//         rook_magic_table[i].magic = precalculated_rook_magics[i];
+//         rook_magic_table[i].ptr = rook_moves[i];
+
+//         bishop_magic_table[i].magic = precalculated_bishop_magics[i];
+//         bishop_magic_table[i].ptr = bishop_moves[i];
+//     }
+// }

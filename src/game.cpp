@@ -382,7 +382,6 @@ bool Game::are_no_moves_left()
 bool Game::is_checkmated()
 {
     return no_moves_left && king_in_check;
-
 }
 
 void Game::get_moves(std::vector<Move> & moves)

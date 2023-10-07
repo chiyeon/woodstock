@@ -184,6 +184,7 @@ public:
    Move get_best_move_iterative_deepening(int & depth_searched);
    int num_positions_evaluated = 0;
 
+   void start_search_timer();
 };
 
 // struct MoveComparator

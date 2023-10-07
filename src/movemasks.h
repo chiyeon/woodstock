@@ -36,6 +36,7 @@ class MoveMasks
     void initialize_magic_table();
     Magic find_magic(int pos, Piece piece_type);
     void find_all_magics();
+    // void load_precalculated_magics();
 
     Bitboard add_one_with_masked_bits(Bitboard current, Bitboard mask);
     std::vector<Bitboard> get_all_blocker_combinations(Bitboard blocker);

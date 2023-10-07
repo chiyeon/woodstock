@@ -48,8 +48,7 @@ void run_game_simulation(int depth1, int depth2)
         Move move = search.get_best_move(game.is_whites_turn() ? depth1 : depth2);
         game.move(move);
         printf("Move Made\n");
-    // } while (!game.bcm && !game.wcm && !game.draw);
-    } while (false);
+    } while (!game.are_no_moves_left() && !game.is_checkmated());
 
     game.print();
 
@@ -72,7 +71,7 @@ void run_game_simulation(int depth1, int depth2)
 // Game game("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
 Game game;
 Search search(game);
-int search_depth = 5;
+int search_depth = 4;
 
 std::vector<Move> selected_piece_moves;
 
@@ -116,8 +115,9 @@ EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char ** argv)
     int time_elapsed_search = 0;
 
     auto make_best_move = [&]() {
-        //Move best_move = search.get_best_move(search_depth);
-        Move best_move = search.get_best_move_iterative_deepening(depth_searched);
+        search.start_search_timer();
+        Move best_move = search.get_best_move(search_depth);
+        //Move best_move = search.get_best_move_iterative_deepening(depth_searched);
         if (Moves::get_to(best_move) != Moves::get_from(best_move) && Moves::get_to(best_move) != 0) {
             game.move(best_move);
             move_exists = true;
@@ -207,7 +207,12 @@ int main()
 {
     printf("woodstock!\n");
 
-    run_ai_test();
+    //run_game_simulation(3, 4);
+    // Game g;
+    // Search s(g);
+    run_perft_suite();
+
+    //run_ai_test();
 
     // bug occurs when searching beyond checkmates.
     // Game g("8/8/8/5N2/6p1/5k1p/2R4p/1K4n1");
@@ -237,6 +242,23 @@ int main()
     // g.print();
 
     // measure_nps_with_eval(6, 5);
+
+    // Game game;
+    // Search search(game);
+    // search.start_search_timer();
+
+    // Move move;
+    
+    // auto fn = [&]() {
+    //     move = search.get_best_move(5);
+    // };
+
+    // int duration = measure(fn);
+
+    // game.move(move);
+    // game.print();
+    
+    // printf("Found best move in %dms\n", duration);
 
     //run_perft_suite();
     // measure_nps(6);

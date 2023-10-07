@@ -163,7 +163,7 @@ class Search
    Game & game;
    ZobristHasher hasher;
    // int alphabeta(int depth, int alpha, int beta, bool maximizing_player);
-   int alphabeta(int depth, int alpha, int beta, bool maximizing_player = false);
+   int alphabeta(int depth, int alpha, int beta, bool maximizing_player);
    int negascout(int depth, int alpha, int beta);
    int negamax(int depth, int alpha, int beta);
 

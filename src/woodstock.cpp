@@ -71,7 +71,7 @@ void run_game_simulation(int depth1, int depth2)
 // Game game("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
 Game game;
 Search search(game);
-int search_depth = 4;
+int search_depth = 5;
 
 std::vector<Move> selected_piece_moves;
 
@@ -117,6 +117,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char ** argv)
     auto make_best_move = [&]() {
         search.start_search_timer();
         Move best_move = search.get_best_move(search_depth);
+        depth_searched = search_depth;
         //Move best_move = search.get_best_move_iterative_deepening(depth_searched);
         if (Moves::get_to(best_move) != Moves::get_from(best_move) && Moves::get_to(best_move) != 0) {
             game.move(best_move);

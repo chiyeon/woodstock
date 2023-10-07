@@ -153,9 +153,10 @@ Move Search::get_best_move(int depth)
    {
       game.move(move);
 
-      int eval = alphabeta(depth - 1, alpha, beta);
-      // int eval = negascout(depth - 1, alpha, beta);
-      // int eval = negamax(depth - 1 , alpha, beta);
+      // false b/c we already did the first depth!
+      // int eval = alphabeta(depth - 1, alpha, beta, false);
+      // int eval = -negascout(depth - 1, -beta, -alpha);
+      int eval = -negamax(depth - 1, -beta, -alpha);
 
       game.undo();
 
@@ -171,14 +172,14 @@ Move Search::get_best_move(int depth)
    hasher.store_entry(game.get_board(), depth, 0, best_move);
 
    //can do this better later. just prevents us from making our last last move
-   if (game.get_history().size() > 2) {
-      Move last_move = game.get_last_move();
-      game.pop_last_move();
-      if (game.get_last_move() == best_move) {
-         game.push_to_history(last_move);
-         return second_best_move;
-      }
-   }
+   // if (game.get_history().size() > 2) {
+   //    Move last_move = game.get_last_move();
+   //    game.pop_last_move();
+   //    if (game.get_last_move() == best_move) {
+   //       game.push_to_history(last_move);
+   //       return second_best_move;
+   //    }
+   // }
 
    // printf("Found best move at depth %d with %d positions\n", depth, num_positions_evaluated);
    // num_positions_evaluated = 0;
@@ -186,80 +187,80 @@ Move Search::get_best_move(int depth)
    return best_move;
 }
 
-// int Search::negamax(int depth, int alpha, int beta)
-// {
-//    num_positions_evaluated++;
+int Search::negamax(int depth, int alpha, int beta)
+{
+   num_positions_evaluated++;
 
-//    std::vector<Move> moves;
-//    game.get_moves(moves);
-//    if (depth == 0) return (game.is_blacks_turn() ? 1 : -1) * evaluate_position(game, moves);
-//    std::vector<int> move_scores = get_move_scores(moves);
-//    int num_moves = moves.size();
+   std::vector<Move> moves;
+   game.get_moves(moves);
+   if (depth == 0) return (game.is_blacks_turn() ? -1 : 1) * evaluate_position(game);
+   std::vector<int> move_scores = get_move_scores(moves);
+   int num_moves = moves.size();
 
 
-//    int max = -INT_MAX, eval = 0;
-//    for (int i = 0; i < num_moves; ++i)
-//    {
-//       for (int j = i; j < num_moves; ++j) {
-//          // if (move_scores[j] > move_scores[i]) swap(move_scores, i, j);
-//          if (move_scores[j] > move_scores[i]) {
-//             std::swap(move_scores[i], move_scores[j]);
-//             std::swap(moves[i], moves[j]);
-//          }
-//       }
+   int max = -INT_MAX, eval = 0;
+   for (int i = 0; i < num_moves; ++i)
+   {
+      for (int j = i; j < num_moves; ++j) {
+         // if (move_scores[j] > move_scores[i]) swap(move_scores, i, j);
+         if (move_scores[j] > move_scores[i]) {
+            std::swap(move_scores[i], move_scores[j]);
+            std::swap(moves[i], moves[j]);
+         }
+      }
 
-//       game.move(moves[i]);
-//       eval = -negamax(depth - 1, -beta, -alpha);
-//       game.undo();
+      game.move(moves[i]);
+      eval = -negamax(depth - 1, -beta, -alpha);
+      game.undo();
 
-//       if (eval >= beta) return eval;
-//       if (eval > max) {
-//          max = eval;
-//          if (eval > alpha) alpha = eval;
-//       }
-//    }
+      if (eval >= beta) return eval;
+      if (eval > max) {
+         max = eval;
+         if (eval > alpha) alpha = eval;
+      }
+   }
 
-//    return max;
-// }
+   return max;
+}
 
-// int Search::negascout(int depth, int alpha, int beta)
-// {
-//    num_positions_evaluated++;
+int Search::negascout(int depth, int alpha, int beta)
+{
+   num_positions_evaluated++;
 
-//    std::vector<Move> moves;
-//    game.get_moves(moves);
-//    if (depth == 0) return (game.is_blacks_turn() ? 1 : -1) * evaluate_position(game, moves);
-//    std::vector<int> move_scores = get_move_scores(moves);
-//    int num_moves = moves.size();
+   std::vector<Move> moves;
+   game.get_moves(moves);
+   if (depth == 0) return (game.is_blacks_turn() ? -1 : 1) * evaluate_position(game);
+   std::vector<int> move_scores = get_move_scores(moves);
+   int num_moves = moves.size();
 
-//    int b = beta, eval = 0;
+   int b = beta, eval = 0;
    
-//    for (int i = 0; i < num_moves; ++i) {
-//       for (int j = i; j < num_moves; ++j) {
-//          if (move_scores[j] > move_scores[i]) {
-//             std::swap(move_scores[i], move_scores[j]);
-//             std::swap(moves[i], moves[j]);
-//          }
-//       }
+   for (int i = 0; i < num_moves; ++i) {
+      for (int j = i; j < num_moves; ++j) {
+         if (move_scores[j] > move_scores[i]) {
+            std::swap(move_scores[i], move_scores[j]);
+            std::swap(moves[i], moves[j]);
+         }
+      }
 
-//       Move move = moves[i];
-//       game.move(move);
+      Move move = moves[i];
+      game.move(move);
 
-//       eval = -negascout(depth - 1, -b, -alpha);
+      eval = -negascout(depth - 1, -b, -alpha);
 
-//       if ((eval > alpha) && (eval < beta) && (i > 0))
-//             eval = -negascout(depth - 1, -beta, -alpha);
+      if ((eval > alpha) && (eval < beta) && (i > 0))
+            eval = -negascout(depth - 1, -beta, -alpha);
 
-//       alpha = std::max(alpha, eval);
+      alpha = std::max(alpha, eval);
 
-//       game.undo();
+      game.undo();
       
-//       if (alpha >= beta)
-//          return alpha;
-//       b = alpha + 1;
-//    }
-//    return alpha;
-// }
+      if (alpha >= beta)
+         return alpha;
+      b = alpha + 1;
+   }
+   return alpha;
+}
 
 int Search::alphabeta(int depth, int alpha, int beta, bool maximizing_player)
 {
@@ -271,31 +272,8 @@ int Search::alphabeta(int depth, int alpha, int beta, bool maximizing_player)
    }
    
    if (depth == 0) {
-      /*TranspositionEntry entry = hasher.get_entry(game.get_board());
-      if (entry.key == 0ULL) {
-         int eval = evaluate_position(game);
-         hasher.store_entry(game.get_board(), depth, eval);
-
-         return (game.is_blacks_turn() ? 1 : -1) * eval;
-      } else {
-         return (game.is_blacks_turn() ? 1 : -1) * entry.eval;
-      }*/
-
       int eval = evaluate_position(game);
-      //hasher.store_entry(game.get_board(), depth, eval);
-      return (game.is_blacks_turn() ? -1 : 1) * eval;
-      //return -eval;
-      // // recall from transposition table or build
-      // TranspositionEntry entry = hasher.get_entry(game.get_board());
-      // if (entry.key == 0ULL) {
-      //    // entry doesn't exist
-      //    int eval = evaluate_position(game);
-      //    hasher.store_entry(game.get_board(), depth, eval);
-
-      //    return (game.is_blacks_turn() ? 1 : -1) * eval;
-      // } else {
-      //    return (game.is_blacks_turn() ? 1 : -1) * entry.eval;
-      // }
+      return (game.is_blacks_turn() ? 1 : -1) * eval;
    }
    std::vector<Move> moves;
    game.get_moves(moves);

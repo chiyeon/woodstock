@@ -8,6 +8,7 @@
 #include "movemasks.h"
 #include "move.h"
 #include "zobrist.h"
+#include "history.h"
 
 #define PIECES_PER_SIDE 16
 
@@ -34,7 +35,7 @@ public:
     bool no_moves_left                      = false;
     bool king_in_check                      = false;
 
-    std::stack<Move> history;
+    History history;
 public:
     int en_passant_count                    = 0;
     int captures                            = 0;
@@ -43,8 +44,8 @@ public:
     // ZobristHasher hasher;
 
     bool draw                               = false;
-    bool wcm                                = false;
-    bool bcm                                = false;
+    bool wcm                                = false;    // white checkmate = white has checkmated black
+    bool bcm                                = false;    // black checkmate = black has checkmated white
     // bool wc                                 = false;
     // bool bc                                 = false;
 
@@ -58,11 +59,9 @@ public:
     Piece get(int index);
     Piece get(int x, int y);
 
-    Move get_last_move();
+    History get_history();
     bool is_history_empty();
-    void pop_last_move();
-    void push_to_history(Move move);
-    std::stack<Move> get_history();
+    Move get_last_move();
 
     std::vector<Move> get_moves_at_square(int sq);
 

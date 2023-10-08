@@ -109,8 +109,8 @@ void Game::print()
     int files[8] = {1, 2, 3, 4, 5, 6, 7, 8};
     int last_move_from = -1;
 
-    if (!history.empty()) {
-        last_move_from = Moves::get_from(history.top());
+    if (!history.is_empty()) {
+        last_move_from = Moves::get_from(history.get_last_move());
     }
 
     for (int y = 7; y >= 0; --y) {
@@ -153,29 +153,19 @@ Piece Game::get(int x, int y)
     return board[y * 8 + x];
 }
 
-Move Game::get_last_move()
+History Game::get_history()
 {
-    return history.top();
+    return history;
 }
 
 bool Game::is_history_empty()
 {
-    return history.empty();
+    return history.is_empty();
 }
 
-void Game::pop_last_move()
+Move Game::get_last_move()
 {
-    history.pop();
-}
-
-void Game::push_to_history(Move move)
-{
-    history.push(move);
-}
-
-std::stack<Move> Game::get_history()
-{
-    return history;
+    return history.get_last_move();
 }
 
 std::vector<Move> Game::get_moves_at_square(int sq)
@@ -533,11 +523,11 @@ void Game::get_moves(std::vector<Move> & moves)
                 }
 
                 // if first move ignore
-                if (history.empty()) break;                
+                if (history.is_empty()) break;                
                 // check if we can en passant
                 // int y = pos / 8;
                 int x = pos % 8;
-                Move last_move = get_last_move();
+                Move last_move = history.get_last_move();
                 if (
                     //((is_blacks_turn() && y == 3) || (!is_blacks_turn() && y == 4))     // our piece is in the right position
                     (Moves::get_piece(last_move) & Pieces::FILTER_PIECE) == Pieces::PAWN         // enemy's last move was a double pawn jump
@@ -615,7 +605,7 @@ void Game::get_moves(std::vector<Move> & moves)
 
     if (no_moves_left) {
         if (king_in_check) {
-            is_blacks_turn() ? bcm = true : wcm = true;
+            is_blacks_turn() ? wcm = true : bcm = true;
         } else {
             draw = true;
         }
@@ -834,15 +824,18 @@ void Game::move(Move & move)
     //game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
     
     switch_turns(); // flip sides
-    history.push(move);
+    history.record(move, board);
+
+    if (history.check_threefold_repetition(board)) {
+        draw = true;
+    }
 }
 
 void Game::undo()
 {
     switch_turns();
 
-    Move move = history.top();
-    history.pop();
+    Move move = history.pop_last_move();
 
     int from = Moves::get_from(move), to = Moves::get_to(move);
     Piece piece = Moves::get_piece(move), captured = Moves::get_captured(move);

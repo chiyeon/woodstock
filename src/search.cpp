@@ -21,9 +21,10 @@ float Search::evaluate_position(Game & game)
 {
    float white_score = 0, black_score = 0;
 
-   if (game.wcm) return -9999999999;
-   else if (game.bcm) return 999999999;
+   if (game.wcm) return 9999999;
+   else if (game.bcm) return -9999999;
    else if (game.draw) return 0;
+   else if (game.get_history().check_threefold_repetition(game.get_board())) return 0;
 
    Bitboard white_bitboard = game.get_piece_bb(Pieces::WHITE);
    while (white_bitboard != 0ULL) {
@@ -153,8 +154,8 @@ Move Search::get_best_move(int depth)
 
       // false b/c we already did the first depth!
       // int eval = alphabeta(depth - 1, alpha, beta, false);
-      int eval = -negascout(depth - 1, -beta, -alpha);
       // int eval = -negamax(depth - 1, -beta, -alpha);
+      int eval = -negascout(depth - 1, -beta, -alpha);
 
       game.undo();
 
@@ -222,7 +223,7 @@ int Search::negamax(int depth, int alpha, int beta)
 int Search::negascout(int depth, int alpha, int beta)
 {
    num_positions_evaluated++;
-   if (depth == 0) return (game.is_blacks_turn() ? -1 : 1) * evaluate_position(game);
+   if (depth == 0 || game.wcm || game.bcm || game.draw) return (game.is_blacks_turn() ? -1 : 1) * evaluate_position(game);
 
    std::vector<Move> moves;
    game.get_moves(moves);

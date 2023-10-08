@@ -44,12 +44,19 @@ Position 6
    Passed.
    23978051 NPS at depth 5.
 
+
+comparison of algorithms
 negamax
 Found best move at depth 7 with 1749765 evaluations in 688ms!
 index.js:8 Found best move at depth 7 with 1792745 evaluations in 716ms!
 index.js:8 Found best move at depth 7 with 2357884 evaluations in 960ms!
 index.js:8 Found best move at depth 7 with 2013080 evaluations in 1060ms!
 
+negamax with threefodl repetition checking
+Found best move at depth 7 with 1749765 evaluations in 1588ms!
+index.js:8 Found best move at depth 7 with 1792745 evaluations in 1780ms!
+index.js:8 Found best move at depth 7 with 2357884 evaluations in 2531ms!
+index.js:8 Found best move at depth 7 with 2013080 evaluations in 2615ms!
 
 ab
 Found best move at depth 7 with 2434039 evaluations in 1141ms!

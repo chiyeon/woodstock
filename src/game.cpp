@@ -389,6 +389,9 @@ void Game::get_moves(std::vector<Move> & moves)
     moves.reserve(Constants::MAX_CHESS_MOVES_PER_POSITION);
     no_moves_left = false;
     king_in_check = false;
+    draw = false;
+    wcm = false;
+    bcm = false;
 
     Bitboard not_game_bitboard = ~game_bb;
     Bitboard axis_bitboard = piece_bbs[not_turn];
@@ -610,13 +613,13 @@ void Game::get_moves(std::vector<Move> & moves)
     no_moves_left = moves.size() == 0;
     king_in_check = is_in_check;
 
-    // if (moves.size() == 0) {
-    //     if (is_in_check) {
-    //         is_blacks_turn() ? bcm = true : wcm = true;
-    //     } else {
-    //         draw = true;
-    //     }
-    // }
+    if (no_moves_left) {
+        if (king_in_check) {
+            is_blacks_turn() ? bcm = true : wcm = true;
+        } else {
+            draw = true;
+        }
+    }
 }
 
 bool Game::can_castle_kingside(Bitboard attacked_squares)
@@ -655,6 +658,10 @@ bool Game::can_castle_queenside(Bitboard attacked_squares)
 
 void Game::move(Move & move)
 {
+    wcm = false;
+    bcm = false;
+    draw = false;
+
     const int from = Moves::get_from(move), to = Moves::get_to(move);
     const Piece piece = Moves::get_piece(move), captured = Moves::get_captured(move);
     Flag flags = Moves::get_flags(move);

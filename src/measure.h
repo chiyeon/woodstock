@@ -129,9 +129,9 @@ void run_ai_test()
 {
    Game game;
    Search search(game);
-   int search_depth = 5;
+   int search_depth = 7;
 
-   int max_turns = 100;
+   int max_turns = 10;
    int turns = 0;
 
    auto fn = [&]() {
@@ -148,8 +148,9 @@ void run_ai_test()
    };
 
    float time_elapsed = measure(fn);
+   game.print();
 
-   printf("Simulated at depth %d in %d turns. %d TPS.\n", search_depth, turns, (int)(static_cast<float>(turns) / (static_cast<float>(time_elapsed) / 1000.0)));
+   printf("Simulated %d turns at depth %d in %dms. %d TPS.\n", turns, search_depth, (int)(static_cast<float>(time_elapsed)), (int)(static_cast<float>(turns) / (static_cast<float>(time_elapsed) / 1000.0)));
 }
 
 void print_num_positions_from_starting(Game & game, int depth)

@@ -1,0 +1,24 @@
+running on github codespaces
+
+old one using last_move_resulted_in_check
+Running Perft Suite. All positions/counts are based on https://www.chessprogramming.org/Perft_Results.
+
+Position 1
+        Passed.
+        31642247 NPS at depth 6.
+Position 2
+        Passed.
+        35899172 NPS at depth 5.
+Position 3
+        Passed.
+        24030597 NPS at depth 6.
+Position 4
+        Passed.
+        34315109 NPS at depth 5.
+Position 5
+        Passed.
+        31212670 NPS at depth 5.
+Position 6
+        Passed.
+        36440190 NPS at depth 5.
+

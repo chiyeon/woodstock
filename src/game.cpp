@@ -512,10 +512,9 @@ void Game::get_moves(std::vector<Move> & moves)
                         Piece pieces[4] = {Pieces::QUEEN | turn, Pieces::ROOK | turn, Pieces::BISHOP | turn, Pieces::KNIGHT | turn};
                         for (int i = 0; i < 4; ++i) {
                             Move potential_move = Moves::create(pos, target_pos, pieces[i], captured, Moves::PROMOTION);
-
                             move(potential_move);
                             if (!last_move_resulted_in_check()) moves.push_back(potential_move);
-                            // if (!king_in_check()) moves.push_back(potential_move);
+                            // if (!is_king_in_check_hard()) moves.push_back(potential_move);
                             undo();
                         }
                     }

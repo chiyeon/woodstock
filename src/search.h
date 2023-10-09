@@ -8,15 +8,7 @@ class Search
 {
    // friend struct MoveComparator;
 
-   constexpr static int piece_values[7] = {
-      0,
-      10,
-      30,
-      32,
-      45,
-      90,
-      2000
-   };
+   constexpr static int piece_values[7] = { 0, 10, 30, 32, 45, 89, 2000 };
 
    constexpr static int MVV_LVA_table[7][8] = {
       {0, 0, 0, 0, 0, 0, },

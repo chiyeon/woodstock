@@ -141,7 +141,8 @@ Move Search::get_best_move(int depth)
    Move second_best_move = 0;
 
    TranspositionEntry entry = hasher.get_entry(game.get_board());
-   if (entry.key != 0ULL && entry.depth >= depth) {
+   if (entry.key != 0ULL) {
+      printf("got best move alr!\n");
       return entry.best_move;
    }
 

@@ -211,9 +211,9 @@ int main()
     //run_game_simulation(3, 4);
     // Game g;
     // Search s(g);
-    //run_perft_suite();
+    run_perft_suite();
 
-    run_ai_test();
+    //run_ai_test();
 
     // bug occurs when searching beyond checkmates.
     // Game g("8/8/8/5N2/6p1/5k1p/2R4p/1K4n1");

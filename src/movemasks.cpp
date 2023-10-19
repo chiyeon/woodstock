@@ -2,6 +2,7 @@
 #include "bitboard.h"
 #include "constants.h"
 #include "piece.h"
+#include <ctime>
 #include <strings.h>
 #include <random>
 // #include <time.h>

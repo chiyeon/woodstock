@@ -3,6 +3,7 @@
 
 #include <random>
 #include <map>
+#include <ctime>
 #include "constants.h"
 #include "piece.h"
 

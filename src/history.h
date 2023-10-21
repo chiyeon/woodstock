@@ -6,6 +6,8 @@
 #include <vector>
 #include <map>
 
+#define HASHTABLE_SIZE 16381 // uses first 14 bits
+
 // move made, and the board AFTER it was made
 struct LogElement
 {
@@ -21,8 +23,28 @@ struct LogElement
    }
 };
 
+struct RepetitionTableEntry
+{
+   Hash key;
+   int count;
+
+   RepetitionTableEntry(Hash _key)
+      : key(_key)
+      , count(0)
+   { }
+
+   RepetitionTableEntry()
+      : key(0ULL)
+      , count(0)
+   { }
+};
+
 class History
 {
+   RepetitionTableEntry RepetitionTable[HASHTABLE_SIZE];
+   void add_to_repetition_table(LogElement log);
+   void remove_from_repetition_table(LogElement log);
+
    std::vector<LogElement> log;
    std::map<Hash, int> hash_count;
    bool threefold_repetition = false;

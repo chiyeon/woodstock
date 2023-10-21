@@ -342,7 +342,7 @@ bool Game::is_in_check()
     return false;
 }
 
-bool Game::is_king_in_check_hard()
+bool Game::is_king_in_check()
 {
     // check if the current turn's person is in check
     int king_pos = Bitboards::get_lsb(piece_bbs[turn | Pieces::KING]);
@@ -359,29 +359,21 @@ bool Game::is_king_in_check_hard()
     );
 }
 
-bool Game::is_king_in_check()
+bool Game::no_moves_left()
 {
-   return king_in_check;
+   std::vector<Move> moves;
+   get_moves(moves);
+   return moves.size() == 0;
 }
 
-bool Game::are_no_moves_left()
+bool Game::is_gameover()
 {
-   return no_moves_left; 
-}
-
-bool Game::is_checkmated()
-{
-    return no_moves_left && king_in_check;
+   return wcm || bcm || draw;
 }
 
 void Game::get_moves(std::vector<Move> & moves)
 {
     moves.reserve(Constants::MAX_CHESS_MOVES_PER_POSITION);
-    no_moves_left = false;
-    king_in_check = false;
-    draw = false;
-    wcm = false;
-    bcm = false;
 
     Bitboard not_game_bitboard = ~game_bb;
     Bitboard axis_bitboard = piece_bbs[not_turn];
@@ -599,17 +591,6 @@ void Game::get_moves(std::vector<Move> & moves)
             moves.push_back(Moves::create(pos, target_pos, piece, board[target_pos]));
         }
     }
-
-    no_moves_left = moves.size() == 0;
-    king_in_check = is_in_check;
-
-    if (no_moves_left) {
-        if (king_in_check) {
-            is_blacks_turn() ? wcm = true : bcm = true;
-        } else {
-            draw = true;
-        }
-    }
 }
 
 bool Game::can_castle_kingside(Bitboard attacked_squares)
@@ -646,7 +627,7 @@ bool Game::can_castle_queenside(Bitboard attacked_squares)
     return true;
 }
 
-void Game::move(Move & move)
+void Game::move(Move & move, bool verbose)
 {
     wcm = false;
     bcm = false;
@@ -789,50 +770,29 @@ void Game::move(Move & move)
             break;
         }
 
-    // Bitboard gbb = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
-    // if (piece_bbs[Pieces::WHITE] != gbb) {
-    //     printf("ERROR:\n");
-    //     Bitboards::print(gbb);
-    //     piece_bbs[Pieces::WHITE] = gbb;
-    //     piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
-    //     print();
-    //     printf("\n\n");
-    // }
-
-
-    // game_bb = Bitboards::board_to_bitboard(board);
-    // Piece all_pieces[12] = {
-    //     Pieces::PAWN | Pieces::WHITE,
-    //     Pieces::KNIGHT | Pieces::WHITE,
-    //     Pieces::BISHOP | Pieces::WHITE,
-    //     Pieces::ROOK | Pieces::WHITE,
-    //     Pieces::QUEEN | Pieces::WHITE,
-    //     Pieces::KING | Pieces::WHITE,
-    //     Pieces::PAWN | Pieces::BLACK,
-    //     Pieces::KNIGHT | Pieces::BLACK,
-    //     Pieces::BISHOP | Pieces::BLACK,
-    //     Pieces::ROOK | Pieces::BLACK,
-    //     Pieces::QUEEN | Pieces::BLACK,
-    //     Pieces::KING | Pieces::BLACK,
-    // };
-
-    // for (int i = 0; i < 12; ++i) {
-    //     piece_bbs[all_pieces[i]] = Bitboards::board_to_bitboard(board, Pieces::NO_FILTER, all_pieces[i]);
-    // }
-    //piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
-    //piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
-    //game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
-    
-    switch_turns(); // flip sides
+    switch_turns();
     history.record(move, board);
 
     if (history.check_threefold_repetition(board)) {
         draw = true;
+        if (verbose) printf("Draw.\n");
+    } else if (is_king_in_check() && no_moves_left()) {
+         // these are reversed !
+         if (verbose) printf("let me in ur world\n");
+         is_whites_turn() ? bcm = true : wcm = true;
+         if (verbose) {
+            if (bcm) printf("white wins\n");
+            else printf("black wins\n");
+         }
     }
 }
 
-void Game::undo()
+void Game::undo(bool verbose)
 {
+    wcm = false;
+    bcm = false;
+    draw = false;
+
     switch_turns();
 
     Move move = history.pop_last_move();
@@ -951,38 +911,15 @@ void Game::undo()
                 }
                 break;
             }
-            //piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
-            //piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
-            //game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
         }
     }
 
-    // game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK];
-
-    // game_bb = Bitboards::board_to_bitboard(board);
-    // Piece all_pieces[12] = {
-    //     Pieces::PAWN | Pieces::WHITE,
-    //     Pieces::KNIGHT | Pieces::WHITE,
-    //     Pieces::BISHOP | Pieces::WHITE,
-    //     Pieces::ROOK | Pieces::WHITE,
-    //     Pieces::QUEEN | Pieces::WHITE,
-    //     Pieces::KING | Pieces::WHITE,
-    //     Pieces::PAWN | Pieces::BLACK,
-    //     Pieces::KNIGHT | Pieces::BLACK,
-    //     Pieces::BISHOP | Pieces::BLACK,
-    //     Pieces::ROOK | Pieces::BLACK,
-    //     Pieces::QUEEN | Pieces::BLACK,
-    //     Pieces::KING | Pieces::BLACK,
-    // };
-
-    // for (int i = 0; i < 12; ++i) {
-    //     piece_bbs[all_pieces[i]] = Bitboards::board_to_bitboard(board, Pieces::NO_FILTER, all_pieces[i]);
-    // }
-    // piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
-    // piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
-    //piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::WHITE);
-    //piece_bbs[Pieces::BLACK] = Bitboards::board_to_bitboard(board, Pieces::FILTER_COLOR, Pieces::BLACK);
-    //game_bb = piece_bbs[Pieces::WHITE] | piece_bbs[Pieces::BLACK]; 
+    if (history.check_threefold_repetition(board)) {
+        draw = true;
+    } else if (is_king_in_check() && no_moves_left()) {
+         is_whites_turn() ? bcm = true : wcm = true;
+    }
+      
 }
 
 Piece * Game::get_board()

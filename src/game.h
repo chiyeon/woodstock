@@ -32,9 +32,6 @@ public:
     bool can_castle_kingside(Bitboard attacked_squares);
     bool can_castle_queenside(Bitboard attacked_squares);
 
-    bool no_moves_left                      = false;
-    bool king_in_check                      = false;
-
     History history;
 public:
     int en_passant_count                    = 0;
@@ -73,14 +70,13 @@ public:
     bool last_move_resulted_in_check();
     bool is_in_check();
 
-    bool is_king_in_check_hard();
     bool is_king_in_check();
-    bool are_no_moves_left();
-    bool is_checkmated();
+    bool no_moves_left();
+    bool is_gameover();
 
     void get_moves(std::vector<Move> & moves);
-    void move(Move & move);
-    void undo();
+    void move(Move & move, bool verbose = false);
+    void undo(bool verbose = false);
 
 private:
     static std::map<char, Piece> fen_to_piece;

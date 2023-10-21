@@ -31,8 +31,8 @@ struct TranspositionEntry
    { }
 };
 
-//const int hashtable_size = 1128889;
-const int hashtable_size = 112129;
+const int hashtable_size = 1128889;
+//const int hashtable_size = 112129;
 
 class ZobristHasher
 {

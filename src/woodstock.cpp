@@ -46,9 +46,9 @@ void run_game_simulation(int depth1, int depth2)
     
     do {
         Move move = search.get_best_move(game.is_whites_turn() ? depth1 : depth2);
-        game.move(move);
+        game.move(move, true);
         printf("Move Made\n");
-    } while (!game.are_no_moves_left() && !game.is_checkmated());
+    } while (!game.is_gameover());
 
     game.print();
 
@@ -71,7 +71,7 @@ void run_game_simulation(int depth1, int depth2)
 // Game game("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
 Game game;
 Search search(game);
-int search_depth = 6;
+int search_depth = 7;
 
 std::vector<Move> selected_piece_moves;
 
@@ -120,7 +120,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char ** argv)
         depth_searched = search_depth;
         //Move best_move = search.get_best_move_iterative_deepening(depth_searched);
         if (Moves::get_to(best_move) != Moves::get_from(best_move)) {
-            game.move(best_move);
+            game.move(best_move, true);
             move_exists = true;
         }
     };
@@ -152,7 +152,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void click_square(int index)
         for (auto & move : selected_piece_moves)
         {
             if (Moves::get_to(move) == index) {
-                game.move(move);
+                game.move(move, true);
                 update_chessboard(game.get_board());
                 highlight_squares(Moves::get_from(move), Moves::get_to(move));
                 EM_ASM({make_ai_move()});

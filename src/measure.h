@@ -135,7 +135,7 @@ void run_ai_test()
    int turns = 0;
 
    auto fn = [&]() {
-      while (turns < max_turns && !game.is_checkmated() && !game.are_no_moves_left()) {
+      while (turns < max_turns && !game.is_gameover()) {
          search.start_search_timer();
          Move best_move = search.get_best_move(search_depth);
          if (Moves::get_to(best_move) != Moves::get_from(best_move)) {

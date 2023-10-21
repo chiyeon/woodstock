@@ -153,7 +153,7 @@ Piece Game::get(int x, int y)
     return board[y * 8 + x];
 }
 
-History Game::get_history()
+History & Game::get_history()
 {
     return history;
 }

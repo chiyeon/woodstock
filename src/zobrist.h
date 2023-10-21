@@ -92,6 +92,7 @@ public:
    ZobristHasher()
    {
       srand(time(NULL));
+      initialize_table();
 
       TranspositionEntry e;
    }
@@ -109,6 +110,11 @@ public:
       Hash zobrist_key = compute_zobrist_key(board);
       int key = zobrist_key % hashtable_size;
       return HashTable[key];
+   }
+
+   Hash get_key(Piece * board)
+   {
+      return compute_zobrist_key(board);
    }
 };
 

@@ -2,7 +2,9 @@
 #define HISTORY_H
 
 #include "constants.h"
+#include "zobrist.h"
 #include <vector>
+#include <map>
 
 // move made, and the board AFTER it was made
 struct LogElement
@@ -22,6 +24,9 @@ struct LogElement
 class History
 {
    std::vector<LogElement> log;
+   std::map<Hash, int> hash_count;
+   bool threefold_repetition = false;
+   ZobristHasher hasher;
 public:
    void record(Move move, Piece board[64]);
    Move get_last_move();

@@ -59,7 +59,7 @@ public:
     Piece get(int index);
     Piece get(int x, int y);
 
-    History get_history();
+    History  & get_history();
     bool is_history_empty();
     Move get_last_move();
 

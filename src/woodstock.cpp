@@ -71,7 +71,7 @@ void run_game_simulation(int depth1, int depth2)
 // Game game("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
 Game game;
 Search search(game);
-int search_depth = 7;
+int search_depth = 6;
 
 std::vector<Move> selected_piece_moves;
 

@@ -9,13 +9,11 @@ void History::add_to_repetition_table(LogElement log)
 
    // find first empty space if our space is occupied
    while (RepetitionTable[table_index].key != key && RepetitionTable[table_index].count != 0) {
-      table_index++; 
-
-      if (table_index >= HASHTABLE_SIZE) table_index = 0;
+      table_index = (table_index + 1) % HASHTABLE_SIZE;
    }
 
    RepetitionTable[table_index].count++;
-   RepetitionTable[table_index].key = key;
+   RepetitionTable[table_index].key = key;   
    if (RepetitionTable[table_index].count >= 3) threefold_repetition = true;
 }
 
@@ -25,9 +23,7 @@ void History::remove_from_repetition_table(LogElement log)
    int table_index = key % HASHTABLE_SIZE;
 
    while (RepetitionTable[table_index].key != key) {
-      table_index++;
-
-      if (table_index >= HASHTABLE_SIZE) table_index = 0;
+      table_index = (table_index + 1) % HASHTABLE_SIZE;
    }
 
    RepetitionTable[table_index].count--;

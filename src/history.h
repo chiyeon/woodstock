@@ -41,7 +41,7 @@ struct RepetitionTableEntry
 
 class History
 {
-   RepetitionTableEntry RepetitionTable[HASHTABLE_SIZE];
+   std::vector<RepetitionTableEntry> RepetitionTable;
    void add_to_repetition_table(LogElement log);
    void remove_from_repetition_table(LogElement log);
 
@@ -55,6 +55,11 @@ public:
    Move pop_last_move();
    bool check_threefold_repetition(Piece board[64]);
    bool is_empty();
+
+   History(History & h) = delete;
+   History() {
+      RepetitionTable.reserve(HASHTABLE_SIZE);
+   }
 };
 
 #endif

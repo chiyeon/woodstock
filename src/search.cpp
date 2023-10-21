@@ -190,10 +190,10 @@ int Search::negamax(int depth, int alpha, int beta)
 {
    num_positions_evaluated++;
    //if (depth == 0) return (game.is_blacks_turn() ? -1 : 1) * evaluate_position(game);
+   if (depth == 0) return (game.is_blacks_turn() ? -1 : 1) * evaluate_position(game);
 
    std::vector<Move> moves;
    game.get_moves(moves);
-   if (depth == 0) return (game.is_blacks_turn() ? -1 : 1) * evaluate_position(game);
    std::vector<int> move_scores = get_move_scores(moves);
    int num_moves = moves.size();
 
@@ -224,9 +224,10 @@ int Search::negamax(int depth, int alpha, int beta)
 int Search::negascout(int depth, int alpha, int beta)
 {
    num_positions_evaluated++;
+   if (depth == 0 || game.wcm || game.bcm || game.draw) return (game.is_blacks_turn() ? -1 : 1) * evaluate_position(game);
+   
    std::vector<Move> moves;
    game.get_moves(moves);
-   if (depth == 0 || game.wcm || game.bcm || game.draw) return (game.is_blacks_turn() ? -1 : 1) * evaluate_position(game);
 
    //std::vector<Move> moves;
    //game.get_moves(moves);

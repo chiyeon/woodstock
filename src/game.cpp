@@ -361,9 +361,220 @@ bool Game::is_king_in_check()
 
 bool Game::no_moves_left()
 {
-   std::vector<Move> moves;
-   get_moves(moves);
-   return moves.size() == 0;
+    return false;
+
+    Bitboard not_game_bitboard = ~game_bb;
+    Bitboard axis_bitboard = piece_bbs[not_turn];
+    Bitboard ally_bitboard = piece_bbs[turn];
+    // Bitboard not_axis_bitboard = ~axis_bitboard;
+    Bitboard not_ally_bitboard = ~ally_bitboard;
+
+    Bitboard attacked_squares = 0ULL;               // tiles attacked by the enemy
+
+    Bitboard king_position = piece_bbs[turn | Pieces::KING];
+    int king_pos = Bitboards::get_lsb(king_position);
+    int king_x = king_pos % 8, king_y = king_pos / 8;
+
+    Bitboard attacks_on_king = 0ULL;    // pieces + attacks against the king. These spaces can be blocked/captured to stop it
+    int num_king_attackers = 0;         // determine if we cannot block a check
+
+    Bitboard blocker_no_king = game_bb & ~king_position;      // so we can "x-ray" the king. represents the game bitboard with the active king removed
+
+    // determine danger zones first
+    Bitboard axis_bitboard_i = axis_bitboard;
+    while(axis_bitboard_i != 0ULL) {
+        int pos = Bitboards::pop_lsb(axis_bitboard_i);
+        Piece piece = board[pos];
+        Bitboard piece_captures = 0ULL;
+
+        int pos_x = pos % 8;
+        int pos_y = pos / 8;
+
+        // for every piece, get moves based on type
+        switch (piece & Pieces::FILTER_PIECE) {
+            case Pieces::PAWN:
+                switch_turns();
+                piece_captures = Pieces::get_pawn_captures(pos, *this);
+                switch_turns();
+                if (piece_captures & king_position) {
+                    attacks_on_king |= Bitboards::get_i(pos);
+                    ++num_king_attackers;
+                }
+                break;
+            case Pieces::KNIGHT:
+                piece_captures = Pieces::get_knight_moves(pos, *this);
+                if (piece_captures & king_position) {
+                    attacks_on_king |= Bitboards::get_i(pos);
+                    ++num_king_attackers;
+                }
+                break;
+            case Pieces::BISHOP:
+                piece_captures = movemasks.get_bishop_move(blocker_no_king, pos);
+                if (piece_captures & king_position) {
+                    attacks_on_king |= Bitboards::get_between(king_x, king_y, pos_x, pos_y);
+                    ++num_king_attackers;
+                }
+                break;
+            case Pieces::ROOK:
+                piece_captures = movemasks.get_rook_move(blocker_no_king, pos);
+                if (piece_captures & king_position) {
+                    attacks_on_king |= Bitboards::get_between(king_x, king_y, pos_x, pos_y);
+                    ++num_king_attackers;
+                }
+                break;
+            case Pieces::QUEEN:
+                piece_captures = movemasks.get_rook_move(blocker_no_king, pos) | movemasks.get_bishop_move(blocker_no_king, pos);
+                if (piece_captures & king_position) {
+                    attacks_on_king |= Bitboards::get_between(king_x, king_y, pos_x, pos_y);
+                    ++num_king_attackers;
+                }
+                break;
+            case Pieces::KING:
+                piece_captures = Pieces::get_king_moves(pos, *this);
+                break;
+        }
+
+        attacked_squares |= piece_captures;
+    }
+
+    // update if we are in check or not
+    bool is_in_check = attacked_squares & king_position;
+
+    // determining if we are pinned ONLY if our number of attackers
+    // is less than 2. if its 2, we can ONLY move our king (or lose)
+    std::vector<Bitboard> pinned_spaces;        // if any of our pieces are in one of these spaces, they can only move in that area!
+    if (num_king_attackers < 2) {
+        Bitboard potential_pinners = Pieces::get_queen_moves_using_blocker(king_x + king_y * 8, axis_bitboard, *this) & axis_bitboard;
+
+        while (potential_pinners != 0ULL)
+        {
+            int pos = Bitboards::pop_lsb(potential_pinners);
+            // get ray from king to pin pos
+            // check if there is only 1 ally in that area
+            // if so, that ally is restricted to that area (non inclusive of ally, inclusive of axis pieces)
+
+            int pos_x = pos % 8;
+            int pos_y = pos / 8;
+
+            // calculate the in between
+            Bitboard between = Bitboards::get_between(king_x, king_y, pos_x, pos_y, (board[pos] & Pieces::FILTER_PIECE));
+            
+            if (!Bitboards::contains_multiple_bits(between & ally_bitboard))
+                pinned_spaces.push_back(between);
+        }
+    }
+
+    Bitboard ally_bitboard_i = ally_bitboard;
+    while(ally_bitboard_i != 0ULL) {
+        int pos = Bitboards::pop_lsb(ally_bitboard_i);
+        Piece piece = board[pos];
+        Bitboard piece_moves = 0ULL;
+
+        // if under attack by 2 pieces, the king can only move
+        if (num_king_attackers == 2 && (piece & Pieces::FILTER_PIECE) != Pieces::KING) continue;
+
+        // for every piece, get moves based on type
+        switch (piece & Pieces::FILTER_PIECE) {
+            case Pieces::PAWN:
+            {
+                piece_moves = Pieces::get_pawn_moves(pos, *this) & not_game_bitboard;
+                piece_moves |= (Pieces::get_pawn_captures(pos, *this) & axis_bitboard);
+
+                // piece_moves = Pieces::get_pawn_forward<black_turn>(Bitboards::get_i(pos));
+
+                // check for promotions
+                if ((piece_moves & Bitboards::ROW_1) != 0 || (piece_moves & Bitboards::ROW_8) != 0) {
+                    Bitboard pm_i = piece_moves;
+                    while (pm_i != 0ULL) {
+                        int target_pos = Bitboards::pop_lsb(pm_i);
+                        Piece captured = board[target_pos];
+
+                        Piece pieces[4] = {Pieces::QUEEN | turn, Pieces::ROOK | turn, Pieces::BISHOP | turn, Pieces::KNIGHT | turn};
+                        for (int i = 0; i < 4; ++i) {
+                            Move potential_move = Moves::create(pos, target_pos, pieces[i], captured, Moves::PROMOTION);
+
+                            move(potential_move);
+                            if (!last_move_resulted_in_check()) piece_moves |= Bitboards::get_i(target_pos);
+                            // if (!king_in_check()) moves.push_back(potential_move);
+                            undo();
+                        }
+                    }
+                    continue;
+                }
+
+                // if first move ignore
+                if (history.is_empty()) break;                
+                // check if we can en passant
+                // int y = pos / 8;
+                int x = pos % 8;
+                Move last_move = history.get_last_move();
+                if (
+                    //((is_blacks_turn() && y == 3) || (!is_blacks_turn() && y == 4))     // our piece is in the right position
+                    (Moves::get_piece(last_move) & Pieces::FILTER_PIECE) == Pieces::PAWN         // enemy's last move was a double pawn jump
+                    &&(std::abs(Moves::get_to(last_move) - pos) == 1)
+                    && (std::abs(Moves::get_to(last_move) % 8 - x) == 1)
+                    && std::abs(Moves::get_to(last_move) - Moves::get_from(last_move)) == 16
+                ) {
+                    // rather than add overhead later, we can just manually add the move now
+                    int target_pos = is_blacks_turn() ? Moves::get_to(last_move) - 8 : Moves::get_to(last_move) + 8;
+
+                    Move potential_move = Moves::create(
+                        pos, target_pos, piece, Moves::get_piece(last_move), Moves::EN_PASSANT
+                    );
+                    move(potential_move);
+                    if (!last_move_resulted_in_check()) {
+                        piece_moves |= Bitboards::get_i(target_pos);
+                    }
+                    undo();
+                }
+                break;
+            }
+            case Pieces::KNIGHT:
+                piece_moves = Pieces::get_knight_moves(pos, *this);
+                break;
+            case Pieces::BISHOP:
+                piece_moves = Pieces::get_bishop_moves(pos, *this);
+                break;
+            case Pieces::ROOK:
+                piece_moves = Pieces::get_rook_moves(pos, *this);
+                break;
+            case Pieces::QUEEN:
+                piece_moves = Pieces::get_queen_moves(pos, *this);
+                break;
+            case Pieces::KING:
+                piece_moves = Pieces::get_king_moves(pos, *this);
+                piece_moves &= ~attacked_squares;       // we cannot move into attacked squares
+
+                if (can_castle_kingside(attacked_squares)) {
+                    piece_moves |= Bitboards::get_i(pos - 2);
+                }
+
+                if (can_castle_queenside(attacked_squares)) {
+                    piece_moves |= Bitboards::get_i(pos - 2);
+                }
+                break;
+        }
+
+        // omit capture of allied pieces
+        piece_moves &= not_ally_bitboard;
+
+        // if we are in check by 1 attacker, we can kill it, block it, or move the king
+        if (num_king_attackers == 1 && (piece & Pieces::FILTER_PIECE) != Pieces::KING) {
+            piece_moves &= attacks_on_king;
+        }
+
+        // if we are pinned, limit movement
+        for (auto & space : pinned_spaces) {
+            if (Bitboards::get_i(pos) & space) {
+                piece_moves &= space;   // we are pinned!
+                break;
+            }
+        }
+
+        if (piece_moves) return false; // cut us out early if any move exists
+    }
+
+    return true;
 }
 
 bool Game::is_gameover()
@@ -778,10 +989,9 @@ void Game::move(Move & move, bool verbose)
         if (verbose) printf("Draw.\n");
     } else if (is_king_in_check() && no_moves_left()) {
          // these are reversed !
-         if (verbose) printf("let me in ur world\n");
          is_whites_turn() ? bcm = true : wcm = true;
          if (verbose) {
-            if (bcm) printf("white wins\n");
+            if (wcm) printf("white wins\n");
             else printf("black wins\n");
          }
     }

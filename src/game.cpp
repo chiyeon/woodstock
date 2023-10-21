@@ -362,7 +362,6 @@ bool Game::is_king_in_check()
 bool Game::no_moves_left()
 {
     return false;
-
     Bitboard not_game_bitboard = ~game_bb;
     Bitboard axis_bitboard = piece_bbs[not_turn];
     Bitboard ally_bitboard = piece_bbs[turn];

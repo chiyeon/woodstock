@@ -137,16 +137,16 @@ Move Search::get_best_move(int depth)
 
    int best_move_eval = -INT_MAX, alpha = -INT_MAX, beta = INT_MAX;
    Move best_move = 0;
-   Move second_best_move = 0;
 
    TranspositionEntry entry = hasher.get_entry(game.get_board());
-   if (entry.key != 0ULL && entry.depth >= depth) {
-      printf("recalled");
-      return entry.best_move;
-   }
+   // if (entry.key != 0ULL && entry.depth >= depth) {
+   //    printf("recalled");
+   //    return entry.best_move;
+   // }
 
    std::vector<Move> moves;
    game.get_moves(moves);
+   best_move = moves[0]; // default best move
 
    for (auto & move : moves)
    {
@@ -168,20 +168,7 @@ Move Search::get_best_move(int depth)
    } 
 
    // store into transposition table
-   //hasher.store_entry(game.get_board(), depth, 0, best_move);
-
-   //can do this better later. just prevents us from making our last last move
-   // if (game.get_history().size() > 2) {
-   //    Move last_move = game.get_last_move();
-   //    game.pop_last_move();
-   //    if (game.get_last_move() == best_move) {
-   //       game.push_to_history(last_move);
-   //       return second_best_move;
-   //    }
-   // }
-
-   // printf("Found best move at depth %d with %d positions\n", depth, num_positions_evaluated);
-   // num_positions_evaluated = 0;
+   hasher.store_entry(game.get_board(), depth, 0, best_move);
 
    return best_move;
 }

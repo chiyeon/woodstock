@@ -41,7 +41,7 @@ struct RepetitionTableEntry
 
 class History
 {
-   std::vector<RepetitionTableEntry> RepetitionTable;
+   RepetitionTableEntry * RepetitionTable;
    void add_to_repetition_table(LogElement log);
    void remove_from_repetition_table(LogElement log);
 
@@ -57,8 +57,9 @@ public:
    bool is_empty();
 
    History(History & h) = delete;
-   History() {
-      RepetitionTable.reserve(HASHTABLE_SIZE);
+   History()
+      : RepetitionTable(new RepetitionTableEntry[HASHTABLE_SIZE]) {
+      //RepetitionTable.reserve(HASHTABLE_SIZE);
    }
 };
 

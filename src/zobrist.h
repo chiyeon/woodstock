@@ -36,7 +36,7 @@ const int hashtable_size = 1128889;
 
 class ZobristHasher
 {
-   TranspositionEntry HashTable[hashtable_size];
+   TranspositionEntry * HashTable;
    Hash ZobristTable[64][12];
    std::map<Piece, char> piece_to_index = {
       {Pieces::WHITE | Pieces::PAWN, 0},
@@ -90,6 +90,7 @@ class ZobristHasher
 
 public:
    ZobristHasher()
+      : HashTable(new TranspositionEntry[hashtable_size])
    {
       srand(time(NULL));
       initialize_table();
@@ -115,6 +116,10 @@ public:
    Hash get_key(Piece * board)
    {
       return compute_zobrist_key(board);
+   }
+
+   ~ZobristHasher() {
+      delete[] HashTable;
    }
 };
 

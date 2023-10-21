@@ -1,0 +1,5 @@
+=== Alpha 0.3 ===
+ - Continues play even if defeat is inevitable
+ - Searches up to 7 moves ahead (up from 5)
+ - Acknowledges and respects draws (repetition & no moves left)
+ - Added transposition table

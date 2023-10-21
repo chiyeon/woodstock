@@ -985,14 +985,20 @@ void Game::move(Move & move, bool verbose)
 
     if (history.check_threefold_repetition(board)) {
         draw = true;
-        if (verbose) printf("Draw.\n");
-    } else if (is_king_in_check() && no_moves_left()) {
-         // these are reversed !
-         is_whites_turn() ? bcm = true : wcm = true;
-         if (verbose) {
-            if (wcm) printf("white wins\n");
-            else printf("black wins\n");
-         }
+        if (verbose) printf("Draw by repetition.\n");
+    } else if (no_moves_left()) {
+        draw = true;
+        if (verbose) printf("Draw by no moves left.\n");
+        if (is_king_in_check()) {
+            // these are reversed !
+            is_whites_turn() ? bcm = true : wcm = true;
+            
+            if (verbose) {
+                if (wcm) printf("white wins\n");
+                else printf("black wins\n");
+            }
+        }
+        
     }
 }
 

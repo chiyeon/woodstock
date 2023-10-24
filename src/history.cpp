@@ -2,6 +2,16 @@
 #include "move.h"
 #include "game.h"
 
+void History::clear()
+{
+   for (int i = 0; i < HASHTABLE_SIZE; ++i) {
+      RepetitionTable[i].key = 0ULL;
+      RepetitionTable[i].count = 0;
+   }
+
+   log.clear();
+}
+
 void History::add_to_repetition_table(LogElement log)
 {
    Hash key = hasher.get_key(log.board);

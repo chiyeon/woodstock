@@ -146,7 +146,38 @@ Move Search::get_best_move(int depth)
 
    std::vector<Move> moves;
    game.get_moves(moves);
-   best_move = moves[0]; // default best move
+   std::vector<int> move_scores = get_move_scores(moves);
+   int num_moves = moves.size();
+   //best_move = moves[0]; // default best move
+
+   for (int i = 0; i < num_moves; ++i) {
+      for (int j = i; j < num_moves; ++j) {
+         if (move_scores[j] > move_scores[i]) {
+            std::swap(move_scores[i], move_scores[j]);
+            std::swap(moves[i], moves[j]);
+         }
+      }
+
+      Move move = moves[i];
+      game.move(move);
+      int eval = -negamax(depth - 1, -beta, -alpha);
+      game.undo();
+
+      if (eval >= beta) {
+         if (eval > best_move_eval) {
+            best_move = move;
+            best_move_eval = eval;
+         }
+      } else {
+         if (eval > best_move_eval) {
+            best_move = move;
+            best_move_eval = eval;
+
+            alpha = std::max(alpha, best_move_eval);
+         }
+      }
+   }
+   /*
 
    for (auto & move : moves)
    {
@@ -165,7 +196,7 @@ Move Search::get_best_move(int depth)
 
          alpha = std::max(alpha, best_move_eval);
       }
-   } 
+   } */
 
    // store into transposition table
    hasher.store_entry(game.get_board(), depth, 0, best_move);
@@ -177,7 +208,7 @@ int Search::negamax(int depth, int alpha, int beta)
 {
    num_positions_evaluated++;
    //if (depth == 0) return (game.is_blacks_turn() ? -1 : 1) * evaluate_position(game);
-   if (depth == 0) return (game.is_blacks_turn() ? -1 : 1) * evaluate_position(game);
+   if (depth == 0 || game.is_gameover()) return (game.is_blacks_turn() ? -1 : 1) * evaluate_position(game);
 
    std::vector<Move> moves;
    game.get_moves(moves);
@@ -211,7 +242,7 @@ int Search::negamax(int depth, int alpha, int beta)
 int Search::negascout(int depth, int alpha, int beta)
 {
    num_positions_evaluated++;
-   if (depth == 0 || game.wcm || game.bcm || game.draw) return (game.is_blacks_turn() ? -1 : 1) * evaluate_position(game);
+   if (depth == 0 || game.is_gameover()) return (game.is_blacks_turn() ? -1 : 1) * evaluate_position(game);
    
    std::vector<Move> moves;
    game.get_moves(moves);

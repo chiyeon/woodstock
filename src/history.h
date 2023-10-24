@@ -50,6 +50,7 @@ class History
    bool threefold_repetition = false;
    ZobristHasher hasher;
 public:
+   void clear();
    void record(Move move, Piece board[64]);
    Move get_last_move();
    Move pop_last_move();

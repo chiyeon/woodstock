@@ -106,6 +106,13 @@ EM_JS(void, update_chessboard, (Piece * board_data), {
 
 EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char ** argv)
 {
+    if (game.is_gameover()) {
+        if (game.wcm) printf("White checkmate\n");
+        else if (game.bcm) printf("Black checkmate\n");
+        else if (game.draw) printf("Draw\n");
+        return;
+    }
+
     // do some resetting
     selected_piece_moves.clear();
     EM_ASM({board.selected_piece = undefined});
@@ -143,6 +150,12 @@ EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char ** argv)
 
 EXTERN EMSCRIPTEN_KEEPALIVE void click_square(int index)
 {
+    if (game.is_gameover()) {
+        if (game.wcm) printf("White checkmate\n");
+        else if (game.bcm) printf("Black checkmate\n");
+        else if (game.draw) printf("Draw\n");
+        return;
+    }
     std::vector<Move> moves = game.get_moves_at_square(index);
     int moves_size = moves.size();
 

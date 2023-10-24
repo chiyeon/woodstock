@@ -34,9 +34,7 @@ public:
 
     History history;
 public:
-    int en_passant_count                    = 0;
-    int captures                            = 0;
-    int num_castles                         = 0;
+    void reset();
     MoveMasks movemasks;
     // ZobristHasher hasher;
 
@@ -56,7 +54,7 @@ public:
     Piece get(int index);
     Piece get(int x, int y);
 
-    History  & get_history();
+    History & get_history();
     bool is_history_empty();
     Move get_last_move();
 

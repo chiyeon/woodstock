@@ -12,7 +12,7 @@ Game::Game(std::string fen)
     read_fen(fen);
 }
 
-void Game::read_fen(std::string fen)
+void Game::reset()
 {
     // Unable to castle by default, fixed when reading castling rights!
     has_white_king_moved                = true;
@@ -22,6 +22,16 @@ void Game::read_fen(std::string fen)
     has_black_queenside_rook_moved      = true;
     has_black_kingside_rook_moved       = true;
 
+    wcm = false;
+    bcm = false;
+    draw = false;
+
+    history.clear();
+}
+
+void Game::read_fen(std::string fen)
+{
+    reset();
     std::istringstream ss(fen);
 
     std::string next;
@@ -361,7 +371,6 @@ bool Game::is_king_in_check()
 
 bool Game::no_moves_left()
 {
-    return false;
     Bitboard not_game_bitboard = ~game_bb;
     Bitboard axis_bitboard = piece_bbs[not_turn];
     Bitboard ally_bitboard = piece_bbs[turn];
@@ -987,18 +996,18 @@ void Game::move(Move & move, bool verbose)
         draw = true;
         if (verbose) printf("Draw by repetition.\n");
     } else if (no_moves_left()) {
-        draw = true;
-        if (verbose) printf("Draw by no moves left.\n");
         if (is_king_in_check()) {
             // these are reversed !
             is_whites_turn() ? bcm = true : wcm = true;
-            
+
             if (verbose) {
                 if (wcm) printf("white wins\n");
                 else printf("black wins\n");
             }
+        } else {
+            draw = true;
+            if (verbose) printf("Draw by no moves left.\n");
         }
-        
     }
 }
 
@@ -1132,7 +1141,7 @@ void Game::undo(bool verbose)
     if (history.check_threefold_repetition(board)) {
         draw = true;
     } else if (is_king_in_check() && no_moves_left()) {
-         is_whites_turn() ? bcm = true : wcm = true;
+         is_whites_turn() ? wcm = true : bcm = true;
     }
       
 }

@@ -119,7 +119,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char ** argv)
 
     bool move_exists = false;
     int depth_searched = 0;
-    int time_elapsed_search = 0;
+    //int time_elapsed_search = 0;
 
     auto make_best_move = [&]() {
         search.start_search_timer();

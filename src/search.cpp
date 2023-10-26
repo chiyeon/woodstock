@@ -1,9 +1,7 @@
+#include <algorithm>
 #include "search.h"
 #include "bitboard.h"
-#include <algorithm>
-#include <limits.h>
-
-#define FLT_MAX     3.40282347E+38F
+#include "constants.h"
 
 Search::Search(Game & game)
    : game(game)
@@ -206,7 +204,7 @@ Move Search::get_best_move(int depth)
    return best_move;
 }
 
-int Search::negamax(int depth, int alpha, int beta)
+float Search::negamax(int depth, float alpha, float beta)
 {
    num_positions_evaluated++;
    //if (depth == 0) return (game.is_blacks_turn() ? -1 : 1) * evaluate_position(game);
@@ -217,7 +215,7 @@ int Search::negamax(int depth, int alpha, int beta)
    std::vector<int> move_scores = get_move_scores(moves);
    int num_moves = moves.size();
 
-   int max = -INT_MAX, eval = 0;
+   float max = -FLT_MAX, eval = 0;
    for (int i = 0; i < num_moves; ++i)
    {
       for (int j = i; j < num_moves; ++j) {
@@ -241,7 +239,7 @@ int Search::negamax(int depth, int alpha, int beta)
    return max;
 }
 
-int Search::negascout(int depth, int alpha, int beta)
+float Search::negascout(int depth, float alpha, float beta)
 {
    num_positions_evaluated++;
    if (depth == 0 || game.is_gameover()) return (game.is_blacks_turn() ? -1 : 1) * evaluate_position(game);
@@ -254,7 +252,7 @@ int Search::negascout(int depth, int alpha, int beta)
    std::vector<int> move_scores = get_move_scores(moves);
    int num_moves = moves.size();
 
-   int b = beta, eval = 0;
+   float b = beta, eval = 0;
    
    for (int i = 0; i < num_moves; ++i) {
       for (int j = i; j < num_moves; ++j) {
@@ -283,7 +281,7 @@ int Search::negascout(int depth, int alpha, int beta)
    return alpha;
 }
 
-int Search::alphabeta(int depth, int alpha, int beta, bool maximizing_player)
+float Search::alphabeta(int depth, float alpha, float beta, bool maximizing_player)
 {
    num_positions_evaluated++;
 
@@ -293,7 +291,7 @@ int Search::alphabeta(int depth, int alpha, int beta, bool maximizing_player)
    }
    
    if (depth == 0) {
-      int eval = evaluate_position(game);
+      float eval = evaluate_position(game);
       return (game.is_blacks_turn() ? 1 : -1) * eval;
    }
    std::vector<Move> moves;
@@ -302,7 +300,7 @@ int Search::alphabeta(int depth, int alpha, int beta, bool maximizing_player)
    std::vector<int> move_scores = get_move_scores(moves);
 
    if (maximizing_player) {
-      int best_move_eval = -INT_MAX;
+      float best_move_eval = -FLT_MAX;
 
       for (int i = 0; i < num_moves; ++i)
       {
@@ -325,7 +323,7 @@ int Search::alphabeta(int depth, int alpha, int beta, bool maximizing_player)
 
       return best_move_eval;
    } else {
-      int best_move_eval = INT_MAX;
+      float best_move_eval = FLT_MAX;
 
       for (int i = 0; i < num_moves; ++i)
       {

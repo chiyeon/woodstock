@@ -163,9 +163,9 @@ class Search
    Game & game;
    ZobristHasher hasher;
    // int alphabeta(int depth, int alpha, int beta, bool maximizing_player);
-   int alphabeta(int depth, int alpha, int beta, bool maximizing_player);
-   int negascout(int depth, int alpha, int beta);
-   int negamax(int depth, int alpha, int beta);
+   float alphabeta(int depth, float alpha, float beta, bool maximizing_player);
+   float negascout(int depth, float alpha, float beta);
+   float negamax(int depth, float alpha, float beta);
 
    std::vector<int> get_move_scores(const std::vector<Move> & moves);
    void swap(std::vector<int> & vec, int i, int j);

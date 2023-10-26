@@ -12,6 +12,8 @@ using Move      = unsigned int;     // bits used: flags, captured, piece, to, fr
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
+#define FLT_MAX 3.40282347E+38F
+
 struct Constants
 {
     const static int BOARD_SIZE = 8;

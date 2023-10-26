@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <limits.h>
 
+#define FLT_MAX     3.40282347E+38F
+
 Search::Search(Game & game)
    : game(game)
 { }
@@ -21,8 +23,8 @@ float Search::evaluate_position(Game & game)
 {
    float white_score = 0, black_score = 0;
 
-   if (game.wcm) return INT_MAX;
-   else if (game.bcm) return -INT_MAX;
+   if (game.wcm) return FLT_MAX;
+   else if (game.bcm) return -FLT_MAX;
    else if (game.draw) return 0;
 
    Bitboard white_bitboard = game.get_piece_bb(Pieces::WHITE);
@@ -135,10 +137,10 @@ Move Search::get_best_move(int depth)
    completed_search = true;
    num_positions_evaluated = 0;
 
-   int best_move_eval = -INT_MAX, alpha = -INT_MAX, beta = INT_MAX;
+   float best_move_eval = -FLT_MAX, alpha = -FLT_MAX, beta = FLT_MAX;
    Move best_move = 0;
 
-   TranspositionEntry entry = hasher.get_entry(game.get_board());
+   //TranspositionEntry entry = hasher.get_entry(game.get_board());
    // if (entry.key != 0ULL && entry.depth >= depth) {
    //    printf("recalled");
    //    return entry.best_move;
@@ -199,7 +201,7 @@ Move Search::get_best_move(int depth)
    } */
 
    // store into transposition table
-   hasher.store_entry(game.get_board(), depth, 0, best_move);
+   //hasher.store_entry(game.get_board(), depth, 0, best_move);
 
    return best_move;
 }

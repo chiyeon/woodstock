@@ -9,10 +9,10 @@
 
 void Bitboards::print(Bitboard bitboard)
 {
-    printf("Representation of %llu\n", bitboard);
+    printf("Representation of %lu\n", bitboard);
     for (int y = 0; y < 8; ++y) {
         for (int x = 0; x < 8; ++x) {
-            printf("%llu ", (
+            printf("%lu ", (
                 bitboard
                 >> ((Constants::BOARD_SIZE * Constants::BOARD_SIZE - 1) - (x + y * Constants::BOARD_SIZE))
                 & 1

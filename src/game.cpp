@@ -446,7 +446,7 @@ bool Game::no_moves_left()
     }
 
     // update if we are in check or not
-    bool is_in_check = attacked_squares & king_position;
+    // bool is_in_check = attacked_squares & king_position;
 
     // determining if we are pinned ONLY if our number of attackers
     // is less than 2. if its 2, we can ONLY move our king (or lose)
@@ -669,7 +669,7 @@ void Game::get_moves(std::vector<Move> & moves)
     }
 
     // update if we are in check or not
-    bool is_in_check = attacked_squares & king_position;
+    // bool is_in_check = attacked_squares & king_position;
 
     // determining if we are pinned ONLY if our number of attackers
     // is less than 2. if its 2, we can ONLY move our king (or lose)
@@ -1138,11 +1138,13 @@ void Game::undo(bool verbose)
         }
     }
 
+    /*
     if (history.check_threefold_repetition(board)) {
         draw = true;
     } else if (is_king_in_check() && no_moves_left()) {
          is_whites_turn() ? wcm = true : bcm = true;
     }
+    */
       
 }
 

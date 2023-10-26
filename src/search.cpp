@@ -138,18 +138,18 @@ Move Search::get_best_move(int depth)
    float best_move_eval = -FLT_MAX, alpha = -FLT_MAX, beta = FLT_MAX;
    Move best_move = 0;
 
-   //TranspositionEntry entry = hasher.get_entry(game.get_board());
-   // if (entry.key != 0ULL && entry.depth >= depth) {
-   //    printf("recalled");
-   //    return entry.best_move;
-   // }
+   TranspositionEntry entry = hasher.get_entry(game.get_board());
+   if (entry.key != 0ULL && entry.depth >= depth) {
+      printf("recalled");
+      return entry.best_move;
+   }
 
    std::vector<Move> moves;
    game.get_moves(moves);
    std::vector<int> move_scores = get_move_scores(moves);
    int num_moves = moves.size();
-   //best_move = moves[0]; // default best move
-
+   best_move = moves[0]; // default best move
+   
    for (int i = 0; i < num_moves; ++i) {
       for (int j = i; j < num_moves; ++j) {
          if (move_scores[j] > move_scores[i]) {
@@ -157,36 +157,29 @@ Move Search::get_best_move(int depth)
             std::swap(moves[i], moves[j]);
          }
       }
-
+      
       Move move = moves[i];
       game.move(move);
-      int eval = -negamax(depth - 1, -beta, -alpha);
+      float eval = -negamax(depth - 1, -beta, -alpha);
+      //float eval = alphabeta(depth - 1, alpha, beta, false);
       game.undo();
 
-      if (eval >= beta) {
-         if (eval > best_move_eval) {
-            best_move = move;
-            best_move_eval = eval;
-         }
-      } else {
-         if (eval > best_move_eval) {
-            best_move = move;
-            best_move_eval = eval;
+      if (eval > best_move_eval) {
+         best_move = move;
+         best_move_eval = eval;
 
-            alpha = std::max(alpha, best_move_eval);
-         }
+         alpha = std::max(alpha, best_move_eval);
       }
    }
    /*
-
    for (auto & move : moves)
    {
       game.move(move);
 
       // false b/c we already did the first depth!
-      // int eval = alphabeta(depth - 1, alpha, beta, false);
-      // int eval = -negamax(depth - 1, -beta, -alpha);
-      int eval = -negascout(depth - 1, -beta, -alpha);
+      float eval = alphabeta(depth - 1, alpha, beta, false);
+      // float eval = -negamax(depth - 1, -beta, -alpha);
+      // float eval = -negascout(depth - 1, -beta, -alpha);
 
       game.undo();
 
@@ -196,10 +189,11 @@ Move Search::get_best_move(int depth)
 
          alpha = std::max(alpha, best_move_eval);
       }
-   } */
+   } 
+   */
 
    // store into transposition table
-   //hasher.store_entry(game.get_board(), depth, 0, best_move);
+   hasher.store_entry(game.get_board(), depth, 0, best_move);
 
    return best_move;
 }

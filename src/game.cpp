@@ -991,7 +991,7 @@ void Game::move(Move & move, bool verbose)
 
     switch_turns();
     history.record(move, board);
-
+    
     if (history.check_threefold_repetition(board)) {
         draw = true;
         if (verbose) printf("Draw by repetition.\n");

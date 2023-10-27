@@ -59,8 +59,11 @@ public:
 
    History(History & h) = delete;
    History()
-      : RepetitionTable(new RepetitionTableEntry[HASHTABLE_SIZE]) {
-      //RepetitionTable.reserve(HASHTABLE_SIZE);
+      : RepetitionTable(new RepetitionTableEntry[HASHTABLE_SIZE])
+   { }
+   ~History()
+   {
+      delete[] RepetitionTable;
    }
 };
 

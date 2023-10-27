@@ -221,10 +221,12 @@ int main()
 {
     printf("woodstock!\n");
 
+    run_perft_suite();
+
     //run_game_simulation(3, 4);
     // Game g;
     // Search s(g);
-    run_perft_suite();
+    //run_perft_suite();
 
     //run_ai_test();
 

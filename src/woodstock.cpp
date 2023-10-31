@@ -37,6 +37,15 @@ int square_to_index(char * square) {
     return y * 8 + x;
 }
 
+std::string index_to_square(int index)
+{
+   int x = 7 - (index % 8);
+   int y = index / 8;
+   std::stringstream ss;
+   ss << (char)('a' + x) << (char)('1' + y);
+   return ss.str();
+}
+
 void run_game_simulation(int depth1, int depth2)
 {
     Game game;
@@ -59,6 +68,24 @@ void run_game_simulation(int depth1, int depth2)
     // } else {
     //     printf("Draw.\n");
     // }
+}
+
+std::string move_to_lan(Move move)
+{
+   std::stringstream ss;
+
+   if ((Moves::get_piece(move) & Pieces::FILTER_PIECE) != Pieces::PAWN) {
+      ss << Pieces::name_short(Moves::get_piece(move)); 
+   }
+
+   ss << index_to_square(Moves::get_from(move));
+
+   if (Moves::get_captured(move) != 0) {
+      ss << 'x';
+   }
+
+   ss << index_to_square(Moves::get_to(move));
+   return ss.str();
 }
 
 #ifdef EMSCRIPTEN
@@ -221,7 +248,13 @@ int main()
 {
     printf("woodstock!\n");
 
-    run_perft_suite();
+    Game g;
+    Search s(g);
+    Move m = s.get_best_move(3);
+
+    printf("%s\n", move_to_lan(m).c_str());
+
+    //run_perft_suite();
 
     //run_game_simulation(3, 4);
     // Game g;

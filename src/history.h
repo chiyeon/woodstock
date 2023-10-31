@@ -42,8 +42,8 @@ struct RepetitionTableEntry
 class History
 {
    RepetitionTableEntry * RepetitionTable;
-   void add_to_repetition_table(LogElement log);
-   void remove_from_repetition_table(LogElement log);
+   void add_to_repetition_table(LogElement & log);
+   void remove_from_repetition_table(LogElement & log);
 
    std::vector<LogElement> log;
    std::map<Hash, int> hash_count;
@@ -51,10 +51,10 @@ class History
    ZobristHasher hasher;
 public:
    void clear();
-   void record(Move move, Piece board[64]);
+   void record(Move move, Piece * board);
    Move get_last_move();
    Move pop_last_move();
-   bool check_threefold_repetition(Piece board[64]);
+   bool check_threefold_repetition();
    bool is_empty();
 
    History(History & h) = delete;

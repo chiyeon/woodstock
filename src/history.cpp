@@ -12,7 +12,7 @@ void History::clear()
    log.clear();
 }
 
-void History::add_to_repetition_table(LogElement log)
+void History::add_to_repetition_table(LogElement & log)
 {
    Hash key = hasher.get_key(log.board);
    int table_index = key % HASHTABLE_SIZE;
@@ -27,7 +27,7 @@ void History::add_to_repetition_table(LogElement log)
    if (RepetitionTable[table_index].count >= 3) threefold_repetition = true;
 }
 
-void History::remove_from_repetition_table(LogElement log)
+void History::remove_from_repetition_table(LogElement & log)
 {
    Hash key = hasher.get_key(log.board);
    int table_index = key % HASHTABLE_SIZE;
@@ -40,7 +40,7 @@ void History::remove_from_repetition_table(LogElement log)
    if (RepetitionTable[table_index].count == 2) threefold_repetition = false;
 }
 
-void History::record(Move move, Piece board[64])
+void History::record(Move move, Piece * board)
 {
    LogElement log_el = LogElement(move, board);
    log.push_back(log_el);
@@ -63,7 +63,7 @@ Move History::pop_last_move()
    return last_move.move;
 }
 
-bool History::check_threefold_repetition(Piece board[64])
+bool History::check_threefold_repetition()
 {
    return threefold_repetition;
 }

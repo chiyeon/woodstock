@@ -94,8 +94,6 @@ public:
    {
       srand(time(NULL));
       initialize_table();
-
-      TranspositionEntry e;
    }
    ZobristHasher(ZobristHasher & hasher) = delete;
 

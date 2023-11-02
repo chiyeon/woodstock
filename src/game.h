@@ -46,7 +46,7 @@ public:
 
     Game(std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     Game(Game & g)                      = delete;
-    void read_fen(std::string fen);
+    void read_fen(std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     void print();
     Bitboard get_game_bitboard();
     Bitboard get_piece_bb(Piece filter);

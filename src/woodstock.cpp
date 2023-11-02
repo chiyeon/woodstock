@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <vector>
 #include <string.h>
+#include <iostream>
+#include <sstream>
 #include "game.h"
 #include "measure.h"
 #include "bitboard.h"
@@ -99,6 +101,7 @@ std::string move_to_lan(Move move)
 Game game;
 Search search(game);
 int search_depth = 6;
+int num_threads = 4;
 
 std::vector<Move> selected_piece_moves;
 
@@ -244,164 +247,53 @@ int main()
     return 0;
 }
 #else
+
 int main()
 {
-    printf("woodstock!\n");
+   run_perft_suite_mini();
+   std::string input;
+   std::cin >> input;
+   Game g;
+   Search s(g);
+   bool uci_mode = (input == "uci");
 
-    Game g;
-    Search s(g);
-    Move m = s.get_best_move(3);
+   if (uci_mode) {
+      std::cout << "id name Woodstock" << std::endl;
+      std::cout << "id author Benjamin W." << std::endl;
+      std::cout << "uciok" << std::endl;
+   }
 
-    printf("%s\n", move_to_lan(m).c_str());
+   while(uci_mode && (std::cin >> input)) {
+      std::stringstream ss(input);
+      std::string curr;
 
-    //run_perft_suite();
+      ss >> curr;
 
-    //run_game_simulation(3, 4);
-    // Game g;
-    // Search s(g);
-    //run_perft_suite();
-
-    //run_ai_test();
-
-    // bug occurs when searching beyond checkmates.
-    // Game g("8/8/8/5N2/6p1/5k1p/2R4p/1K4n1");
-    // Search search(g);
-
-    // g.print();
-    // // measure_count_bulk_positions(g, 1, true);
-    // for (int i = 0; i < 1; i++) {
-    //     Move b = search.get_best_move(5);
-    //     printf("Move from %d to %d as piece %d. Flags are: %d.\n", b.from, b.to, b.piece, b.flags);
-    //     // g.move(b);
-    // }
-    // g.print();
-    // return 0;
-
-    // Game g;
-    // g.print();
-    // std::vector<Move> moves;
-    // g.get_moves(moves);
-    // g.move(moves[3]);
-    // g.print();
-    // g.undo();
-    // g.print();
-    // g.move(moves[12]);
-    // g.print();
-    // g.undo();
-    // g.print();
-
-    // measure_nps_with_eval(6, 5);
-
-    // Game game;
-    // Search search(game);
-    // search.start_search_timer();
-
-    // Move move;
-    
-    // auto fn = [&]() {
-    //     move = search.get_best_move(5);
-    // };
-
-    // int duration = measure(fn);
-
-    // game.move(move);
-    // game.print();
-    
-    // printf("Found best move in %dms\n", duration);
-
-    //run_perft_suite();
-    // measure_nps(6);
-
-    // measure_nps(5, "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ");
-
-    // measure_nps(6);
-    // printf("\n\n");
-    // measure_nps(5, "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");   // position 2
-    // Game g("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
-    // for (int i = 1; i <= 5; ++i) {
-    //     printf("%d en passants at depth %d\n", get_num_flags_at_depth(i, Moves::EN_PASSANT, g), i);
-    //     printf("%d castles at depth %d\n", get_num_flags_at_depth(i, Moves::CASTLE, g), i);
-    // }
-
-    // printf("\n\n");
-
-    // Game g2;
-    // for (int i = 1; i <= 6; ++i) {
-    //     printf("%d en passants at depth %d\n", get_num_flags_at_depth(i, Move::EN_PASSANT, g2), i);
-    //     printf("%d castles at depth %d\n", get_num_flags_at_depth(i, Move::CASTLE, g2), i);
-    // }
-    // Game g;
-    // measure_count_bulk_positions(g, 2, true);
-
-    // measure_nps(6);      // measure start position
-    return 0;
-
-    // Game game;
-    // Search search(game);
-    // std::vector<Move> moves;
-    // int search_depth = 5;
-
-    // auto make_best_move = [&]() {
-    //     Move best_move = search.get_best_move(search_depth);
-    //     game.move(best_move);
-    // };
-
-    // do {
-    //     game.print();
-
-    //     moves.clear();
-    //     game.get_moves(moves);
-    //     float eval = search.evaluate_position(game);
-
-    //     printf("Evaluation: %f\n\n", eval);
-
-    //     if (moves.size() == 0) {
-    //         if (eval < 0) {
-    //             game.print();
-    //             printf("Checkmate! %s wins!\n", game.is_whites_turn() ? "Black" : "White");
-    //         } else {
-    //             game.print();
-    //             printf("Draw!\n");
-    //         }
-    //         break;
-    //     }
-
-    //     char from[10], to[10];
-    //     printf("Move from: ");
-    //     scanf("%s", &from); 
-
-    //     if (from[0] == 'u') {
-    //         game.undo();
-    //         game.undo();
-    //         continue;
-    //     } else if (from[0] == 'z') {
-    //         goto ai_move;
-    //     }
-
-    //     printf("To: ");
-    //     scanf("%s", &to);
-
-    //     for (auto & move : moves) {
-    //         if (move.from == square_to_index(from) && move.to == square_to_index(to)) {
-    //             game.move(move);
-    //             printf("\n");
-    //             goto ai_move;
-    //         }
-    //     }
-
-    //     printf("Invalid move!\n\n");
-    //     continue;
-
-    //     ai_move:
-    //     printf("Woodstock is thinking... ");
-
-    //     int time_elapsed = measure(make_best_move);
-    //     printf("Found best move at depth %d with %d evaluations in %dms!\n", search_depth, search.num_positions_evaluated, time_elapsed);
-    //     search.num_positions_evaluated = 0;
-    //     printf("\n");
-    // } while(moves.size() != 0);
-
-    return 0;
+      if (curr == "ucinewgame") {
+         g.reset();
+         std::cout << "isready" << std::endl;
+      } else if (curr == "position") {
+         ss >> curr; // fen or startpos
+         if (curr == "startpos") {
+            g.read_fen();
+         } else if (curr == "fen") {
+            ss >> curr; // fen string
+            g.read_fen(curr);
+         }
+      } else if (curr == "go") {
+         ss >> curr;
+         // next arg
+         if (curr == "depth") {
+            int depth;
+            ss >> curr;
+            std::cout << curr << std::endl;
+            Move best_move = s.get_best_move(depth);
+            std::cout << "bestmove " << move_to_lan(best_move) << std::endl;
+         }
+      }
+   }
+   
+   return 0;
 }
 
 #endif

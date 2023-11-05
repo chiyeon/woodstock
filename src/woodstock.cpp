@@ -7,10 +7,7 @@
 #include "measure.h"
 #include "bitboard.h"
 #include "search.h"
-
-#ifdef EMSCRIPTEN
-#include <emscripten/emscripten.h>
-#endif
+#include "utils.h"
 
 int square_to_index(char * square) {
     int x, y;
@@ -48,6 +45,53 @@ std::string index_to_square(int index)
    return ss.str();
 }
 
+// converts move to algebreaic notation
+std::string move_to_an(Move move) {
+    std::stringstream ss;
+
+    bool is_pawn = (Moves::get_piece(move) & Pieces::FILTER_PIECE) != Pieces::PAWN;
+    bool capture = Moves::get_captured(move) != 0;
+
+    if (!is_pawn) {
+        ss << Pieces::name_short(Moves::get_piece(move));
+    }
+
+    if (capture) {
+        if (is_pawn) {
+            // get column
+            ss << index_to_square(Moves::get_from(move) % 8);
+        }
+      ss << 'x';
+   }
+
+   ss << index_to_square(Moves::get_to(move));
+   return ss.str();
+}
+
+// converst move to long algebraic notiation
+std::string move_to_lan(Move move)
+{
+   std::stringstream ss;
+
+   if ((Moves::get_piece(move) & Pieces::FILTER_PIECE) != Pieces::PAWN) {
+      ss << Pieces::name_short(Moves::get_piece(move)); 
+   }
+
+   ss << index_to_square(Moves::get_from(move));
+
+   if (Moves::get_captured(move) != 0) {
+      ss << 'x';
+   }
+
+   ss << index_to_square(Moves::get_to(move));
+   return ss.str();
+}
+
+#ifdef EMSCRIPTEN
+#include <emscripten/emscripten.h>
+#endif
+
+
 void run_game_simulation(int depth1, int depth2)
 {
     Game game;
@@ -72,23 +116,7 @@ void run_game_simulation(int depth1, int depth2)
     // }
 }
 
-std::string move_to_lan(Move move)
-{
-   std::stringstream ss;
 
-   if ((Moves::get_piece(move) & Pieces::FILTER_PIECE) != Pieces::PAWN) {
-      ss << Pieces::name_short(Moves::get_piece(move)); 
-   }
-
-   ss << index_to_square(Moves::get_from(move));
-
-   if (Moves::get_captured(move) != 0) {
-      ss << 'x';
-   }
-
-   ss << index_to_square(Moves::get_to(move));
-   return ss.str();
-}
 
 #ifdef EMSCRIPTEN
 #ifdef __cplusplus
@@ -250,6 +278,10 @@ int main()
 
 int main()
 {
+    Game g2;
+    std::cout << g2.get_pgn("chiyeon", false) << std::endl;
+    return 0;
+
    run_perft_suite_mini();
    std::string input;
    std::cin >> input;

@@ -13,6 +13,7 @@ using Move      = unsigned int;     // bits used: flags, captured, piece, to, fr
 #define CONSTANTS_H
 
 #define FLT_MAX 3.40282347E+38F
+#define WOODSTOCK_VERSION 0.7
 
 struct Constants
 {

@@ -12,6 +12,13 @@ Game::Game(std::string fen)
     read_fen(fen);
 }
 
+std::string Game::get_pgn(std::string name, bool was_black) {
+    int result = 0;
+    if (wcm) result = 1;
+    if (bcm) result = 2;
+    return history.get_as_pgn(name, was_black, result);
+}
+
 void Game::reset()
 {
     // Unable to castle by default, fixed when reading castling rights!

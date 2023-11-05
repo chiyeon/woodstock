@@ -49,6 +49,8 @@ class History
    std::map<Hash, int> hash_count;
    bool threefold_repetition = false;
    ZobristHasher hasher;
+
+   std::string get_date();
 public:
    void clear();
    void record(Move move, Piece * board);
@@ -56,6 +58,8 @@ public:
    Move pop_last_move();
    bool check_threefold_repetition();
    bool is_empty();
+
+   std::string get_as_pgn(std::string name, bool was_black, int result);
 
    History(History & h) = delete;
    History()

@@ -3,85 +3,6 @@
 #include <time.h>
 #include "move.h"
 #include "game.h"
-#include "utils.h"
-
-int square_to_index(char * square) {
-    int x, y;
-
-    switch (square[0]) {
-        case 'a': x = 7;
-            break;
-        case 'b': x = 6;
-            break;
-        case 'c': x = 5;
-            break;
-        case 'd': x = 4;
-            break;
-        case 'e': x = 3;
-            break;
-        case 'f': x = 2;
-            break;
-        case 'g': x = 1;
-            break;
-        case 'h': x = 0;
-            break;
-    }
-
-    y = (int)(square[1]) - '1';
-
-    return y * 8 + x;
-}
-
-std::string index_to_square(int index)
-{
-   int x = 7 - (index % 8);
-   int y = index / 8;
-   std::stringstream ss;
-   ss << (char)('a' + x) << (char)('1' + y);
-   return ss.str();
-}
-
-// converts move to algebreaic notation
-std::string move_to_an(Move move) {
-    std::stringstream ss;
-
-    bool is_pawn = (Moves::get_piece(move) & Pieces::FILTER_PIECE) != Pieces::PAWN;
-    bool capture = Moves::get_captured(move) != 0;
-
-    if (!is_pawn) {
-        ss << Pieces::name_short(Moves::get_piece(move));
-    }
-
-    if (capture) {
-        if (is_pawn) {
-            // get column
-            ss << index_to_square(Moves::get_from(move) % 8);
-        }
-      ss << 'x';
-   }
-
-   ss << index_to_square(Moves::get_to(move));
-   return ss.str();
-}
-
-// converst move to long algebraic notiation
-std::string move_to_lan(Move move)
-{
-   std::stringstream ss;
-
-   if ((Moves::get_piece(move) & Pieces::FILTER_PIECE) != Pieces::PAWN) {
-      ss << Pieces::name_short(Moves::get_piece(move)); 
-   }
-
-   ss << index_to_square(Moves::get_from(move));
-
-   if (Moves::get_captured(move) != 0) {
-      ss << 'x';
-   }
-
-   ss << index_to_square(Moves::get_to(move));
-   return ss.str();
-}
 
 void History::clear()
 {
@@ -188,7 +109,7 @@ std::string History::get_as_pgn(std::string name, bool was_black, int result)
    std::stringstream ss(out);
    ss << "[Event \"Woodstock Test v" << WOODSTOCK_VERSION << "\"]\n" \
          "[Site \"https://chess.benjiwong.com\"]\n" \
-         "[Date " << get_date() << "\"]\n" \
+         "[Date \"" << get_date() << "\"]\n" \
          "[Round \"1\"]\n" \
          "[White \"" << (was_black ? "Woodstock" : name) << "\"]\n" \
          "[Black \"" << (was_black ? name : "Woodstock") << "\"]\n" \
@@ -196,12 +117,35 @@ std::string History::get_as_pgn(std::string name, bool was_black, int result)
    
    int log_size = log.size();
    for (int i = 0; i < log_size; i += 2) {
-      ss << (i/2) << ". " << move_to_an(log[i].move);
-      if ((i + 1) < log_size) {
-         ss << move_to_an(log[i+1].move);
+      if (i != 0) ss << " ";
+      ss << (i/2 + 1) << ".";
+      if (Moves::get_flags(log[i].move) & Moves::CASTLE) {
+         int from = Moves::get_from(log[i].move);
+         int to = Moves::get_to(log[i].move);
+
+         if (to > from) ss << "0-0-0";
+         else ss << "0-0";
+      } else {
+         ss << Utils::move_to_an(log[i].move);
       }
-      ss << " ";
+      if ((i + 1) < log_size) {
+         if (Moves::get_flags(log[i+1].move) & Moves::CASTLE) {
+            int from = Moves::get_from(log[i+1].move);
+            int to = Moves::get_to(log[i+1].move);
+
+            if (to > from) ss << "0-0-0";
+            else ss << "0-0";
+         } else {
+            ss << " " << Utils::move_to_an(log[i+1].move);
+         }
+      }
    }
+
+   if (result > 0) {
+      ss << "#";
+   }
+
+   ss << " ";
 
    ss << str_res;
       

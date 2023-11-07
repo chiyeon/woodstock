@@ -6,6 +6,24 @@ p, a, button, ul, li, h1, h2, h3, input {
    font-family: Helvetica, sans-serif;
 }
 
+#game-export {
+   /*position: absolute;*/
+   max-width: 800px;
+   max-height: 600px;
+   padding: 10px;
+
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   flex-direction: column;
+
+   background-color: #0f0f0f;
+
+   left: 50%;
+   top: 50%;
+   transform: translate(-50%, -50%);
+}
+
 #loading-hint {
    position: absolute;
    z-index: 999;

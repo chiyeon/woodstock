@@ -16,9 +16,9 @@
       <div id="board"></div>
 
       <div id="game-export">
-         <input placeholder="Name" />
+         <input placeholder="Name" id="game-export-name" />
          <p>By pressing 'submit' below, you are sending a record of this chess game to me in standard PGN format. This is purely for fun and isn't required, nor does it carry any sensitive data.</p>
-         <button>Submit</button>
+         <button id="game-export-button">Submit</button>
       </div>
 
       <div class="options">
@@ -56,7 +56,9 @@
       let ai_button_el = document.querySelector("#ai-move-button");
       let flip_button_el = document.querySelector("#flip-board-button");
       let load_fen_el = document.querySelector("#load-fen-button");
-      let fen_input_el = document.querySelector("#fen-input")
+      let fen_input_el = document.querySelector("#fen-input");
+      let export_button_el = document.querySelector("#game-export-button");
+      let name_input_el = document.querySelector("#game-export-name");
 
       document.querySelector("#theme-select").addEventListener("change", (e) => {
          board.theme = e.target.value;
@@ -93,6 +95,14 @@
             let buffer = woodstock._malloc(fen_str.length + 1);
             woodstock.stringToUTF8(fen_str, buffer, fen_str.length + 1);
             woodstock.ccall("load_fen", null, [ "number" ], [ buffer ]);
+            woodstock._free(buffer);
+         })
+
+         export_button_el.addEventListener("click", () => {
+            let name_str = name_input_el.value;
+            let buffer = woodstock._malloc(name_str.length + 1);
+            woodstock.stringToUTF8(name_str, buffer, name_str.length + 1);
+            woodstock.ccall("print_pgn", null, [], [buffer]);
             woodstock._free(buffer);
          })
 

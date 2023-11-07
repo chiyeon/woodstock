@@ -8,7 +8,7 @@
 #include "bitboard.h"
 #include "search.h"
 #include "utils.h"
-
+/*
 int square_to_index(char * square) {
     int x, y;
 
@@ -85,7 +85,7 @@ std::string move_to_lan(Move move)
 
    ss << index_to_square(Moves::get_to(move));
    return ss.str();
-}
+}*/
 
 #ifdef EMSCRIPTEN
 #include <emscripten/emscripten.h>
@@ -130,6 +130,7 @@ Game game;
 Search search(game);
 int search_depth = 6;
 int num_threads = 4;
+bool is_player_black = false;
 
 std::vector<Move> selected_piece_moves;
 
@@ -268,6 +269,11 @@ EXTERN EMSCRIPTEN_KEEPALIVE void undo()
     }
 }
 
+EXTERN EMSCRIPTEN_KEEPALIVE void print_pgn(char * name)
+{
+   printf("%s\n", game.get_pgn(name, is_player_black).c_str());
+}
+
 int main()
 {
     printf("woodstock!\n");
@@ -278,10 +284,7 @@ int main()
 
 int main()
 {
-    Game g2;
-    std::cout << g2.get_pgn("chiyeon", false) << std::endl;
-    return 0;
-
+   
    run_perft_suite_mini();
    std::string input;
    std::cin >> input;
@@ -320,7 +323,7 @@ int main()
             ss >> curr;
             std::cout << curr << std::endl;
             Move best_move = s.get_best_move(depth);
-            std::cout << "bestmove " << move_to_lan(best_move) << std::endl;
+            std::cout << "bestmove " << Utils::move_to_lan(best_move) << std::endl;
          }
       }
    }

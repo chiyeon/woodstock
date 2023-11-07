@@ -3,6 +3,7 @@
 
 #include "constants.h"
 #include "zobrist.h"
+#include "utils.h"
 #include <vector>
 #include <map>
 

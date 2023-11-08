@@ -1,14 +1,19 @@
 # Alpha 0.7 
+Overall, v0.7 of Woodstock brings foundational changes important for future steps (Fully working transposition table & iterative deepening) as well as fixes to essential systems. This update updates the visuals of the game, making the interface more usable and communicating checks and end of game states better.
+ - More accurate checkmate/draw evaluations 
+ - Prioritizes "faster" checkmates, making Woodstock better at closing games:
+    - Previously woodstock would sometimes "stall" mate in ones if it kept seeing another checkmate one more move in the future.
+ - Zobrist hashing is now incremental, vastly increasing performance
+ - Fixed bugs where checks/checkmates were calculated incorrectly
+ - Fixed bugs where promotions wouldn't act as intended
  - Added Reset button
  - Added Export button 
     - Games can now be exported to PGN format
  - Options menu wraps properly based on resolution
  - "AI Move" option changed to "Switch"
- - More accurate checkmate/endgame calculations (at cost of performance for this patch)
  - Fixed some GUI bugs
- - Prioritizes "faster" checkmates, making Woodstock better at closing games:
-    - Previously woodstock would sometimes "stall" mate in ones if it kept seeing another checkmate one more move in the future.
- - Added rudimentary ending-game notifier (announces checkmate/draw) 
+ - Added Check notification
+ - Added Checkmate and Draw notification as well as windows that alert the closing of a game
 
 # Alpha 0.3
  - Continues play even if defeat is inevitable

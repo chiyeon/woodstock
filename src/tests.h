@@ -1,16 +1,15 @@
 #include "bitboard.h"
 #include "timer.h"
 
-void measure(auto fn)
-{
-    Timer t;
-    double time_taken;
+void measure(auto fn) {
+  Timer t;
+  double time_taken;
 
-    t.start();
-    fn();
-    t.elapsedUserTime(time_taken);
+  t.start();
+  fn();
+  t.elapsedUserTime(time_taken);
 
-    printf("%fs\n", time_taken);
+  printf("%fs\n", time_taken);
 }
 
 /*
@@ -26,7 +25,10 @@ void measure(auto fn)
 //             for (int x = 0; x < 8; x++) {
 //                 for (int y = 0; y < 8; y++) {
 
-//                     if (Bitboards::get_diagonal_downwards_right_loopbuild(x, y) != Bitboards::get_diagonal_downwards_right_switchcase(x, y)) {
+//                     if (Bitboards::get_diagonal_downwards_right_loopbuild(x,
+//                     y) !=
+//                     Bitboards::get_diagonal_downwards_right_switchcase(x, y))
+//                     {
 //                         printf("mismatch!");
 //                     }
 //                 }

@@ -7,6 +7,9 @@ EMCC_ARGS=-O3 -s STACK_SIZE=128MB -s ASSERTIONS=2 --shell-file src/web/index.htm
 clean:
 	rm -rf -f build/
 
+format:
+	clang-format -i src/*
+
 build_web: clean ${CFILES}
 	mkdir build
 	emcc ${CMP_ARGS} ${EMCC_ARGS} ${CFILES} -o build/index.html

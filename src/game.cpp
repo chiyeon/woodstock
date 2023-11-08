@@ -1024,8 +1024,6 @@ void Game::move(Move &move, bool verbose) {
    }
    case Moves::PROMOTION: {
       piece_bbs[turn | Pieces::PAWN] ^= from_bb;
-      //piece_bbs[piece] |= to_bb;
-
       // undo from earlier: we switched one that doesnt exist
       // because this piece was never there
       piece_bbs[piece] ^= from_bb;

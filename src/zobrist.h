@@ -37,9 +37,8 @@ class ZobristHasher {
    TranspositionEntry *HashTable;
    Hash ZobristTable[64][12];
    Hash ZobristSwitchSides;
-   //int i,j; // these literally fix everything..
    Hash zobrist_key;
-   std::map<Piece, char> piece_to_index = {
+   std::map<Piece, int> piece_to_index = {
       {Pieces::WHITE | Pieces::PAWN, 0},   {Pieces::WHITE | Pieces::KNIGHT, 1},
       {Pieces::WHITE | Pieces::BISHOP, 2}, {Pieces::WHITE | Pieces::ROOK, 3},
       {Pieces::WHITE | Pieces::QUEEN, 4},  {Pieces::WHITE | Pieces::KING, 5},
@@ -81,6 +80,11 @@ class ZobristHasher {
       return hash;
    }
 
+   // adjusts the current zobrist key using the position and piece given
+   inline void apply_to_key(int pos, Piece piece) {
+      zobrist_key ^= ZobristTable[pos][piece_to_index[piece]];
+   }
+
  public:
    Hash get_zobrist_key() {
       return zobrist_key;
@@ -97,7 +101,7 @@ class ZobristHasher {
    ZobristHasher(ZobristHasher &hasher) = delete;
 
    Hash get_from_zobrist_table(int pos, Piece piece) {
-      return ZobristTable[pos][piece];
+      return ZobristTable[pos][piece_to_index[piece]];
    }
 
    void store_entry(int depth, int eval, Move best_move, bool wcm, bool bcm, bool draw) {
@@ -141,11 +145,11 @@ class ZobristHasher {
       switch (flags) {
          default:
          {
-            zobrist_key ^= ZobristTable[from][piece];
-            zobrist_key ^= ZobristTable[to][piece];
+            apply_to_key(from, piece);
+            apply_to_key(to, piece);
 
             if (captured != 0) {
-               zobrist_key ^= ZobristTable[to][captured];
+               apply_to_key(to, captured);
             }
 
             break;
@@ -154,16 +158,15 @@ class ZobristHasher {
          {
             int ep_square = is_blacks_turn ? to + 8 : to - 8;
 
-            zobrist_key ^= ZobristTable[from][piece];
-            zobrist_key ^= ZobristTable[to][piece];
-
-            zobrist_key ^= ZobristTable[ep_square][captured];
+            apply_to_key(from, piece);
+            apply_to_key(to, piece);
+            apply_to_key(ep_square, captured);
             break;
          }
          case Moves::CASTLE:
          {
-            zobrist_key ^= ZobristTable[from][piece];
-            zobrist_key ^= ZobristTable[to][piece];
+            apply_to_key(from, piece);
+            apply_to_key(to, piece);
 
             int rook_to, rook_from;
             Piece rook = Pieces::ROOK | (is_blacks_turn ? Pieces::BLACK : Pieces::WHITE);
@@ -176,19 +179,19 @@ class ZobristHasher {
                rook_from = to - 1;
             }
 
-            zobrist_key ^= ZobristTable[rook_from][rook];
-            zobrist_key ^= ZobristTable[rook_to][rook];
+            apply_to_key(rook_from, rook);
+            apply_to_key(rook_to, rook);
             break;
          }
 
          case Moves::PROMOTION:
          {
             Piece pawn = Pieces::PAWN | (piece & Pieces::FILTER_COLOR);
-            zobrist_key ^= ZobristTable[from][pawn];
-            zobrist_key ^= ZobristTable[to][piece];
+            apply_to_key(from, pawn);
+            apply_to_key(to, piece);
 
             if (captured != 0) {
-               zobrist_key ^= ZobristTable[to][captured];
+               apply_to_key(to, captured);
             }
             break;
          }

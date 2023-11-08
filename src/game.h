@@ -36,7 +36,7 @@ class Game {
  public:
    void reset();
    MoveMasks movemasks;
-   // ZobristHasher hasher;
+   ZobristHasher hasher;
 
    bool draw = false;
    bool wcm = false; // white checkmate = white has checkmated black

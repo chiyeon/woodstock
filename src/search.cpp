@@ -14,13 +14,15 @@ void Search::swap(std::vector<int> &vec, int i, int j) {
    vec[j] = tmp;
 }
 
-float Search::evaluate_position(Game &game) {
+float Search::evaluate_position(Game &game, int depth) {
    float white_score = 0, black_score = 0;
+   //TranspositionEntry & e = hasher.get_entry(game.get_board());
+   //if (e.key != 0ULL) return e.eval;
 
    if (game.wcm)
-      return FLT_MAX;
+      return  1 * (9999999 + depth);
    else if (game.bcm)
-      return -FLT_MAX;
+      return -1 * (9999999 + depth);
    else if (game.draw)
       return 0;
 
@@ -81,6 +83,8 @@ float Search::evaluate_position(Game &game) {
          break;
       }
    }
+
+   //hasher.store_entry(game.get_board(), 0, white_score - black_score, 0ULL, game.wcm || game.bcm, game.draw);
 
    // mobility
    return white_score - black_score;
@@ -164,6 +168,8 @@ Move Search::get_best_move(int depth) {
 
          alpha = std::max(alpha, best_move_eval);
       }
+
+      if (eval >= beta) break;
    }
    /*
    for (auto & move : moves)
@@ -197,7 +203,7 @@ float Search::negamax(int depth, float alpha, float beta) {
    // if (depth == 0) return (game.is_blacks_turn() ? -1 : 1) *
    // evaluate_position(game);
    if (depth == 0 || game.is_gameover())
-      return (game.is_blacks_turn() ? -1 : 1) * evaluate_position(game);
+      return (game.is_blacks_turn() ? -1 : 1) * evaluate_position(game, depth);
 
    std::vector<Move> moves;
    game.get_moves(moves);
@@ -232,7 +238,7 @@ float Search::negamax(int depth, float alpha, float beta) {
 float Search::negascout(int depth, float alpha, float beta) {
    num_positions_evaluated++;
    if (depth == 0 || game.is_gameover())
-      return (game.is_blacks_turn() ? -1 : 1) * evaluate_position(game);
+      return (game.is_blacks_turn() ? -1 : 1) * evaluate_position(game, depth);
 
    std::vector<Move> moves;
    game.get_moves(moves);
@@ -281,7 +287,7 @@ float Search::alphabeta(int depth, float alpha, float beta,
    }
 
    if (depth == 0) {
-      float eval = evaluate_position(game);
+      float eval = evaluate_position(game, depth);
       return (game.is_blacks_turn() ? 1 : -1) * eval;
    }
    std::vector<Move> moves;

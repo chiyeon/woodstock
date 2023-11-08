@@ -143,7 +143,7 @@ class Search {
 
  public:
    Search(Game &game);
-   float evaluate_position(Game &game);
+   float evaluate_position(Game &game, int depth);
    Move get_best_move(int depth);
    Move get_best_move_iterative_deepening(int &depth_searched);
    int num_positions_evaluated = 0;

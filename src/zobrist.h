@@ -14,18 +14,20 @@ struct TranspositionEntry {
    // uint32_t best_move;  // Move is 64 bits. we can save storage as we only
    // need to/from
    Move best_move;
-   bool checkmate, draw;
+   bool wcm, bcm, draw;
 
    TranspositionEntry()
-      : key(0ULL), depth(0), eval(0), best_move(0), checkmate(false),
+      : key(0ULL), depth(0), eval(0), best_move(0), wcm(false), bcm(false), 
         draw(false) {}
 
+   TranspositionEntry(TranspositionEntry & te) = delete;
+
    TranspositionEntry(Hash key, int depth, int eval, Move best_move,
-                      bool checkmate, bool draw)
+                      bool wcm, bool bcm, bool draw)
       : key(key), depth(depth), eval(eval)
         //, best_move(static_cast<uint32_t>(best_move))
         ,
-        best_move(best_move), checkmate(checkmate), draw(draw) {}
+        best_move(best_move), wcm(wcm), bcm(bcm), draw(draw) {}
 };
 
 const int hashtable_size = 1128889;
@@ -83,14 +85,14 @@ class ZobristHasher {
    ZobristHasher(ZobristHasher &hasher) = delete;
 
    void store_entry(Piece *board, int depth, int eval, Move best_move,
-                    bool checkmate, bool draw) {
+                    bool wcm, bool bcm, bool draw) {
       Hash zobrist_key = compute_zobrist_key(board);
       int key = zobrist_key % hashtable_size;
       HashTable[key] = TranspositionEntry(zobrist_key, depth, eval, best_move,
-                                          checkmate, draw);
+                                          wcm, bcm, draw);
    }
 
-   TranspositionEntry get_entry(Piece *board) {
+   TranspositionEntry & get_entry(Piece *board) {
       Hash zobrist_key = compute_zobrist_key(board);
       int key = zobrist_key % hashtable_size;
       return HashTable[key];

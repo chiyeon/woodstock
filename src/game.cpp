@@ -1100,23 +1100,24 @@ void Game::move(Move &move, bool verbose) {
 
    if (history.check_threefold_repetition()) {
       draw = true;
-      if (verbose)
-         printf("Draw by repetition.\n");
-   } else if (no_moves_left()) {
-      if (is_king_in_check()) {
-         // these are reversed !
-         is_whites_turn() ? bcm = true : wcm = true;
+   } else {
 
-         if (verbose) {
-            if (wcm)
-               printf("white wins\n");
-            else
-               printf("black wins\n");
+      /*TranspositionEntry & e = hasher.get_entry(board);
+      if (e.key != 0ULL) {
+         wcm = e.wcm;
+         bcm = e.bcm;
+         draw = e.draw;
+         return;
+      }*/
+
+      if (no_moves_left()) {
+         if (is_king_in_check()) {
+            // these are reversed !
+            is_whites_turn() ? bcm = true : wcm = true;
+         } else {
+            draw = true;
          }
-      } else {
-         draw = true;
-         if (verbose)
-            printf("Draw by no moves left.\n");
+         //hasher.store_entry(board, 0, 0, 0, wcm, bcm, draw);
       }
    }
 }

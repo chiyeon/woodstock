@@ -223,6 +223,71 @@ void Game::switch_turns()
     not_turn = black_turn ? Pieces::WHITE : Pieces::BLACK;
 }
 
+// returns whether or not an algebraic notation would be
+// ambiguous or not when moving to this square
+// 0 = not ambiguous
+// 1 = column ambiguous
+// 2 = row ambiguous
+int Game::is_square_ambiguous(int index)
+{
+
+   std::vector<Move> moves;
+   get_moves(moves);
+
+   for (auto & move : moves) {
+      Piece p = (Moves::get_piece(move) & Pieces::FILTER_PIECE);
+      int to = Moves::get_to(move);
+      if (p == Pieces::KING) continue;
+
+      for (auto & _move : moves) {
+         Piece _p = (Moves::get_piece(_move) & Pieces::FILTER_PIECE);
+         if (p != _p) continue;        // only check moves of same piece
+         if (move == _move) continue;  // ignore ourself
+
+         int _to = Moves::get_to(_move);
+
+         if (to == _to) {
+            // we have a collision!
+            // check if we are on same row or same column
+            
+            int from = Moves::get_from(move);
+            int _from = Moves::get_from(_move);
+            if (from % 8 == _from % 8) {
+               // same column
+               return 1;
+            } else {
+               // same row
+               return 2;
+            }
+         }
+      }
+   }
+   return 0;
+
+   int not_turn = get_not_turn();
+   int turn = get_turn();
+   switch_turns();
+   Bitboard pc = Pieces::get_pawn_captures(index, *this);
+
+   Bitboard boards[] = {
+      Bitboards::contains_multiple_bits(piece_bbs[turn | Pieces::ROOK] & Pieces::get_rook_moves(index, *this)),
+      Bitboards::contains_multiple_bits(piece_bbs[turn | Pieces::KNIGHT] & Pieces::get_knight_moves(index, *this)),
+      Bitboards::contains_multiple_bits(piece_bbs[turn | Pieces::PAWN] & pc),
+   };
+
+   switch_turns();
+
+   for (auto & board : boards) {
+      // if multiple bits, then we have an ambiguous space!
+      if (Bitboards::contains_multiple_bits(board)) {
+         // now how do we know if it is column or row 
+         return 1;
+      }
+   }
+
+   return 0;
+}
+
 Piece Game::get_turn()
 {
     return turn;

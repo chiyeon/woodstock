@@ -80,6 +80,7 @@ Bitboard Pieces::get_pawn_captures(int pos, Game & game)
     return movement;
 }
 
+
 Bitboard Pieces::get_knight_moves(int pos, Game & game)
 {
     return game.movemasks.get_knight_move(pos);

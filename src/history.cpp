@@ -88,6 +88,7 @@ std::string History::get_date()
 
 std::string History::get_as_pgn(std::string name, bool was_black, int result)
 {
+   Game g;  // game to simulate
    std::string str_res;
    switch (result) {
       case 0:
@@ -116,28 +117,26 @@ std::string History::get_as_pgn(std::string name, bool was_black, int result)
          "[Result \"" << str_res << "\"]\n\n";
    
    int log_size = log.size();
-   for (int i = 0; i < log_size; i += 2) {
+   for (int i = 0; i < log_size; i++) {
       if (i != 0) ss << " ";
-      ss << (i/2 + 1) << ".";
-      if (Moves::get_flags(log[i].move) & Moves::CASTLE) {
-         int from = Moves::get_from(log[i].move);
-         int to = Moves::get_to(log[i].move);
+      if (i % 2 == 0) ss << (i/2 + 1) << ".";
 
-         if (to > from) ss << "0-0-0";
+      Move move = log[i].move;
+
+      int flags = Moves::get_flags(move);
+      if (flags & Moves::CASTLE) {
+         if (Moves::get_from(move) < Moves::get_to(move)) ss << "0-0-0";
          else ss << "0-0";
       } else {
-         ss << Utils::move_to_an(log[i].move);
-      }
-      if ((i + 1) < log_size) {
-         if (Moves::get_flags(log[i+1].move) & Moves::CASTLE) {
-            int from = Moves::get_from(log[i+1].move);
-            int to = Moves::get_to(log[i+1].move);
 
-            if (to > from) ss << "0-0-0";
-            else ss << "0-0";
-         } else {
-            ss << " " << Utils::move_to_an(log[i+1].move);
-         }
+         // check ambiguity
+         // must check BEFORE we do the move!
+         int ambiguity = g.is_square_ambiguous(Moves::get_to(move));
+
+         g.move(move);
+
+         ss << Utils::move_to_an(move, ambiguity == 1, ambiguity == 2);
+         if (g.is_king_in_check() && !g.is_gameover()) ss << "+";
       }
    }
 

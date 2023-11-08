@@ -73,6 +73,8 @@ public:
     bool no_moves_left();
     bool is_gameover();
 
+    int is_square_ambiguous(int index);
+
     void get_moves(std::vector<Move> & moves);
     void move(Move & move, bool verbose = false);
     void undo(bool verbose = false);

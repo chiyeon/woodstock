@@ -46,21 +46,28 @@ struct Utils {
  }
 
  // converts move to algebreaic notation
- static std::string move_to_an(Move move) {
+ static std::string move_to_an(Move move, bool ambiguous_column = false, bool ambiguous_row = false) {
      std::stringstream ss;
 
      bool is_pawn = (Moves::get_piece(move) & Pieces::FILTER_PIECE) == Pieces::PAWN;
      bool capture = Moves::get_captured(move) != 0;
+     bool was_ambiguous = ambiguous_column || ambiguous_row;
 
      if (!is_pawn) {
-         ss << Pieces::name_short(Moves::get_piece(move));
+         ss << Pieces::name_short((Moves::get_piece(move) & Pieces::FILTER_PIECE) | Pieces::WHITE); 
      }
 
+      if (ambiguous_row) {
+         ss << (char)('a' + (7 - (Moves::get_from(move) % 8)));
+      } else if (ambiguous_column) {
+         ss << (char)('1' + (Moves::get_from(move) / 8));
+      }
+
      if (capture) {
-         if (is_pawn) {
-             // get column
+         if (is_pawn && !was_ambiguous) {
+             // additionally print the column
              ss << (char)('a' + (7 - (Moves::get_from(move) % 8)));
-         }
+         } 
        ss << 'x';
     }
 
@@ -74,7 +81,8 @@ struct Utils {
     std::stringstream ss;
 
     if ((Moves::get_piece(move) & Pieces::FILTER_PIECE) != Pieces::PAWN) {
-       ss << Pieces::name_short(Moves::get_piece(move)); 
+       // always capitalize
+       ss << Pieces::name_short((Moves::get_piece(move) & Pieces::FILTER_PIECE) | Pieces::WHITE); 
     }
 
     ss << index_to_square(Moves::get_from(move));

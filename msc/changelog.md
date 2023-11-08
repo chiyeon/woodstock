@@ -8,6 +8,7 @@
  - Fixed some GUI bugs
  - Prioritizes "faster" checkmates, making Woodstock better at closing games:
     - Previously woodstock would sometimes "stall" mate in ones if it kept seeing another checkmate one more move in the future.
+ - Added rudimentary ending-game notifier (announces checkmate/draw) 
 
 # Alpha 0.3
  - Continues play even if defeat is inevitable

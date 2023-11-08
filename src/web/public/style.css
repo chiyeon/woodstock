@@ -6,6 +6,11 @@ p, a, button, ul, li, h1, h2, h3, input {
    font-family: Helvetica, sans-serif;
 }
 
+#status {
+   text-align: center;
+   color: white;
+}
+
 #game-export.hidden {
    display: none;
 }

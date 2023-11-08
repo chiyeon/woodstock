@@ -13,6 +13,7 @@
    </div>
    
    <main>
+      <h1 id="status"> </h1>
       <div id="board"></div>
 
       <div id="game-export" class="hidden">
@@ -58,6 +59,7 @@
 
       var make_ai_move;
       var update_pgn;
+      var set_status;
 
       let board = new Chessboard("board");
       let pgn = "";
@@ -72,6 +74,7 @@
       let reset_button_el = document.querySelector("#reset-button");
       let export_button_el = document.querySelector("#export-button");
       let game_export_el = document.querySelector("#game-export");
+      let status_el = document.querySelector("#status");
 
       document.querySelector("#theme-select").addEventListener("change", (e) => {
          board.theme = e.target.value;
@@ -136,6 +139,20 @@
          update_pgn = (ptr, len) => {
             pgn = woodstock.UTF8ToString(ptr, len);
             console.log(pgn);
+         }
+
+         set_status = (s) => {
+            switch(s) {
+               case 0:
+                  status_el.innerHTML = "Draw.";
+                  break;
+               case 1:
+                  status_el.innerHTML = "White Wins!";
+                  break;
+               case 2:
+                  status_el.innerHTML = "Black Wins!";
+                  break;
+            }
          }
 
          make_ai_move = () => {

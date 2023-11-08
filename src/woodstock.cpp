@@ -127,16 +127,34 @@ EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char **argv) {
 
    update_chessboard(game.get_board());
    highlight_squares(Moves::get_from(last_move), Moves::get_to(last_move));
+
+   if (game.is_gameover()) {
+      if (game.wcm) {
+         printf("White checkmate\n");
+         EM_ASM({set_status(1)});
+      } else if (game.bcm) {
+         printf("Black checkmate\n");
+         EM_ASM({set_status(2)});
+      } else if (game.draw) {
+         printf("Draw\n");
+         EM_ASM({set_status(0)});
+      }
+      return;
+   }
 }
 
 EXTERN EMSCRIPTEN_KEEPALIVE void click_square(int index) {
    if (game.is_gameover()) {
-      if (game.wcm)
+      if (game.wcm) {
          printf("White checkmate\n");
-      else if (game.bcm)
+         EM_ASM({set_status(1)});
+      } else if (game.bcm) {
          printf("Black checkmate\n");
-      else if (game.draw)
+         EM_ASM({set_status(2)});
+      } else if (game.draw) {
          printf("Draw\n");
+         EM_ASM({set_status(0)});
+      }
       return;
    }
    std::vector<Move> moves = game.get_moves_at_square(index);

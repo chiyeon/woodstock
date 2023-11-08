@@ -372,16 +372,14 @@ bool Game::is_in_check() {
    return false;
 }
 
+// returns whether or not turn's king is in check
+// notice we still check if the kings attack kings
+// in normal chess this isn't possible, but may be
+// possible during move simulation
 bool Game::is_king_in_check() {
    // check if the current turn's person is in check
    int king_pos = Bitboards::get_lsb(piece_bbs[turn | Pieces::KING]);
    int not_turn = get_not_turn();
-   /*
-   if (piece_bbs[not_turn | Pieces::QUEEN] & Pieces::get_queen_moves(king_pos, *this)) printf("Queen giving chcek.\n");
-   if (piece_bbs[not_turn | Pieces::ROOK] & Pieces::get_rook_moves(king_pos, *this)) printf("Rook giving chcek.\n");
-   if (piece_bbs[not_turn | Pieces::BISHOP] & Pieces::get_bishop_moves(king_pos, *this)) printf("Bishop giving chcek.\n");
-   if (piece_bbs[not_turn | Pieces::KNIGHT] & Pieces::get_knight_moves(king_pos, *this)) printf("knight giving chcek.\n");
-   if (piece_bbs[not_turn | Pieces::PAWN] & Pieces::get_pawn_moves(king_pos, *this)) printf("pawn giving chcek.\n");*/
    return (piece_bbs[not_turn | Pieces::QUEEN] &
               Pieces::get_queen_moves(king_pos, *this) ||
            piece_bbs[not_turn | Pieces::ROOK] &
@@ -391,7 +389,9 @@ bool Game::is_king_in_check() {
            piece_bbs[not_turn | Pieces::KNIGHT] &
               Pieces::get_knight_moves(king_pos, *this) ||
            piece_bbs[not_turn | Pieces::PAWN] &
-              Pieces::get_pawn_captures(king_pos, *this));
+              Pieces::get_pawn_captures(king_pos, *this) ||
+            piece_bbs[not_turn | Pieces::KING] &
+               Pieces::get_king_moves(king_pos, *this));
 }
 
 bool Game::no_moves_left() {
@@ -791,12 +791,14 @@ void Game::get_moves(std::vector<Move> &moves) {
                      pos, target_pos, pieces[i], captured, Moves::PROMOTION);
 
                   move(potential_move);
-                  if (!last_move_resulted_in_check())
+                  switch_turns();
+                  if (!is_king_in_check())
                      moves.push_back(potential_move);
-                  // if (!king_in_check()) moves.push_back(potential_move);
+                  switch_turns();
                   undo();
                }
             }
+            // any promotion pawn cant en passant, continue
             continue;
          }
 
@@ -1021,8 +1023,12 @@ void Game::move(Move &move, bool verbose) {
       break;
    }
    case Moves::PROMOTION: {
-      piece_bbs[turn | Pieces::PAWN] ^= to_bb;
-      piece_bbs[piece] |= to_bb;
+      piece_bbs[turn | Pieces::PAWN] ^= from_bb;
+      //piece_bbs[piece] |= to_bb;
+
+      // undo from earlier: we switched one that doesnt exist
+      // because this piece was never there
+      piece_bbs[piece] ^= from_bb;
 
       break;
    }
@@ -1065,13 +1071,6 @@ void Game::move(Move &move, bool verbose) {
 
    switch_turns();
    history.record(move, hasher.get_zobrist_key());
-
-   /*
-   if (hasher.get_zobrist_key() != hasher.calculate_zobrist_key(board)) {
-      printf("Innaccurate zobrist key detected:\n");
-      print();
-      printf("In attempting %s.\n", Utils::move_to_lan(move).c_str());
-   }*/
 
    if (history.check_threefold_repetition()) {
       draw = true;
@@ -1178,7 +1177,7 @@ void Game::undo(bool verbose) {
          Piece pawn = Pieces::PAWN | turn;
          board[from] = pawn;
          piece_bbs[pawn] |= from_bb;
-         piece_bbs[piece] ^= to_bb;
+         piece_bbs[piece] ^= from_bb;
          break;
       }
       case Moves::FIRST_MOVE: {

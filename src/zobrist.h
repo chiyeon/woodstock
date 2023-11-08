@@ -37,7 +37,7 @@ class ZobristHasher {
    TranspositionEntry *HashTable;
    Hash ZobristTable[64][12];
    Hash ZobristSwitchSides;
-   int i,j; // these literally fix everything..
+   //int i,j; // these literally fix everything..
    Hash zobrist_key;
    std::map<Piece, char> piece_to_index = {
       {Pieces::WHITE | Pieces::PAWN, 0},   {Pieces::WHITE | Pieces::KNIGHT, 1},

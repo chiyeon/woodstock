@@ -132,11 +132,11 @@ std::string History::get_as_pgn(std::string name, bool was_black, int result)
          // check ambiguity
          // must check BEFORE we do the move!
          int ambiguity = g.is_square_ambiguous(Moves::get_to(move));
+         ss << Utils::move_to_an(move, ambiguity == 1, ambiguity == 2);
 
          g.move(move);
-
-         ss << Utils::move_to_an(move, ambiguity == 1, ambiguity == 2);
-         if (g.is_king_in_check() && !g.is_gameover()) ss << "+";
+         // promotions add '+' for some reason. block it.
+         if (g.is_king_in_check() && !g.is_gameover() && !(flags & Moves::PROMOTION)) ss << "+";
       }
    }
 

@@ -50,10 +50,11 @@ struct Utils {
      std::stringstream ss;
 
      bool is_pawn = (Moves::get_piece(move) & Pieces::FILTER_PIECE) == Pieces::PAWN;
+     bool promotion = (Moves::get_flags(move) & Moves::PROMOTION);
      bool capture = Moves::get_captured(move) != 0;
      bool was_ambiguous = ambiguous_column || ambiguous_row;
 
-     if (!is_pawn) {
+     if (!is_pawn && !promotion) {
          ss << Pieces::name_short((Moves::get_piece(move) & Pieces::FILTER_PIECE) | Pieces::WHITE); 
      }
 
@@ -64,7 +65,7 @@ struct Utils {
       }
 
      if (capture) {
-         if (is_pawn && !was_ambiguous) {
+         if ((is_pawn && !was_ambiguous) || (promotion && !was_ambiguous)) {
              // additionally print the column
              ss << (char)('a' + (7 - (Moves::get_from(move) % 8)));
          } 
@@ -72,6 +73,10 @@ struct Utils {
     }
 
     ss << index_to_square(Moves::get_to(move));
+
+    if (promotion) {
+      ss << "=" << Pieces::name_short((Moves::get_piece(move) & Pieces::FILTER_PIECE) | Pieces::WHITE); 
+    }
     return ss.str();
  }
 

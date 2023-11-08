@@ -57,9 +57,6 @@ void mark_checks()
    if (game.is_king_in_check()) {
       int status = game.is_blacks_turn() ? 5 : 4; 
       EM_ASM({set_status($0)}, status);
-
-      printf("hmm we are in check...\n");
-      game.print();
    }
 }
 

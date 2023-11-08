@@ -374,6 +374,12 @@ bool Game::is_king_in_check() {
    // check if the current turn's person is in check
    int king_pos = Bitboards::get_lsb(piece_bbs[turn | Pieces::KING]);
    int not_turn = get_not_turn();
+   /*
+   if (piece_bbs[not_turn | Pieces::QUEEN] & Pieces::get_queen_moves(king_pos, *this)) printf("Queen giving chcek.\n");
+   if (piece_bbs[not_turn | Pieces::ROOK] & Pieces::get_rook_moves(king_pos, *this)) printf("Rook giving chcek.\n");
+   if (piece_bbs[not_turn | Pieces::BISHOP] & Pieces::get_bishop_moves(king_pos, *this)) printf("Bishop giving chcek.\n");
+   if (piece_bbs[not_turn | Pieces::KNIGHT] & Pieces::get_knight_moves(king_pos, *this)) printf("knight giving chcek.\n");
+   if (piece_bbs[not_turn | Pieces::PAWN] & Pieces::get_pawn_moves(king_pos, *this)) printf("pawn giving chcek.\n");*/
    return (piece_bbs[not_turn | Pieces::QUEEN] &
               Pieces::get_queen_moves(king_pos, *this) ||
            piece_bbs[not_turn | Pieces::ROOK] &
@@ -1080,19 +1086,19 @@ void Game::move(Move &move, bool verbose) {
    }
 
    switch_turns();
-   history.record(move, board);
+   history.record(move, zobrist_key);
 
    if (history.check_threefold_repetition()) {
       draw = true;
    } else {
 
-      TranspositionEntry & e = hasher.get_entry(zobrist_key);
+      /*TranspositionEntry & e = hasher.get_entry(zobrist_key);
       if (e.key != 0ULL) {
          wcm = e.wcm;
          bcm = e.bcm;
          draw = e.draw;
          return;
-      }
+      }*/
 
       if (no_moves_left()) {
          if (is_king_in_check()) {
@@ -1101,10 +1107,11 @@ void Game::move(Move &move, bool verbose) {
          } else {
             draw = true;
          }
+         /*
          e.key = zobrist_key;
          e.wcm = wcm;
          e.bcm = bcm;
-         e.draw = draw;
+         e.draw = draw;*/
       }
    }
 }
@@ -1116,7 +1123,7 @@ void Game::undo(bool verbose) {
 
    switch_turns();
 
-   Move move = history.pop_last_move();
+   Move move = history.pop_last_move(zobrist_key);
 
    int from = Moves::get_from(move), to = Moves::get_to(move);
    Piece piece = Moves::get_piece(move), captured = Moves::get_captured(move);

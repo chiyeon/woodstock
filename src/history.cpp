@@ -46,20 +46,43 @@ void History::remove_from_repetition_table(LogElement &log) {
 
 void History::record(Move move, Piece *board) {
    LogElement log_el = LogElement(move, board);
-   log.push_back(log_el);
+   log.push_back(move);
 
    add_to_repetition_table(log_el);
 }
 
-Move History::get_last_move() { return log.back().move; }
+void History::record(Move move, Hash zobrist_key) {
+   //LogElement log_el = LogElement(move, {});
+   log.push_back(move);
 
-Move History::pop_last_move() {
-   LogElement last_move = log.back();
+   int key = zobrist_key % HASHTABLE_SIZE;
+   RepetitionTable[key].count++;
+   RepetitionTable[key].key = zobrist_key;
+   if (RepetitionTable[key].count >= 3)
+      threefold_repetition = true;
+}
+
+Move History::pop_last_move(Hash zobrist_key) {
+   Move last_move = log.back();
    log.pop_back();
 
-   remove_from_repetition_table(last_move);
+   int key = zobrist_key % HASHTABLE_SIZE;
+   RepetitionTable[key].count--;
+   if (RepetitionTable[key].count == 2)
+      threefold_repetition = false;
 
-   return last_move.move;
+   return last_move;
+}
+
+Move History::get_last_move() { return log.back(); }
+
+Move History::pop_last_move() {
+   Move last_move = log.back();
+   log.pop_back();
+
+   //remove_from_repetition_table(last_move);
+
+   return last_move;
 }
 
 bool History::check_threefold_repetition() { return threefold_repetition; }
@@ -120,7 +143,7 @@ std::string History::get_as_pgn(std::string name, bool was_black, int result) {
       if (i % 2 == 0)
          ss << (i / 2 + 1) << ".";
 
-      Move move = log[i].move;
+      Move move = log[i];
 
       int flags = Moves::get_flags(move);
       if (flags & Moves::CASTLE) {

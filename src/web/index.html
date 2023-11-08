@@ -56,8 +56,10 @@
       }
 
       var make_ai_move;
+      var update_pgn;
 
       let board = new Chessboard("board");
+      let pgn = "";
 
       let undo_button_el = document.querySelector("#undo-button")
       let ai_button_el = document.querySelector("#ai-move-button");
@@ -123,10 +125,17 @@
          export_submit_button_el.addEventListener("click", () => {
             let name_str = name_input_el.value;
             let buffer = woodstock._malloc(name_str.length + 1);
+
             woodstock.stringToUTF8(name_str, buffer, name_str.length + 1);
-            woodstock.ccall("print_pgn", null, [], [buffer]);
+            woodstock.ccall("set_pgn", null, [], [buffer]);
             woodstock._free(buffer);
+
          })
+
+         update_pgn = (ptr, len) => {
+            pgn = woodstock.UTF8ToString(ptr, len);
+            console.log(pgn);
+         }
 
          make_ai_move = () => {
             setTimeout(() => {

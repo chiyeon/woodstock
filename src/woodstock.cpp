@@ -161,7 +161,7 @@ EM_JS(void, update_chessboard, (Piece * board_data), {
     }
 
     board.update_chessboard();
-})
+});
 
 EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char ** argv)
 {
@@ -270,9 +270,12 @@ EXTERN EMSCRIPTEN_KEEPALIVE void undo()
     }
 }
 
-EXTERN EMSCRIPTEN_KEEPALIVE void print_pgn(char * name)
+EXTERN EMSCRIPTEN_KEEPALIVE void set_pgn(char * name)
 {
-   std::cout << game.get_pgn(name, is_player_black) << std::endl;
+   char pgn[512];
+   strcpy(pgn, game.get_pgn(name, is_player_black).c_str());
+
+   EM_ASM({update_pgn($0, $1)}, pgn, strlen(pgn));
 }
 
 EXTERN EMSCRIPTEN_KEEPALIVE void switch_sides()

@@ -272,7 +272,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void undo()
 
 EXTERN EMSCRIPTEN_KEEPALIVE void print_pgn(char * name)
 {
-   printf("%s\n", game.get_pgn(name, is_player_black).c_str());
+   std::cout << game.get_pgn(name, is_player_black) << std::endl;
 }
 
 EXTERN EMSCRIPTEN_KEEPALIVE void switch_sides()

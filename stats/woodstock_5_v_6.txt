@@ -1,0 +1,9 @@
+[Event "Woodstock Test v0.7"] 
+[Site "https://chess.benjiwong.com"]
+[Date "2023.11.07"] index.js:8:37228
+[Round "1"] index.js:8:37228
+[White "Woodstock"] index.js:8:37228
+[Black "Woodstock (Depth = 5)"] index.js:8:37228
+[Result "1/2-1/2"] index.js:8:37228
+<empty string> index.js:8:37228
+1.e4 e6 2.Nc3 Nc6 3.Ngf3 Ngf6 4.a3 d5 5.Bb5 dxe4 6.Ne5 a6 7.Nxc6 Qd6 8.Na7+ Bd7 9.Bxd7+ Kxd7 10.dd3 Rxa7 11.Be3 Ra8 12.dxe4 Qxd1+ 13.Rxd1+ Kc6 14.Bf4 Nh5 15.Be5 f6 16.Bd4 e5 17.Be3 Nf4 18.Bxf4 exf4 19.Ne2 h6 20.Nxf4 Bd6 21.Nd5 bb5 22.0-0 Kb7 23.hh3 Be5 24.bb4 Re8 25.Re1 cc6 26.Rd3 cxd5 27.Rdxd5 Kbb8 28.Re3 Bc7 29.Re1 Red8 30.Rd1 R8xd5 31.Rxd5 g5 32.gg4 Kb7 33.hh4 gxh4 34.Rdh5 Re8 35.Rxh6 Rxe4 36.Rh7+ Rxg4 37.Kh1 Rc4 38.a4 Rxb4 39.axb5 Rxb5 40.Rxh4 Rb2 41.Rhh7 1/2-1/2

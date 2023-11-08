@@ -11,6 +11,8 @@ void History::clear()
       RepetitionTable[i].count = 0;
    }
 
+   threefold_repetition = false;
+
    log.clear();
 }
 

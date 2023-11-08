@@ -227,7 +227,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void click_square(int index)
                 game.move(move, true);
                 update_chessboard(game.get_board());
                 highlight_squares(Moves::get_from(move), Moves::get_to(move));
-                //EM_ASM({make_ai_move()});
+                EM_ASM({make_ai_move()});
                 break;
             }
         }
@@ -253,6 +253,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void click_square(int index)
 EXTERN EMSCRIPTEN_KEEPALIVE void load_fen(char * fen)
 {
     game.read_fen((std::string)fen);
+    EM_ASM({board.remove_highlight_squares()});
     update_chessboard(game.get_board());
 }
 
@@ -272,6 +273,20 @@ EXTERN EMSCRIPTEN_KEEPALIVE void undo()
 EXTERN EMSCRIPTEN_KEEPALIVE void print_pgn(char * name)
 {
    printf("%s\n", game.get_pgn(name, is_player_black).c_str());
+}
+
+EXTERN EMSCRIPTEN_KEEPALIVE void switch_sides()
+{
+   is_player_black = !is_player_black;
+   EM_ASM({make_ai_move()});
+}
+
+EXTERN EMSCRIPTEN_KEEPALIVE void reset_game()
+{
+   game.reset();
+   game.read_fen();
+   EM_ASM({board.remove_highlight_squares()});
+   update_chessboard(game.get_board());
 }
 
 int main()

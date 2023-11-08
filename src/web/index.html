@@ -15,16 +15,19 @@
    <main>
       <div id="board"></div>
 
-      <div id="game-export">
+      <div id="game-export" class="hidden">
          <input placeholder="Name" id="game-export-name" />
          <p>By pressing 'submit' below, you are sending a record of this chess game to me in standard PGN format. This is purely for fun and isn't required, nor does it carry any sensitive data.</p>
          <button id="game-export-button">Submit</button>
+         <button id="game-export-cancel-button">Cancel</button>
       </div>
 
       <div class="options">
          <button id="undo-button">Undo</button>
-         <button id="ai-move-button">AI Move</button>
+         <button id="ai-move-button">Switch</button>
          <button id="flip-board-button">Flip</button>
+         <button id="reset-button">Reset</button>
+         <button id="export-button">Export</button>
          <select name="theme" id="theme-select">
             <option value="john_pablok_improved" selected>John Pablok Improved</option>
             <option value="wikipedia">Wikipedia</option>
@@ -57,8 +60,11 @@
       let flip_button_el = document.querySelector("#flip-board-button");
       let load_fen_el = document.querySelector("#load-fen-button");
       let fen_input_el = document.querySelector("#fen-input");
-      let export_button_el = document.querySelector("#game-export-button");
+      let export_submit_button_el = document.querySelector("#game-export-button");
       let name_input_el = document.querySelector("#game-export-name");
+      let reset_button_el = document.querySelector("#reset-button");
+      let export_button_el = document.querySelector("#export-button");
+      let game_export_el = document.querySelector("#game-export");
 
       document.querySelector("#theme-select").addEventListener("change", (e) => {
          board.theme = e.target.value;
@@ -79,7 +85,7 @@
 
          ai_button_el.addEventListener("click", () => {
             woodstock.ccall(
-               "make_best_move", // name of C function
+               "switch_sides", // name of C function
                null, // return type
                null, // argument types
                null, // arguments
@@ -98,7 +104,19 @@
             woodstock._free(buffer);
          })
 
+         reset_button_el.addEventListener("click", () => {
+            woodstock.ccall("reset_game", null, null, null);
+         })
+
          export_button_el.addEventListener("click", () => {
+            game_export_el.classList.remove("hidden");
+         })
+
+         document.querySelector("#game-export-cancel-button").addEventListener("click", () => {
+            game_export_el.classList.add("hidden");
+         })
+
+         export_submit_button_el.addEventListener("click", () => {
             let name_str = name_input_el.value;
             let buffer = woodstock._malloc(name_str.length + 1);
             woodstock.stringToUTF8(name_str, buffer, name_str.length + 1);

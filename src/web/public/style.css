@@ -6,22 +6,36 @@ p, a, button, ul, li, h1, h2, h3, input {
    font-family: Helvetica, sans-serif;
 }
 
+#game-export.hidden {
+   display: none;
+}
+
 #game-export {
-   /*position: absolute;*/
-   max-width: 800px;
-   max-height: 600px;
-   padding: 10px;
+   z-index: 100;
+   position: absolute;
+   width: 100vw;
+   height: 100vh;
+   max-width: 100%;
+   max-height: 100%;
 
    display: flex;
    justify-content: center;
    align-items: center;
    flex-direction: column;
 
-   background-color: #0f0f0f;
+   background-color: #3f3f3f;
+   color: white;
+   left: 0;
+   top: 0;
+}
 
-   left: 50%;
-   top: 50%;
-   transform: translate(-50%, -50%);
+#game-export p {
+   max-width: 600px;
+   padding: 10px;
+}
+
+#game-export button {
+   margin-bottom: 10px;
 }
 
 #loading-hint {
@@ -169,4 +183,5 @@ button:hover, select:hover {
 .options {
    display: flex;
    gap: 10px;
+   flex-wrap: wrap;
 }

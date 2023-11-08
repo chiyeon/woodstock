@@ -11,10 +11,10 @@ This branch contains the woodstock chess engine and AI in C++, to be compiled to
 
 ### Features
 - Magic Bitboards for sliding pieces
-- Minimaxing with Alpha-Beta pruning
+- Minimaxing/Negamaxing/Negascouting with Alpha-Beta pruning
 - Playable on Browser with WebAssembly
 - Load from FEN string
+- PGN Export
 - Transposition Table with Zobrist Hashing (WIP)
 - Iterative Deepening Search (WIP)
-- UCI Compliant (TODO)
-- PGN Export (TODO)
+- UCI Compliant (WIP)

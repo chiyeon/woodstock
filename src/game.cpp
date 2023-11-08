@@ -264,7 +264,6 @@ int Game::is_square_ambiguous(int index)
    }
    return 0;
 
-   int not_turn = get_not_turn();
    int turn = get_turn();
    switch_turns();
    Bitboard pc = Pieces::get_pawn_captures(index, *this);

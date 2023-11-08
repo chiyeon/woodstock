@@ -9,18 +9,6 @@
 
 #define HASHTABLE_SIZE 16381 // uses first 14 bits
 
-// move made, and the board AFTER it was made
-struct LogElement {
-   Move move;
-   Piece board[64];
-
-   LogElement(Move _move, Piece _board[64]) : move(_move) {
-      for (int i = 0; i < 64; ++i) {
-         board[i] = _board[i];
-      }
-   }
-};
-
 struct RepetitionTableEntry {
    Hash key;
    int count;

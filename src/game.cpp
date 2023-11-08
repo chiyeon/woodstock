@@ -9,7 +9,7 @@
 
 Game::Game(std::string fen) { 
    read_fen(fen);
-   zobrist_key = hasher.get_key(board);
+   hasher.set_initial_key(board);
 }
 
 std::string Game::get_pgn(std::string name, bool was_black) {
@@ -941,6 +941,8 @@ void Game::move(Move &move, bool verbose) {
    bcm = false;
    draw = false;
 
+   hasher.update_key(move);
+
    const int from = Moves::get_from(move), to = Moves::get_to(move);
    const Piece piece = Moves::get_piece(move),
                captured = Moves::get_captured(move);
@@ -957,8 +959,10 @@ void Game::move(Move &move, bool verbose) {
    piece_bbs[turn] ^= fromto_bb;
    piece_bbs[piece] ^= fromto_bb;
 
+   /*
    zobrist_key ^= hasher.get_from_zobrist_table(from, piece);
    zobrist_key ^= hasher.get_from_zobrist_table(to, piece);
+   */
 
    /*
        game_bb |= to_bb;
@@ -972,7 +976,7 @@ void Game::move(Move &move, bool verbose) {
 
    if (captured != 0) {
       game_bb |= to_bb;
-      zobrist_key ^= hasher.get_from_zobrist_table(to, captured);
+      //zobrist_key ^= hasher.get_from_zobrist_table(to, captured);
       // piece_bbs[not_turn] ^= to_bb;
       // piece_bbs[captured] ^= to_bb;
 
@@ -996,8 +1000,6 @@ void Game::move(Move &move, bool verbose) {
       piece_bbs[not_turn] ^= ep_square_bb;
       piece_bbs[captured] ^= ep_square_bb;
       game_bb ^= ep_square_bb;
-
-      zobrist_key = hasher.get_key(board);
 
       // there was nothing in the to slot to begin with, so switch it back
       // game_bb             ^= to_bb;
@@ -1038,14 +1040,11 @@ void Game::move(Move &move, bool verbose) {
          is_blacks_turn() ? has_black_kingside_rook_moved = true
                           : has_white_kingside_rook_moved = true;
       }
-      zobrist_key = hasher.get_key(board);
       break;
    }
    case Moves::PROMOTION: {
       piece_bbs[turn | Pieces::PAWN] ^= to_bb;
       piece_bbs[piece] |= to_bb;
-
-      zobrist_key = hasher.get_key(board);
 
       //zobrist_key ^= hasher.get_from_zobrist_table(from, piece);
       //zobrist_key ^= hasher.get_from_zobrist_table(to, turn | Pieces::PAWN);
@@ -1094,7 +1093,7 @@ void Game::move(Move &move, bool verbose) {
    }
 
    switch_turns();
-   history.record(move, zobrist_key);
+   history.record(move, hasher.get_zobrist_key());
 
    if (history.check_threefold_repetition()) {
       draw = true;
@@ -1131,8 +1130,10 @@ void Game::undo(bool verbose) {
 
    switch_turns();
 
-   zobrist_key = hasher.get_key(board);
-   Move move = history.pop_last_move(zobrist_key);
+   //zobrist_key = hasher.get_key(board);
+   Move move = history.pop_last_move(hasher.get_zobrist_key());
+
+   hasher.update_key(move);
 
    int from = Moves::get_from(move), to = Moves::get_to(move);
    Piece piece = Moves::get_piece(move), captured = Moves::get_captured(move);
@@ -1149,11 +1150,12 @@ void Game::undo(bool verbose) {
    piece_bbs[turn] ^= fromto_bb;
    piece_bbs[piece] ^= fromto_bb;
 
+   /*
    zobrist_key ^= hasher.get_from_zobrist_table(to, piece);
-   zobrist_key ^= hasher.get_from_zobrist_table(from, piece);
+   zobrist_key ^= hasher.get_from_zobrist_table(from, piece);*/
 
    if (captured != 0) {
-      zobrist_key ^= hasher.get_from_zobrist_table(to, captured);
+      //zobrist_key ^= hasher.get_from_zobrist_table(to, captured);
       game_bb |= to_bb;
       piece_bbs[not_turn] |= to_bb;
       piece_bbs[captured] |= to_bb;
@@ -1184,7 +1186,6 @@ void Game::undo(bool verbose) {
          // piece_bbs[turn]         ^= to_bb;
          // piece_bbs[piece]        ^= to_bb;
          //
-         zobrist_key = hasher.get_key(board);
 
          break;
       }
@@ -1205,8 +1206,9 @@ void Game::undo(bool verbose) {
             piece_bbs[rook] ^= rook_fromto;
             game_bb ^= rook_fromto;
 
+            /*
             zobrist_key ^= hasher.get_from_zobrist_table(rook_from, rook);
-            zobrist_key ^= hasher.get_from_zobrist_table(rook_to, rook);
+            zobrist_key ^= hasher.get_from_zobrist_table(rook_to, rook);*/
 
             is_blacks_turn() ? has_black_queenside_rook_moved = false
                              : has_white_queenside_rook_moved = false;
@@ -1223,13 +1225,13 @@ void Game::undo(bool verbose) {
             piece_bbs[rook] ^= rook_fromto;
             game_bb ^= rook_fromto;
 
+            /*
             zobrist_key ^= hasher.get_from_zobrist_table(rook_from, rook);
-            zobrist_key ^= hasher.get_from_zobrist_table(rook_to, rook);
+            zobrist_key ^= hasher.get_from_zobrist_table(rook_to, rook);*/
 
             is_blacks_turn() ? has_black_kingside_rook_moved = false
                              : has_white_kingside_rook_moved = false;
          }
-         zobrist_key = hasher.get_key(board);
          break;
       }
       case Moves::PROMOTION: {
@@ -1238,7 +1240,6 @@ void Game::undo(bool verbose) {
          piece_bbs[pawn] |= from_bb;
          piece_bbs[piece] ^= to_bb;
 
-         zobrist_key = hasher.get_key(board);
 
          //zobrist_key ^= hasher.get_from_zobrist_table(from, pawn);
          //zobrist_key ^= hasher.get_from_zobrist_table(to, piece);

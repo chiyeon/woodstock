@@ -36,6 +36,8 @@ const int hashtable_size = 1128889;
 class ZobristHasher {
    TranspositionEntry *HashTable;
    Hash ZobristTable[64][12];
+   Hash ZobristSwitchSides;
+   Hash zobrist_key;
    std::map<Piece, char> piece_to_index = {
       {Pieces::WHITE | Pieces::PAWN, 0},   {Pieces::WHITE | Pieces::KNIGHT, 1},
       {Pieces::WHITE | Pieces::BISHOP, 2}, {Pieces::WHITE | Pieces::ROOK, 3},
@@ -61,9 +63,10 @@ class ZobristHasher {
             ZobristTable[i][j] = get_random_hash();
          }
       }
+      ZobristSwitchSides = get_random_hash();
    }
 
-   Hash compute_zobrist_key(Piece *board) {
+   Hash compute_initial_zobrist_key(Piece *board) {
       Hash hash = 0ULL;
 
       for (int i = 0; i < 64; ++i) {
@@ -78,6 +81,10 @@ class ZobristHasher {
    }
 
  public:
+   Hash get_zobrist_key() {
+      return zobrist_key;
+   }
+
    ZobristHasher() : HashTable(new TranspositionEntry[hashtable_size]) {
       srand(time(NULL));
       initialize_table();
@@ -88,10 +95,11 @@ class ZobristHasher {
       return ZobristTable[pos][piece];
    }
 
-   void store_entry(Hash zobrist_key, int depth, int eval, Move best_move, bool wcm, bool bcm, bool draw) {
+   void store_entry(int depth, int eval, Move best_move, bool wcm, bool bcm, bool draw) {
       HashTable[zobrist_key % hashtable_size] = TranspositionEntry(zobrist_key, depth, eval, best_move, wcm, bcm, draw);
    }
 
+   /*
    void store_entry(Piece *board, int depth, int eval, Move best_move, bool wcm,
                     bool bcm, bool draw) {
       Hash zobrist_key = compute_zobrist_key(board);
@@ -100,17 +108,90 @@ class ZobristHasher {
                                           wcm, bcm, draw);
    }
 
-   TranspositionEntry &get_entry(Piece *board) {
+   TranspositionEntry & get_entry(Piece *board) {
       Hash zobrist_key = compute_zobrist_key(board);
       int key = zobrist_key % hashtable_size;
       return HashTable[key];
-   }
+   }*/
 
-   TranspositionEntry & get_entry(Hash zobrist_key) {
+   TranspositionEntry & get_entry() {
       return HashTable[zobrist_key % hashtable_size];
    }
 
-   Hash get_key(Piece *board) { return compute_zobrist_key(board); }
+   void set_initial_key(Piece *board) { 
+      zobrist_key = compute_initial_zobrist_key(board);
+   }
+
+   void update_key(Move move) {
+      int from = Moves::get_from(move);
+      int to = Moves::get_to(move);
+      int piece = Moves::get_piece(move);
+      int captured = Moves::get_captured(move);
+      int flags = Moves::get_flags(move);
+      bool is_blacks_turn = (piece & Pieces::FILTER_COLOR) == Pieces::BLACK;
+
+      // get ou rnext that that is promotion, castle, or en passant
+      flags &= ~Moves::FIRST_MOVE;
+   
+      switch (flags) {
+         default:
+         {
+            zobrist_key ^= ZobristTable[from][piece];
+            zobrist_key ^= ZobristTable[to][piece];
+
+            if (captured != 0) {
+               zobrist_key ^= ZobristTable[to][captured];
+            }
+
+            break;
+         }
+         case Moves::EN_PASSANT:
+         {
+            int ep_square = is_blacks_turn ? to + 8 : to - 8;
+
+            zobrist_key ^= ZobristTable[from][piece];
+            zobrist_key ^= ZobristTable[to][piece];
+
+            zobrist_key ^= ZobristTable[ep_square][captured];
+            break;
+         }
+         case Moves::CASTLE:
+         {
+            zobrist_key ^= ZobristTable[from][piece];
+            zobrist_key ^= ZobristTable[to][piece];
+
+            int rook_to, rook_from;
+            Piece rook = Pieces::ROOK | (is_blacks_turn ? Pieces::BLACK : Pieces::WHITE);
+
+            if (to > from) {
+               rook_to = to - 1;
+               rook_from = to + 2;
+            } else {
+               rook_to = to + 1;
+               rook_from = to - 1;
+            }
+
+            zobrist_key ^= ZobristTable[rook_to][rook];
+            zobrist_key ^= ZobristTable[rook_from][rook];
+            break;
+         }
+
+         case Moves::PROMOTION:
+         {
+            Piece pawn = Pieces::PAWN | (piece & Pieces::FILTER_COLOR);
+            zobrist_key ^= ZobristTable[from][pawn];
+            zobrist_key ^= ZobristTable[to][piece];
+
+            if (captured != 0) {
+               zobrist_key ^= ZobristTable[to][captured];
+            }
+            break;
+         }
+      }
+
+      if (is_blacks_turn) zobrist_key ^= ZobristSwitchSides;
+      
+   }
 
    ~ZobristHasher() { delete[] HashTable; }
 };

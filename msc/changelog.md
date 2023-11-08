@@ -6,6 +6,8 @@
  - "AI Move" option changed to "Switch"
  - More accurate checkmate/endgame calculations (at cost of performance for this patch)
  - Fixed some GUI bugs
+ - Prioritizes "faster" checkmates, making Woodstock better at closing games:
+    - Previously woodstock would sometimes "stall" mate in ones if it kept seeing another checkmate one more move in the future.
 
 # Alpha 0.3
  - Continues play even if defeat is inevitable

@@ -183,6 +183,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void load_fen(char *fen) {
 EXTERN EMSCRIPTEN_KEEPALIVE void undo() {
    game.undo();
    update_chessboard(game.get_board());
+   is_player_black = !is_player_black;
 
    if (game.is_history_empty()) {
       EM_ASM({board.remove_highlight_squares()});

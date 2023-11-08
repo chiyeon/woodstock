@@ -204,6 +204,8 @@ int Game::is_square_ambiguous(int index) {
       int to = Moves::get_to(move);
       if (p == Pieces::KING)
          continue;
+      if (to != index)
+         continue;
 
       for (auto &_move : moves) {
          Piece _p = (Moves::get_piece(_move) & Pieces::FILTER_PIECE);
@@ -230,30 +232,6 @@ int Game::is_square_ambiguous(int index) {
          }
       }
    }
-   return 0;
-
-   int turn = get_turn();
-   switch_turns();
-   Bitboard pc = Pieces::get_pawn_captures(index, *this);
-
-   Bitboard boards[] = {
-      Bitboards::contains_multiple_bits(piece_bbs[turn | Pieces::ROOK] &
-                                        Pieces::get_rook_moves(index, *this)),
-      Bitboards::contains_multiple_bits(piece_bbs[turn | Pieces::KNIGHT] &
-                                        Pieces::get_knight_moves(index, *this)),
-      Bitboards::contains_multiple_bits(piece_bbs[turn | Pieces::PAWN] & pc),
-   };
-
-   switch_turns();
-
-   for (auto &board : boards) {
-      // if multiple bits, then we have an ambiguous space!
-      if (Bitboards::contains_multiple_bits(board)) {
-         // now how do we know if it is column or row
-         return 1;
-      }
-   }
-
    return 0;
 }
 

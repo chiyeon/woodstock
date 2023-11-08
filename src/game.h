@@ -37,6 +37,7 @@ class Game {
    void reset();
    MoveMasks movemasks;
    ZobristHasher hasher;
+   Hash zobrist_key; 
 
    bool draw = false;
    bool wcm = false; // white checkmate = white has checkmated black

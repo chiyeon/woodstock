@@ -84,6 +84,14 @@ class ZobristHasher {
    }
    ZobristHasher(ZobristHasher &hasher) = delete;
 
+   Hash get_from_zobrist_table(int pos, Piece piece) {
+      return ZobristTable[pos][piece];
+   }
+
+   void store_entry(Hash zobrist_key, int depth, int eval, Move best_move, bool wcm, bool bcm, bool draw) {
+      HashTable[zobrist_key % hashtable_size] = TranspositionEntry(zobrist_key, depth, eval, best_move, wcm, bcm, draw);
+   }
+
    void store_entry(Piece *board, int depth, int eval, Move best_move, bool wcm,
                     bool bcm, bool draw) {
       Hash zobrist_key = compute_zobrist_key(board);
@@ -96,6 +104,10 @@ class ZobristHasher {
       Hash zobrist_key = compute_zobrist_key(board);
       int key = zobrist_key % hashtable_size;
       return HashTable[key];
+   }
+
+   TranspositionEntry & get_entry(Hash zobrist_key) {
+      return HashTable[zobrist_key % hashtable_size];
    }
 
    Hash get_key(Piece *board) { return compute_zobrist_key(board); }

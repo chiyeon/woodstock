@@ -181,13 +181,25 @@ class Chessboard {
 
             // first animate it in, then pop it into existence
             if (this.board[index] != Piece.EMPTY) {
+               let p = this.board[index];
                if (square.innerHTML == "") {
                   let piece = document.createElement("div")
                   piece.style = "background-image: url(" + this.get_piece_image(this.board[index]) + ")";
                   piece.classList.add("piece")
+                  if ((p & Piece.FILTER_PIECE) == Piece.KING) {
+                     piece.classList.remove("checkmated", "checked", "draw");
+                     piece.classList.add((p & Piece.FILTER_COLOR) == Piece.WHITE ? "white" : "black", "king");
+                  }
                   square.appendChild(piece)
                } else {
                   square.childNodes[0].style = "background-image: url(" + this.get_piece_image(this.board[index]) + ")"
+
+                  if ((p & Piece.FILTER_PIECE) == Piece.KING) {
+                     square.childNodes[0].classList.remove("checkmated", "checked", "draw");
+                     square.childNodes[0].classList.add(((p & Piece.FILTER_COLOR) == Piece.WHITE) ? "white" : "black", "king");
+                  } else {
+                     square.childNodes[0].classList.remove("king", "white", "black", "checkmated", "checked", "draw");
+                  }
                }
             } else {
                square.innerHTML = ""

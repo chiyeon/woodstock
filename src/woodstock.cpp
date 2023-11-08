@@ -52,6 +52,17 @@ bool is_player_black = false;
 
 std::vector<Move> selected_piece_moves;
 
+void mark_checks()
+{
+   if (game.is_king_in_check()) {
+      int status = game.is_blacks_turn() ? 5 : 4; 
+      EM_ASM({set_status($0)}, status);
+
+      printf("hmm we are in check...\n");
+      game.print();
+   }
+}
+
 EM_JS(void, highlight_squares, (int sq1, int sq2),
       { board.highlight_squares(sq1, sq2); });
 
@@ -83,12 +94,6 @@ EM_JS(void, update_chessboard, (Piece * board_data), {
 
 EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char **argv) {
    if (game.is_gameover()) {
-      if (game.wcm)
-         printf("White checkmate\n");
-      else if (game.bcm)
-         printf("Black checkmate\n");
-      else if (game.draw)
-         printf("Draw\n");
       return;
    }
 
@@ -139,24 +144,14 @@ EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char **argv) {
          printf("Draw\n");
          EM_ASM({set_status(0)});
       }
-      return;
+   } else {
+      mark_checks();
    }
 }
 
 EXTERN EMSCRIPTEN_KEEPALIVE void click_square(int index) {
-   if (game.is_gameover()) {
-      if (game.wcm) {
-         printf("White checkmate\n");
-         EM_ASM({set_status(1)});
-      } else if (game.bcm) {
-         printf("Black checkmate\n");
-         EM_ASM({set_status(2)});
-      } else if (game.draw) {
-         printf("Draw\n");
-         EM_ASM({set_status(0)});
-      }
-      return;
-   }
+   
+   if (game.is_gameover()) return;
    std::vector<Move> moves = game.get_moves_at_square(index);
    int moves_size = moves.size();
 
@@ -168,10 +163,28 @@ EXTERN EMSCRIPTEN_KEEPALIVE void click_square(int index) {
             game.move(move, true);
             update_chessboard(game.get_board());
             highlight_squares(Moves::get_from(move), Moves::get_to(move));
+
+            if (game.is_gameover()) {
+               if (game.wcm) {
+                  printf("White checkmate\n");
+                  EM_ASM({set_status(1)});
+               } else if (game.bcm) {
+                  printf("Black checkmate\n");
+                  EM_ASM({set_status(2)});
+               } else if (game.draw) {
+                  printf("Draw\n");
+                  EM_ASM({set_status(0)});
+               }
+            } else {
+               mark_checks();
+            }
+
             EM_ASM({make_ai_move()});
+
             break;
          }
       }
+
    } else {
       /* USER IS HIGHLIGHTING A PIECE */
 
@@ -196,6 +209,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void load_fen(char *fen) {
    game.read_fen((std::string)fen);
    EM_ASM({board.remove_highlight_squares()});
    update_chessboard(game.get_board());
+   EM_ASM({set_status(-1)});
 }
 
 EXTERN EMSCRIPTEN_KEEPALIVE void undo() {
@@ -227,7 +241,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void switch_sides() {
 EXTERN EMSCRIPTEN_KEEPALIVE void reset_game() {
    game.reset();
    game.read_fen();
-   EM_ASM({set_status(4)});
+   EM_ASM({set_status(-1)});
    EM_ASM({board.remove_highlight_squares()});
    update_chessboard(game.get_board());
 }

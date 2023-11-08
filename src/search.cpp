@@ -16,8 +16,8 @@ void Search::swap(std::vector<int> &vec, int i, int j) {
 
 float Search::evaluate_position(Game &game, int depth) {
    float white_score = 0, black_score = 0;
-   // TranspositionEntry & e = hasher.get_entry(game.get_board());
-   // if (e.key != 0ULL) return e.eval;
+   TranspositionEntry & e = hasher.get_entry(game.zobrist_key);
+   if (e.key != 0ULL) return e.eval;
 
    if (game.wcm)
       return 1 * (9999999 + depth);
@@ -84,8 +84,11 @@ float Search::evaluate_position(Game &game, int depth) {
       }
    }
 
-   // hasher.store_entry(game.get_board(), 0, white_score - black_score, 0ULL,
-   // game.wcm || game.bcm, game.draw);
+   e.key = game.zobrist_key;
+   e.eval = white_score - black_score;
+   e.wcm = game.wcm;
+   e.bcm = game.bcm;
+   e.draw = game.draw;
 
    // mobility
    return white_score - black_score;

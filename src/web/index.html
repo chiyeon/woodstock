@@ -13,7 +13,14 @@
    </div>
    
    <main>
-      <h1 id="status"> </h1>
+      <div id="status-box" class="hidden">
+         <span class="status-background"></span>
+         
+         <div class="status-window">
+            <h1 id="status"></h1>
+            <button id="status-close-button">Close</button>
+         </div>
+      </div>
       <div id="board"></div>
 
       <div id="game-export" class="hidden">
@@ -75,6 +82,12 @@
       let export_button_el = document.querySelector("#export-button");
       let game_export_el = document.querySelector("#game-export");
       let status_el = document.querySelector("#status");
+      let status_box_el = document.querySelector("#status-box");
+      let status_close_button_el = document.querySelector("#status-close-button");
+
+      status_close_button_el.addEventListener("click", () => {
+         status_box_el.classList.add("hidden");
+      })
 
       document.querySelector("#theme-select").addEventListener("change", (e) => {
          board.theme = e.target.value;
@@ -145,15 +158,29 @@
             switch(s) {
                case 0:
                   status_el.innerHTML = "Draw.";
+                  document.querySelector(".king.black").classList.add("draw");
+                  document.querySelector(".king.white").classList.add("draw");
+                  status_box_el.classList.remove("hidden");
                   break;
                case 1:
                   status_el.innerHTML = "White Wins!";
+                  document.querySelector(".king.black").classList.add("checkmated");
+                  status_box_el.classList.remove("hidden");
                   break;
                case 2:
                   status_el.innerHTML = "Black Wins!";
+                  document.querySelector(".king.white").classList.add("checkmated");
+                  status_box_el.classList.remove("hidden");
+                  break;
+               case 4:
+                  document.querySelector(".king.white").classList.add("checked");
+                  break;
+               case 5:
+                  document.querySelector(".king.black").classList.add("checked");
                   break;
                default:
                   status_el.innerHTML = "";
+                  status_box_el.classList.add("hidden");
                   break;
             }
          }

@@ -251,7 +251,6 @@ int main() {
 #else
 
 int main() {
-
    run_perft_suite_mini();
    std::string input;
    std::cin >> input;

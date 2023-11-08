@@ -81,6 +81,8 @@ class Game {
    void move(Move &move, bool verbose = false);
    void undo(bool verbose = false);
 
+   Hash get_zobrist_key() { return hasher.get_zobrist_key(); }
+
  private:
    static std::map<char, Piece> fen_to_piece;
 };

@@ -37,6 +37,7 @@ class ZobristHasher {
    TranspositionEntry *HashTable;
    Hash ZobristTable[64][12];
    Hash ZobristSwitchSides;
+   int i,j; // these literally fix everything..
    Hash zobrist_key;
    std::map<Piece, char> piece_to_index = {
       {Pieces::WHITE | Pieces::PAWN, 0},   {Pieces::WHITE | Pieces::KNIGHT, 1},
@@ -66,7 +67,7 @@ class ZobristHasher {
       ZobristSwitchSides = get_random_hash();
    }
 
-   Hash compute_initial_zobrist_key(Piece *board) {
+   Hash compute_zobrist_key(Piece *board) {
       Hash hash = 0ULL;
 
       for (int i = 0; i < 64; ++i) {
@@ -83,6 +84,10 @@ class ZobristHasher {
  public:
    Hash get_zobrist_key() {
       return zobrist_key;
+   }
+
+   Hash calculate_zobrist_key(Piece * board) {
+      return compute_zobrist_key(board);
    }
 
    ZobristHasher() : HashTable(new TranspositionEntry[hashtable_size]) {
@@ -119,7 +124,7 @@ class ZobristHasher {
    }
 
    void set_initial_key(Piece *board) { 
-      zobrist_key = compute_initial_zobrist_key(board);
+      zobrist_key = compute_zobrist_key(board);
    }
 
    void update_key(Move move) {
@@ -171,8 +176,8 @@ class ZobristHasher {
                rook_from = to - 1;
             }
 
-            zobrist_key ^= ZobristTable[rook_to][rook];
             zobrist_key ^= ZobristTable[rook_from][rook];
+            zobrist_key ^= ZobristTable[rook_to][rook];
             break;
          }
 

@@ -38,7 +38,6 @@ Move History::pop_last_move(Hash zobrist_key) {
    log.pop_back();
    
    int table_index = zobrist_key % HASHTABLE_SIZE;
-
    
    while (RepetitionTable[table_index].key != zobrist_key) {
       table_index = (table_index + 1) % HASHTABLE_SIZE;

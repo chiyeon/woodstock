@@ -8,7 +8,7 @@ using Hash = uint64_t;
 using Piece = unsigned int;
 using Flag = unsigned int;
 using Move =
-    unsigned int; // bits used: flags, captured, piece, to, from [32 -> 1]
+   unsigned int; // bits used: flags, captured, piece, to, from [32 -> 1]
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -17,9 +17,9 @@ using Move =
 #define WOODSTOCK_VERSION 0.7
 
 struct Constants {
-  const static int BOARD_SIZE = 8;
-  const static int MAX_CHESS_MOVES_PER_POSITION = 218;
-  const static int MAX_NUM_SQUARES =
+   const static int BOARD_SIZE = 8;
+   const static int MAX_CHESS_MOVES_PER_POSITION = 218;
+   const static int MAX_NUM_SQUARES =
       27; // maximum number of moves that can be made by one piece in one turn
 };
 

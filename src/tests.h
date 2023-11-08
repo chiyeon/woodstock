@@ -2,14 +2,14 @@
 #include "timer.h"
 
 void measure(auto fn) {
-  Timer t;
-  double time_taken;
+   Timer t;
+   double time_taken;
 
-  t.start();
-  fn();
-  t.elapsedUserTime(time_taken);
+   t.start();
+   fn();
+   t.elapsedUserTime(time_taken);
 
-  printf("%fs\n", time_taken);
+   printf("%fs\n", time_taken);
 }
 
 /*

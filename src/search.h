@@ -5,18 +5,18 @@
 #include "zobrist.h"
 
 class Search {
-  // friend struct MoveComparator;
+   // friend struct MoveComparator;
 
-  constexpr static int piece_values[7] = {0, 10, 30, 32, 45, 90, 2000};
+   constexpr static int piece_values[7] = {0, 10, 30, 32, 45, 90, 2000};
 
-  constexpr static int MVV_LVA_table[7][8] = {
+   constexpr static int MVV_LVA_table[7][8] = {
       {
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
       },
       {0, 15, 14, 13, 12, 11, 10}, // victim P, attacker None, P, N, B, R, Q, K
       {0, 25, 24, 23, 22, 21, 20}, // victim N, attacker None, P, N, B, R, Q, K
@@ -24,16 +24,16 @@ class Search {
       {0, 45, 44, 43, 42, 41, 40}, // victim R, attacker None, P, N, B, R, Q, K
       {0, 55, 54, 53, 52, 51, 50}, // victim Q, attacker None, P, N, B, R, Q, K
       {0, 0, 0, 0, 0, 0, 0},       // victim K, attacker None, P, N, B, R, Q, K
-  };
+   };
 
-  constexpr static float black_pawn_table[64] = {
+   constexpr static float black_pawn_table[64] = {
       0.0,  0.0, 0.0,  0.0,  0.0, 0.0, 0.0,  0.0,  5.0, 6.0, 5.0, 5.0,  5.0,
       6.0,  5.0, 5.0,  1.0,  1.0, 2.0, 3.0,  3.0,  2.0, 1.0, 1.0, 0.5,  0.5,
       1.0,  2.5, 2.5,  1.0,  0.5, 0.5, 0.0,  0.0,  0.0, 2.0, 2.0, 0.0,  0.0,
       0.0,  0.5, -0.5, -1.0, 0.0, 0.0, -1.0, -0.5, 0.5, -2,  1.0, -1.0, -3.0,
       -2.0, 1.0, 1.0,  -1,   0.0, 0.0, 0.0,  0.0,  0.0, 0.0, 0.0, 0.0};
 
-  constexpr static float black_knight_table[64] = {
+   constexpr static float black_knight_table[64] = {
       -5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0, -4.0, -2.0, 0.0,
       0.0,  0.0,  0.0,  -2.0, -4.0, -3.0, 0.0,  1.0,  1.5,  1.5,  1.0,
       0.0,  -3.0, -3.0, 0.5,  1.5,  2.0,  2.0,  1.5,  0.5,  -3.0, -3.0,
@@ -41,7 +41,7 @@ class Search {
       1.5,  1.0,  0.5,  -3.0, -4.0, -2.0, 0.0,  0.5,  0.5,  0.0,  -2.0,
       -4.0, -5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0};
 
-  constexpr static float black_bishop_table[64] = {
+   constexpr static float black_bishop_table[64] = {
       -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0, -1.0, 0.0,  0.0,
       0.0,  0.0,  0.0,  0.0,  -1.0, -1.0, 0.0,  0.5,  1.0,  1.0,  0.5,
       0.0,  -1.0, -1.0, 0.5,  0.5,  1.0,  1.0,  0.5,  0.5,  -1.0, -1.0,
@@ -49,14 +49,14 @@ class Search {
       1.0,  1.0,  1.0,  -1.0, -1.0, 0.5,  0.0,  0.0,  0.0,  0.0,  0.5,
       -1.0, -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0};
 
-  constexpr static float black_rook_table[64] = {
+   constexpr static float black_rook_table[64] = {
       0.0,  0.0,  0.0, 0.0,  0.0, 0.0,  0.0,  0.0, 0.5,  1.0,  1.0,  1.0,  1.0,
       1.0,  1.0,  0.5, -0.5, 0.0, 0.0,  0.0,  0.0, 0.0,  0.0,  -0.5, -0.5, 0.0,
       0.0,  0.0,  0.0, 0.0,  0.0, -0.5, -0.5, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,
       -0.5, -0.5, 0.0, 0.0,  0.0, 0.0,  0.0,  0.0, -0.5, -0.5, 0.0,  0.0,  0.0,
       0.0,  0.0,  0.0, -0.5, 0.0, 0.0,  0.0,  0.5, 0.5,  0.0,  0.0,  0.0};
 
-  constexpr static float black_queen_table[64] = {
+   constexpr static float black_queen_table[64] = {
       -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0, -1.0, 0.0,  0.0,
       0.0,  0.0,  0.0,  0.0,  -1.0, -1.0, 0.0,  0.5,  0.5,  0.5,  0.5,
       0.0,  -1.0, -0.5, 0.0,  0.5,  0.5,  0.5,  0.5,  0.0,  -0.5, 0.0,
@@ -64,7 +64,7 @@ class Search {
       0.5,  0.5,  0.0,  -1.0, -1.0, 0.0,  0.5,  0.0,  0.0,  0.0,  0.0,
       -1.0, -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0};
 
-  constexpr static float black_king_table[64] = {
+   constexpr static float black_king_table[64] = {
       -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0, -3.0, -4.0, -4.0,
       -5.0, -5.0, -4.0, -4.0, -3.0, -3.0, -4.0, -4.0, -5.0, -5.0, -4.0,
       -4.0, -3.0, -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0, -2.0,
@@ -72,83 +72,83 @@ class Search {
       -2.0, -2.0, -2.0, -1.0, 2.0,  2.0,  0.0,  0.0,  0.0,  0.0,  2.0,
       2.0,  2.0,  3.0,  1.0,  0.0,  0.0,  1.0,  3.0,  2.0};
 
-  constexpr static float white_pawn_table[64] = {
+   constexpr static float white_pawn_table[64] = {
       0.0, 0.0, 0.0, 0.0, 0.0,  0.0,  0.0, 0.0, -2,   1.0,  -1.0, -3.0, -2.0,
       1.0, 1.0, -1,  0.5, -0.5, -1.0, 0.0, 0.0, -1.0, -0.5, 0.5,  0.0,  0.0,
       0.0, 2.0, 2.0, 0.0, 0.0,  0.0,  0.5, 0.5, 1.0,  2.5,  2.5,  1.0,  0.5,
       0.5, 1.0, 1.0, 2.0, 3.0,  3.0,  2.0, 1.0, 1.0,  5.0,  6.0,  5.0,  5.0,
       5.0, 6.0, 5.0, 5.0, 0.0,  0.0,  0.0, 0.0, 0.0,  0.0,  0.0,  0.0,
-  };
+   };
 
-  constexpr static float white_knight_table[64] = {
+   constexpr static float white_knight_table[64] = {
       -5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0, -4.0, -2.0, 0.0,
       0.5,  0.5,  0.0,  -2.0, -4.0, -3.0, 0.5,  1.0,  1.5,  1.5,  1.0,
       0.5,  -3.0, -3.0, 0.0,  1.5,  2.0,  2.0,  1.5,  0.0,  -3.0, -3.0,
       0.5,  1.5,  2.0,  2.0,  1.5,  0.5,  -3.0, -3.0, 0.0,  1.0,  1.5,
       1.5,  1.0,  0.0,  -3.0, -4.0, -2.0, 0.0,  0.0,  0.0,  0.0,  -2.0,
       -4.0, -5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0,
-  };
+   };
 
-  constexpr static float white_bishop_table[64] = {
+   constexpr static float white_bishop_table[64] = {
       -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0, -1.0, 0.5,  0.0,
       0.0,  0.0,  0.0,  0.5,  -1.0, -1.0, 1.0,  1.0,  1.0,  1.0,  1.0,
       1.0,  -1.0, -1.0, 0.0,  1.0,  1.0,  1.0,  1.0,  0.0,  -1.0, -1.0,
       0.5,  0.5,  1.0,  1.0,  0.5,  0.5,  -1.0, -1.0, 0.0,  0.5,  1.0,
       1.0,  0.5,  0.0,  -1.0, -1.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
       -1.0, -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0,
-  };
+   };
 
-  constexpr static float white_rook_table[64] = {
+   constexpr static float white_rook_table[64] = {
       0.0,  0.0,  0.0,  0.5,  0.5, 0.0,  0.0,  0.0, -0.5, 0.0, 0.0,  0.0,  0.0,
       0.0,  0.0,  -0.5, -0.5, 0.0, 0.0,  0.0,  0.0, 0.0,  0.0, -0.5, -0.5, 0.0,
       0.0,  0.0,  0.0,  0.0,  0.0, -0.5, -0.5, 0.0, 0.0,  0.0, 0.0,  0.0,  0.0,
       -0.5, -0.5, 0.0,  0.0,  0.0, 0.0,  0.0,  0.0, -0.5, 0.5, 1.0,  1.0,  1.0,
       1.0,  1.0,  1.0,  0.5,  0.0, 0.0,  0.0,  0.0, 0.0,  0.0, 0.0,  0.0,
-  };
+   };
 
-  constexpr static float white_queen_table[64] = {
+   constexpr static float white_queen_table[64] = {
       -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0, -1.0, 0.0,  0.5,
       0.0,  0.0,  0.0,  0.0,  -1.0, -1.0, 0.5,  0.5,  0.5,  0.5,  0.5,
       0.0,  -1.0, 0.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0,  -0.5, -0.5,
       0.0,  0.5,  0.5,  0.5,  0.5,  0.0,  -0.5, -1.0, 0.0,  0.5,  0.5,
       0.5,  0.5,  0.0,  -1.0, -1.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
       -1.0, -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0,
-  };
+   };
 
-  constexpr static float white_king_table[64] = {
+   constexpr static float white_king_table[64] = {
       2.0,  3.0,  1.0,  0.0,  0.0,  1.0,  3.0,  2.0,  2.0,  2.0,  0.0,
       0.0,  0.0,  0.0,  2.0,  2.0,  -1.0, -2.0, -2.0, -2.0, -2.0, -2.0,
       -2.0, -1.0, -2.0, -3.0, -3.0, -4.0, -4.0, -3.0, -3.0, -2.0, -3.0,
       -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0, -3.0, -4.0, -4.0, -5.0,
       -5.0, -4.0, -4.0, -3.0, -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0,
       -3.0, -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0,
-  };
+   };
 
-  Game &game;
-  ZobristHasher hasher;
-  // int alphabeta(int depth, int alpha, int beta, bool maximizing_player);
-  float alphabeta(int depth, float alpha, float beta, bool maximizing_player);
-  float negascout(int depth, float alpha, float beta);
-  float negamax(int depth, float alpha, float beta);
+   Game &game;
+   ZobristHasher hasher;
+   // int alphabeta(int depth, int alpha, int beta, bool maximizing_player);
+   float alphabeta(int depth, float alpha, float beta, bool maximizing_player);
+   float negascout(int depth, float alpha, float beta);
+   float negamax(int depth, float alpha, float beta);
 
-  std::vector<int> get_move_scores(const std::vector<Move> &moves);
-  void swap(std::vector<int> &vec, int i, int j);
+   std::vector<int> get_move_scores(const std::vector<Move> &moves);
+   void swap(std::vector<int> &vec, int i, int j);
 
-  time_t search_start_time;
-  float max_search_duration = 3.0;
-  int max_search_depth = 25;
+   time_t search_start_time;
+   float max_search_duration = 3.0;
+   int max_search_depth = 25;
 
-  bool out_of_time();
-  bool completed_search = false;
+   bool out_of_time();
+   bool completed_search = false;
 
-public:
-  Search(Game &game);
-  float evaluate_position(Game &game);
-  Move get_best_move(int depth);
-  Move get_best_move_iterative_deepening(int &depth_searched);
-  int num_positions_evaluated = 0;
+ public:
+   Search(Game &game);
+   float evaluate_position(Game &game);
+   Move get_best_move(int depth);
+   Move get_best_move_iterative_deepening(int &depth_searched);
+   int num_positions_evaluated = 0;
 
-  void start_search_timer();
+   void start_search_timer();
 };
 
 // struct MoveComparator

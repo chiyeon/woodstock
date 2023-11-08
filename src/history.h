@@ -32,10 +32,7 @@ struct RepetitionTableEntry {
 
 class History {
    RepetitionTableEntry *RepetitionTable;
-   void add_to_repetition_table(LogElement &log);
-   void remove_from_repetition_table(LogElement &log);
 
-   //std::vector<LogElement> log;
    std::vector<Move> log;
    std::map<Hash, int> hash_count;
    bool threefold_repetition = false;
@@ -45,10 +42,8 @@ class History {
 
  public:
    void clear();
-   void record(Move move, Piece *board);
    void record(Move move, Hash zobrist_hash);
    Move get_last_move();
-   Move pop_last_move();
    Move pop_last_move(Hash zobrist_hash);
    bool check_threefold_repetition();
    bool is_empty();

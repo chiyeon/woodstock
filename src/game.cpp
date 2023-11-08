@@ -997,6 +997,8 @@ void Game::move(Move &move, bool verbose) {
       piece_bbs[captured] ^= ep_square_bb;
       game_bb ^= ep_square_bb;
 
+      zobrist_key = hasher.get_key(board);
+
       // there was nothing in the to slot to begin with, so switch it back
       // game_bb             ^= to_bb;
       // piece_bbs[not_turn] ^= to_bb;
@@ -1036,11 +1038,17 @@ void Game::move(Move &move, bool verbose) {
          is_blacks_turn() ? has_black_kingside_rook_moved = true
                           : has_white_kingside_rook_moved = true;
       }
+      zobrist_key = hasher.get_key(board);
       break;
    }
    case Moves::PROMOTION: {
       piece_bbs[turn | Pieces::PAWN] ^= to_bb;
       piece_bbs[piece] |= to_bb;
+
+      zobrist_key = hasher.get_key(board);
+
+      //zobrist_key ^= hasher.get_from_zobrist_table(from, piece);
+      //zobrist_key ^= hasher.get_from_zobrist_table(to, turn | Pieces::PAWN);
       break;
    }
       // piece_bbs[Pieces::WHITE] = Bitboards::board_to_bitboard(board,
@@ -1123,6 +1131,7 @@ void Game::undo(bool verbose) {
 
    switch_turns();
 
+   zobrist_key = hasher.get_key(board);
    Move move = history.pop_last_move(zobrist_key);
 
    int from = Moves::get_from(move), to = Moves::get_to(move);
@@ -1174,6 +1183,8 @@ void Game::undo(bool verbose) {
          piece_bbs[captured] ^= to_bb;
          // piece_bbs[turn]         ^= to_bb;
          // piece_bbs[piece]        ^= to_bb;
+         //
+         zobrist_key = hasher.get_key(board);
 
          break;
       }
@@ -1218,6 +1229,7 @@ void Game::undo(bool verbose) {
             is_blacks_turn() ? has_black_kingside_rook_moved = false
                              : has_white_kingside_rook_moved = false;
          }
+         zobrist_key = hasher.get_key(board);
          break;
       }
       case Moves::PROMOTION: {
@@ -1225,6 +1237,11 @@ void Game::undo(bool verbose) {
          board[from] = pawn;
          piece_bbs[pawn] |= from_bb;
          piece_bbs[piece] ^= to_bb;
+
+         zobrist_key = hasher.get_key(board);
+
+         //zobrist_key ^= hasher.get_from_zobrist_table(from, pawn);
+         //zobrist_key ^= hasher.get_from_zobrist_table(to, piece);
          break;
       }
       case Moves::FIRST_MOVE: {

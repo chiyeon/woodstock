@@ -15,75 +15,42 @@ void History::clear() {
    log.clear();
 }
 
-void History::add_to_repetition_table(LogElement &log) {
-   Hash key = hasher.get_key(log.board);
-   int table_index = key % HASHTABLE_SIZE;
+void History::record(Move move, Hash zobrist_key) {
+   log.push_back(move);
+
+   int table_index = zobrist_key % HASHTABLE_SIZE;
 
    // find first empty space if our space is occupied
-   while (RepetitionTable[table_index].key != key &&
+   
+   while (RepetitionTable[table_index].key != zobrist_key &&
           RepetitionTable[table_index].count != 0) {
       table_index = (table_index + 1) % HASHTABLE_SIZE;
    }
 
    RepetitionTable[table_index].count++;
-   RepetitionTable[table_index].key = key;
+   RepetitionTable[table_index].key = zobrist_key;
    if (RepetitionTable[table_index].count >= 3)
-      threefold_repetition = true;
-}
-
-void History::remove_from_repetition_table(LogElement &log) {
-   Hash key = hasher.get_key(log.board);
-   int table_index = key % HASHTABLE_SIZE;
-
-   while (RepetitionTable[table_index].key != key) {
-      table_index = (table_index + 1) % HASHTABLE_SIZE;
-   }
-
-   RepetitionTable[table_index].count--;
-   if (RepetitionTable[table_index].count == 2)
-      threefold_repetition = false;
-}
-
-void History::record(Move move, Piece *board) {
-   LogElement log_el = LogElement(move, board);
-   log.push_back(move);
-
-   add_to_repetition_table(log_el);
-}
-
-void History::record(Move move, Hash zobrist_key) {
-   //LogElement log_el = LogElement(move, {});
-   log.push_back(move);
-
-   int key = zobrist_key % HASHTABLE_SIZE;
-   RepetitionTable[key].count++;
-   RepetitionTable[key].key = zobrist_key;
-   if (RepetitionTable[key].count >= 3)
       threefold_repetition = true;
 }
 
 Move History::pop_last_move(Hash zobrist_key) {
    Move last_move = log.back();
    log.pop_back();
+   
+   int table_index = zobrist_key % HASHTABLE_SIZE;
 
-   int key = zobrist_key % HASHTABLE_SIZE;
-   RepetitionTable[key].count--;
-   if (RepetitionTable[key].count == 2)
+   
+   while (RepetitionTable[table_index].key != zobrist_key) {
+      table_index = (table_index + 1) % HASHTABLE_SIZE;
+   }
+
+   RepetitionTable[table_index].count--;
+   if (RepetitionTable[table_index].count == 2)
       threefold_repetition = false;
-
    return last_move;
 }
 
 Move History::get_last_move() { return log.back(); }
-
-Move History::pop_last_move() {
-   Move last_move = log.back();
-   log.pop_back();
-
-   //remove_from_repetition_table(last_move);
-
-   return last_move;
-}
 
 bool History::check_threefold_repetition() { return threefold_repetition; }
 

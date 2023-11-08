@@ -207,7 +207,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void undo() {
       EM_ASM({board.remove_highlight_squares()});
    } else {
       Move last_move = game.get_last_move();
-// Game game("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
+      // Game game("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
       highlight_squares(Moves::get_from(last_move), Moves::get_to(last_move));
    }
 }

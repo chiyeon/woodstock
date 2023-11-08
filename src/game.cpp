@@ -1095,7 +1095,7 @@ void Game::move(Move &move, bool verbose) {
          } else {
             draw = true;
          }
-         //hasher.store_entry(board, 0, 0, 0, wcm, bcm, draw);
+         // hasher.store_entry(board, 0, 0, 0, wcm, bcm, draw);
       }
    }
 }

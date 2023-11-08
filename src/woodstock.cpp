@@ -227,6 +227,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void switch_sides() {
 EXTERN EMSCRIPTEN_KEEPALIVE void reset_game() {
    game.reset();
    game.read_fen();
+   EM_ASM({set_status(4)});
    EM_ASM({board.remove_highlight_squares()});
    update_chessboard(game.get_board());
 }

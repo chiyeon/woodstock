@@ -353,6 +353,7 @@ bool Game::is_king_in_check() {
 
 bool Game::no_moves_left() {
    //return no_moves_left;
+   /*
    Bitboard not_game_bitboard = ~game_bb;
    Bitboard ally_bitboard = piece_bbs[turn];
    Bitboard axis_bitboard = piece_bbs[not_turn];
@@ -481,9 +482,9 @@ bool Game::no_moves_left() {
          }
       }
    }
-   return true;/**/
+   return true;*/
    
-   /*
+   
    Bitboard not_game_bitboard = ~game_bb;
    Bitboard axis_bitboard = piece_bbs[not_turn];
    Bitboard ally_bitboard = piece_bbs[turn];
@@ -723,7 +724,8 @@ bool Game::no_moves_left() {
          return false; // cut us out early if any move exists
    }
 
-   return true;/**/
+   return true;/*
+   */
 }
 
 bool Game::is_gameover() { return wcm || bcm || draw; }

@@ -6,6 +6,12 @@ p, a, button, ul, li, h1, h2, h3, input {
    font-family: Helvetica, sans-serif;
 }
 
+@media screen and (max-width: 800px) {
+  .king::before {
+      font-size: 3.35vw !important;
+  }
+}
+
 .hidden {
    display: none !important;
 }

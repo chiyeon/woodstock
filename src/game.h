@@ -28,8 +28,9 @@ class Game {
    bool has_black_queenside_rook_moved = false;
    bool has_black_kingside_rook_moved = false;
 
-  // assuming we already know which squares are attacked, we can pass them in
-  // we can also calculate if squares we know shouldnt be are being attacked without it
+   // assuming we already know which squares are attacked, we can pass them in
+   // we can also calculate if squares we know shouldnt be are being attacked
+   // without it
    bool can_castle_kingside(Bitboard attacked_squares);
    bool can_castle_queenside(Bitboard attacked_squares);
    bool can_castle_kingside();
@@ -86,8 +87,8 @@ class Game {
 
    void get_moves(std::vector<Move> &moves);
    void get_moves_pseudo(std::vector<Move> &moves);
-   void move(Move &move, bool verbose = false);
-   void undo(bool verbose = false);
+   void move(Move move);
+   void undo();
 
    Hash get_zobrist_key() { return hasher.get_zobrist_key(); }
 

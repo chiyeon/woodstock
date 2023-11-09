@@ -35,17 +35,11 @@ const int hashtable_size = 1128889;
 
 class ZobristHasher {
    TranspositionEntry *HashTable;
-   Hash ZobristTable[64][23];    // size 23, but only uses 12. 23 so we can pass in Piece as Piece instead of switching. not as space conservant, but faster
+   Hash ZobristTable[64][23]; // size 23, but only uses 12. 23 so we can pass in
+                              // Piece as Piece instead of switching. not as
+                              // space conservant, but faster
    Hash ZobristSwitchSides;
    Hash zobrist_key;
-   std::map<Piece, int> piece_to_index = {
-      {Pieces::WHITE | Pieces::PAWN, 0},   {Pieces::WHITE | Pieces::KNIGHT, 1},
-      {Pieces::WHITE | Pieces::BISHOP, 2}, {Pieces::WHITE | Pieces::ROOK, 3},
-      {Pieces::WHITE | Pieces::QUEEN, 4},  {Pieces::WHITE | Pieces::KING, 5},
-      {Pieces::BLACK | Pieces::PAWN, 6},   {Pieces::BLACK | Pieces::KNIGHT, 7},
-      {Pieces::BLACK | Pieces::BISHOP, 8}, {Pieces::BLACK | Pieces::ROOK, 9},
-      {Pieces::BLACK | Pieces::QUEEN, 10}, {Pieces::BLACK | Pieces::KING, 11},
-   };
 
    Hash get_random_hash() {
       Hash u1, u2, u3, u4;
@@ -72,7 +66,6 @@ class ZobristHasher {
       for (int i = 0; i < 64; ++i) {
          Piece piece = board[i];
          if (piece != 0ULL) {
-            //int piece_index = piece_to_index[piece];
             hash ^= ZobristTable[i][piece];
          }
       }
@@ -81,7 +74,7 @@ class ZobristHasher {
    }
 
    // adjusts the current zobrist key using the position and piece given
-   void apply_to_key(int pos, Piece piece) {
+   inline void apply_to_key(int pos, Piece piece) {
       zobrist_key ^= ZobristTable[pos][piece];
    }
 

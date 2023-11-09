@@ -352,7 +352,7 @@ bool Game::is_king_in_check() {
 }
 
 bool Game::no_moves_left() {
-   //return no_moves_left;
+   // return no_moves_left;
    /*
    Bitboard not_game_bitboard = ~game_bb;
    Bitboard ally_bitboard = piece_bbs[turn];
@@ -433,7 +433,7 @@ bool Game::no_moves_left() {
                switch_turns();
                undo();
             }
-                  
+
          }
          break;
       }
@@ -451,7 +451,7 @@ bool Game::no_moves_left() {
          break;
       case Pieces::KING:
          piece_moves = Pieces::get_king_moves(pos, *this);
-         
+
          if (can_castle_kingside()) {
             return false;
          }
@@ -469,22 +469,16 @@ bool Game::no_moves_left() {
       while (piece_moves != 0ULL) {
          int target_pos = Bitboards::pop_lsb(piece_moves);
          //moves.push_back(
-         Move potential_move = Moves::create(pos, target_pos, piece, board[target_pos]);
-         move(potential_move);
-         switch_turns();
-         if (!is_king_in_check()) {
-            switch_turns();
-            undo();
-            return false;
-         } else {
+         Move potential_move = Moves::create(pos, target_pos, piece,
+   board[target_pos]); move(potential_move); switch_turns(); if
+   (!is_king_in_check()) { switch_turns(); undo(); return false; } else {
             switch_turns();
             undo();
          }
       }
    }
    return true;*/
-   
-   
+
    Bitboard not_game_bitboard = ~game_bb;
    Bitboard axis_bitboard = piece_bbs[not_turn];
    Bitboard ally_bitboard = piece_bbs[turn];
@@ -724,13 +718,13 @@ bool Game::no_moves_left() {
          return false; // cut us out early if any move exists
    }
 
-   return true;/*
-   */
+   return true; /*
+                 */
 }
 
 bool Game::is_gameover() { return wcm || bcm || draw; }
 
-void Game::get_moves_pseudo(std::vector<Move> & moves) {
+void Game::get_moves_pseudo(std::vector<Move> &moves) {
    moves.reserve(Constants::MAX_CHESS_MOVES_PER_POSITION);
 
    Bitboard not_game_bitboard = ~game_bb;
@@ -793,7 +787,7 @@ void Game::get_moves_pseudo(std::vector<Move> & moves) {
             Move potential_move =
                Moves::create(pos, target_pos, piece,
                              Moves::get_piece(last_move), Moves::EN_PASSANT);
-               moves.push_back(potential_move);
+            moves.push_back(potential_move);
          }
          break;
       }
@@ -811,7 +805,7 @@ void Game::get_moves_pseudo(std::vector<Move> & moves) {
          break;
       case Pieces::KING:
          piece_moves = Pieces::get_king_moves(pos, *this);
-         
+
          if (can_castle_kingside()) {
             Move potential_move =
                Moves::create(pos, pos - 2, piece, Pieces::EMPTY, Moves::CASTLE);
@@ -1116,18 +1110,15 @@ bool Game::can_castle_kingside(Bitboard attacked_squares) {
 }
 
 bool Game::is_square_attacked_by(int pos, Piece color) {
-   return (piece_bbs[color | Pieces::QUEEN] &
-              Pieces::get_queen_moves(pos, *this) ||
-           piece_bbs[color | Pieces::ROOK] &
-              Pieces::get_rook_moves(pos, *this) ||
-           piece_bbs[color | Pieces::BISHOP] &
-              Pieces::get_bishop_moves(pos, *this) ||
-           piece_bbs[color | Pieces::KNIGHT] &
-              Pieces::get_knight_moves(pos, *this) ||
-           piece_bbs[color | Pieces::PAWN] &
-              Pieces::get_pawn_captures(pos, *this) ||
-           piece_bbs[color | Pieces::KING] &
-              Pieces::get_king_moves(pos, *this));
+   return (
+      piece_bbs[color | Pieces::QUEEN] & Pieces::get_queen_moves(pos, *this) ||
+      piece_bbs[color | Pieces::ROOK] & Pieces::get_rook_moves(pos, *this) ||
+      piece_bbs[color | Pieces::BISHOP] &
+         Pieces::get_bishop_moves(pos, *this) ||
+      piece_bbs[color | Pieces::KNIGHT] &
+         Pieces::get_knight_moves(pos, *this) ||
+      piece_bbs[color | Pieces::PAWN] & Pieces::get_pawn_captures(pos, *this) ||
+      piece_bbs[color | Pieces::KING] & Pieces::get_king_moves(pos, *this));
 }
 
 bool Game::can_castle_kingside() {
@@ -1136,11 +1127,12 @@ bool Game::can_castle_kingside() {
          return false;
       if (Bitboards::BLACK_KINGSIDE_CASTLE_SPACES & game_bb)
          return false;
-      
+
       Bitboard i = Bitboards::BLACK_KINGSIDE_CASTLE_ATTACK_FREE;
       while (i != 0) {
          int pos = Bitboards::pop_lsb(i);
-         if (is_square_attacked_by(pos, Pieces::WHITE)) return false;
+         if (is_square_attacked_by(pos, Pieces::WHITE))
+            return false;
       }
 
       if (board[56] != (Pieces::BLACK | Pieces::ROOK))
@@ -1150,13 +1142,14 @@ bool Game::can_castle_kingside() {
          return false;
       if (Bitboards::WHITE_KINGSIDE_CASTLE_SPACES & game_bb)
          return false;
-      
+
       Bitboard i = Bitboards::WHITE_KINGSIDE_CASTLE_ATTACK_FREE;
       while (i != 0) {
          int pos = Bitboards::pop_lsb(i);
-         if (is_square_attacked_by(pos, Pieces::BLACK)) return false;
+         if (is_square_attacked_by(pos, Pieces::BLACK))
+            return false;
       }
-      
+
       if (board[0] != (Pieces::WHITE | Pieces::ROOK))
          return false;
    }
@@ -1194,11 +1187,12 @@ bool Game::can_castle_queenside() {
          return false;
       if (Bitboards::BLACK_QUEENSIDE_CASTLE_SPACES & game_bb)
          return false;
-      
+
       Bitboard i = Bitboards::BLACK_QUEENSIDE_CASTLE_ATTACK_FREE;
       while (i != 0) {
          int pos = Bitboards::pop_lsb(i);
-         if (is_square_attacked_by(pos, Pieces::WHITE)) return false;
+         if (is_square_attacked_by(pos, Pieces::WHITE))
+            return false;
       }
 
       if (board[63] != (Pieces::BLACK | Pieces::ROOK))
@@ -1208,11 +1202,12 @@ bool Game::can_castle_queenside() {
          return false;
       if (Bitboards::WHITE_QUEENSIDE_CASTLE_SPACES & game_bb)
          return false;
-      
+
       Bitboard i = Bitboards::WHITE_QUEENSIDE_CASTLE_ATTACK_FREE;
       while (i != 0) {
          int pos = Bitboards::pop_lsb(i);
-         if (is_square_attacked_by(pos, Pieces::BLACK)) return false;
+         if (is_square_attacked_by(pos, Pieces::BLACK))
+            return false;
       }
 
       if (board[7] != (Pieces::WHITE | Pieces::ROOK))
@@ -1222,7 +1217,7 @@ bool Game::can_castle_queenside() {
    return true;
 }
 
-void Game::move(Move &move, bool verbose) {
+void Game::move(Move move) {
    wcm = false;
    bcm = false;
    draw = false;
@@ -1366,7 +1361,7 @@ void Game::move(Move &move, bool verbose) {
    }
 }
 
-void Game::undo(bool verbose) {
+void Game::undo() {
    wcm = false;
    bcm = false;
    draw = false;

@@ -22,7 +22,7 @@ void run_game_simulation(int depth1, int depth2) {
 
    do {
       Move move = search.get_best_move(game.is_whites_turn() ? depth1 : depth2);
-      game.move(move, true);
+      game.move(move);
       printf("Move Made\n");
    } while (!game.is_gameover());
 
@@ -108,7 +108,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char **argv) {
       // Move best_move =
       // search.get_best_move_iterative_deepening(depth_searched);
       if (Moves::get_to(best_move) != Moves::get_from(best_move)) {
-         game.move(best_move, true);
+         game.move(best_move);
          move_exists = true;
       }
    };
@@ -157,7 +157,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void click_square(int index) {
 
       for (auto &move : selected_piece_moves) {
          if (Moves::get_to(move) == index) {
-            game.move(move, true);
+            game.move(move);
             update_chessboard(game.get_board());
             highlight_squares(Moves::get_from(move), Moves::get_to(move));
 

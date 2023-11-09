@@ -28,8 +28,12 @@ class Game {
    bool has_black_queenside_rook_moved = false;
    bool has_black_kingside_rook_moved = false;
 
+  // assuming we already know which squares are attacked, we can pass them in
+  // we can also calculate if squares we know shouldnt be are being attacked without it
    bool can_castle_kingside(Bitboard attacked_squares);
    bool can_castle_queenside(Bitboard attacked_squares);
+   bool can_castle_kingside();
+   bool can_castle_queenside();
 
    History history;
 
@@ -76,9 +80,12 @@ class Game {
    bool no_moves_left();
    bool is_gameover();
 
+   bool is_square_attacked_by(int pos, Piece color);
+
    int is_square_ambiguous(int index);
 
    void get_moves(std::vector<Move> &moves);
+   void get_moves_pseudo(std::vector<Move> &moves);
    void move(Move &move, bool verbose = false);
    void undo(bool verbose = false);
 

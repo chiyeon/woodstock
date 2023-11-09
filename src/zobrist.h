@@ -81,7 +81,7 @@ class ZobristHasher {
    }
 
    // adjusts the current zobrist key using the position and piece given
-   inline void apply_to_key(int pos, Piece piece) {
+   void apply_to_key(int pos, Piece piece) {
       zobrist_key ^= ZobristTable[pos][piece_to_index[piece]];
    }
 
@@ -107,21 +107,6 @@ class ZobristHasher {
       HashTable[zobrist_key % hashtable_size] = TranspositionEntry(
          zobrist_key, depth, eval, best_move, wcm, bcm, draw);
    }
-
-   /*
-   void store_entry(Piece *board, int depth, int eval, Move best_move, bool wcm,
-                    bool bcm, bool draw) {
-      Hash zobrist_key = compute_zobrist_key(board);
-      int key = zobrist_key % hashtable_size;
-      HashTable[key] = TranspositionEntry(zobrist_key, depth, eval, best_move,
-                                          wcm, bcm, draw);
-   }
-
-   TranspositionEntry & get_entry(Piece *board) {
-      Hash zobrist_key = compute_zobrist_key(board);
-      int key = zobrist_key % hashtable_size;
-      return HashTable[key];
-   }*/
 
    TranspositionEntry &get_entry() {
       return HashTable[zobrist_key % hashtable_size];

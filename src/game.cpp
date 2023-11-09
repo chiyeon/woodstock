@@ -243,48 +243,6 @@ Piece Game::get_turn() { return turn; }
 
 Piece Game::get_not_turn() { return not_turn; }
 
-// Bitboard Game::get_attacked_squares(Bitboard pieces_of_color)
-// {
-//     std::vector<int> piece_positions;
-//     Bitboards::bitboard_to_positions(piece_positions, pieces_of_color);
-//     Bitboard attacked_squares = 0ULL;
-
-//     for (auto & pos : piece_positions) {
-//         Piece piece = board[pos];
-
-//         // for every piece, get moves based on type
-//         switch (piece & Pieces::FILTER_PIECE) {
-//             case Pieces::PAWN:
-//                 switch_turns();
-//                 attacked_squares |= Pieces::get_pawn_captures(pos, *this);
-//                 switch_turns();
-//                 break;
-//             case Pieces::KNIGHT:
-//                 attacked_squares |= Pieces::get_knight_moves(pos, *this);
-//                 break;
-//             case Pieces::BISHOP:
-//                 attacked_squares |= Pieces::get_bishop_moves(pos, *this);
-//                 break;
-//             case Pieces::ROOK:
-//                 attacked_squares |= Pieces::get_rook_moves(pos, *this);
-//                 break;
-//             case Pieces::QUEEN:
-//                 attacked_squares |= Pieces::get_queen_moves(pos, *this);
-//                 break;
-//             case Pieces::KING:
-//                 attacked_squares |= Pieces::get_king_moves(pos, *this);
-//                 break;
-//         }
-//     }
-
-//     return attacked_squares;
-// }
-
-// Bitboard Game::get_attacked_squares_ignore_king(Bitboard pieces)
-// {
-
-// }
-
 // returns true/false if the last move made resulted in a check
 bool Game::last_move_resulted_in_check() {
    // colors are flipped because we're checking the LAST move made;
@@ -394,6 +352,138 @@ bool Game::is_king_in_check() {
 }
 
 bool Game::no_moves_left() {
+   //return no_moves_left;
+   Bitboard not_game_bitboard = ~game_bb;
+   Bitboard ally_bitboard = piece_bbs[turn];
+   Bitboard axis_bitboard = piece_bbs[not_turn];
+
+   Bitboard ally_bitboard_i = ally_bitboard;
+   while (ally_bitboard_i != 0ULL) {
+      int pos = Bitboards::pop_lsb(ally_bitboard_i);
+      Piece piece = board[pos];
+      Bitboard piece_moves = 0ULL;
+
+      // for every piece, get moves based on type
+      switch (piece & Pieces::FILTER_PIECE) {
+      case Pieces::PAWN: {
+         piece_moves = Pieces::get_pawn_moves(pos, *this) & not_game_bitboard;
+         piece_moves |= (Pieces::get_pawn_captures(pos, *this) & axis_bitboard);
+
+         // check for promotions
+         if ((piece_moves & Bitboards::ROW_1) != 0 ||
+             (piece_moves & Bitboards::ROW_8) != 0) {
+            Bitboard pm_i = piece_moves;
+            while (pm_i != 0ULL) {
+               int target_pos = Bitboards::pop_lsb(pm_i);
+               Piece captured = board[target_pos];
+
+               Piece pieces[4] = {Pieces::QUEEN | turn, Pieces::ROOK | turn,
+                                  Pieces::BISHOP | turn, Pieces::KNIGHT | turn};
+               for (int i = 0; i < 4; ++i) {
+                  Move potential_move = Moves::create(
+                     pos, target_pos, pieces[i], captured, Moves::PROMOTION);
+                  move(potential_move);
+                  switch_turns();
+                  if (!is_king_in_check()) {
+                     switch_turns();
+                     undo();
+                     return false;
+                  } else {
+                     switch_turns();
+                     undo();
+                  }
+               }
+            }
+            // any promotion pawn cant en passant, continue
+            continue;
+         }
+
+         // if first move ignore
+         if (history.is_empty())
+            break;
+         // check if we can en passant
+         // int y = pos / 8;
+         int x = pos % 8;
+         Move last_move = history.get_last_move();
+         if (
+            //((is_blacks_turn() && y == 3) || (!is_blacks_turn() && y == 4)) //
+            // our piece is in the right position
+            (Moves::get_piece(last_move) & Pieces::FILTER_PIECE) ==
+               Pieces::PAWN // enemy's last move was a double pawn jump
+            && (std::abs(Moves::get_to(last_move) - pos) == 1) &&
+            (std::abs(Moves::get_to(last_move) % 8 - x) == 1) &&
+            std::abs(Moves::get_to(last_move) - Moves::get_from(last_move)) ==
+               16) {
+            // rather than add overhead later, we can just manually add the move
+            // now
+            int target_pos = is_blacks_turn() ? Moves::get_to(last_move) - 8
+                                              : Moves::get_to(last_move) + 8;
+
+            Move potential_move =
+               Moves::create(pos, target_pos, piece,
+                             Moves::get_piece(last_move), Moves::EN_PASSANT);
+            move(potential_move);
+            switch_turns();
+            if (!is_king_in_check()) {
+               switch_turns();
+               undo();
+               return false;
+            } else {
+               switch_turns();
+               undo();
+            }
+                  
+         }
+         break;
+      }
+      case Pieces::KNIGHT:
+         piece_moves = Pieces::get_knight_moves(pos, *this);
+         break;
+      case Pieces::BISHOP:
+         piece_moves = Pieces::get_bishop_moves(pos, *this);
+         break;
+      case Pieces::ROOK:
+         piece_moves = Pieces::get_rook_moves(pos, *this);
+         break;
+      case Pieces::QUEEN:
+         piece_moves = Pieces::get_queen_moves(pos, *this);
+         break;
+      case Pieces::KING:
+         piece_moves = Pieces::get_king_moves(pos, *this);
+         
+         if (can_castle_kingside()) {
+            return false;
+         }
+
+         if (can_castle_queenside()) {
+            return false;
+         }
+         break;
+      }
+
+      // omit capture of allied pieces
+      piece_moves &= ~ally_bitboard;
+
+      // convert set bits to individual moves
+      while (piece_moves != 0ULL) {
+         int target_pos = Bitboards::pop_lsb(piece_moves);
+         //moves.push_back(
+         Move potential_move = Moves::create(pos, target_pos, piece, board[target_pos]);
+         move(potential_move);
+         switch_turns();
+         if (!is_king_in_check()) {
+            switch_turns();
+            undo();
+            return false;
+         } else {
+            switch_turns();
+            undo();
+         }
+      }
+   }
+   return true;/**/
+   
+   /*
    Bitboard not_game_bitboard = ~game_bb;
    Bitboard axis_bitboard = piece_bbs[not_turn];
    Bitboard ally_bitboard = piece_bbs[turn];
@@ -633,10 +723,118 @@ bool Game::no_moves_left() {
          return false; // cut us out early if any move exists
    }
 
-   return true;
+   return true;/**/
 }
 
 bool Game::is_gameover() { return wcm || bcm || draw; }
+
+void Game::get_moves_pseudo(std::vector<Move> & moves) {
+   moves.reserve(Constants::MAX_CHESS_MOVES_PER_POSITION);
+
+   Bitboard not_game_bitboard = ~game_bb;
+   Bitboard ally_bitboard = piece_bbs[turn];
+   Bitboard axis_bitboard = piece_bbs[not_turn];
+
+   Bitboard ally_bitboard_i = ally_bitboard;
+   while (ally_bitboard_i != 0ULL) {
+      int pos = Bitboards::pop_lsb(ally_bitboard_i);
+      Piece piece = board[pos];
+      Bitboard piece_moves = 0ULL;
+
+      // for every piece, get moves based on type
+      switch (piece & Pieces::FILTER_PIECE) {
+      case Pieces::PAWN: {
+         piece_moves = Pieces::get_pawn_moves(pos, *this) & not_game_bitboard;
+         piece_moves |= (Pieces::get_pawn_captures(pos, *this) & axis_bitboard);
+
+         // check for promotions
+         if ((piece_moves & Bitboards::ROW_1) != 0 ||
+             (piece_moves & Bitboards::ROW_8) != 0) {
+            Bitboard pm_i = piece_moves;
+            while (pm_i != 0ULL) {
+               int target_pos = Bitboards::pop_lsb(pm_i);
+               Piece captured = board[target_pos];
+
+               Piece pieces[4] = {Pieces::QUEEN | turn, Pieces::ROOK | turn,
+                                  Pieces::BISHOP | turn, Pieces::KNIGHT | turn};
+               for (int i = 0; i < 4; ++i) {
+                  Move potential_move = Moves::create(
+                     pos, target_pos, pieces[i], captured, Moves::PROMOTION);
+                  moves.push_back(potential_move);
+               }
+            }
+            // any promotion pawn cant en passant, continue
+            continue;
+         }
+
+         // if first move ignore
+         if (history.is_empty())
+            break;
+         // check if we can en passant
+         // int y = pos / 8;
+         int x = pos % 8;
+         Move last_move = history.get_last_move();
+         if (
+            //((is_blacks_turn() && y == 3) || (!is_blacks_turn() && y == 4)) //
+            // our piece is in the right position
+            (Moves::get_piece(last_move) & Pieces::FILTER_PIECE) ==
+               Pieces::PAWN // enemy's last move was a double pawn jump
+            && (std::abs(Moves::get_to(last_move) - pos) == 1) &&
+            (std::abs(Moves::get_to(last_move) % 8 - x) == 1) &&
+            std::abs(Moves::get_to(last_move) - Moves::get_from(last_move)) ==
+               16) {
+            // rather than add overhead later, we can just manually add the move
+            // now
+            int target_pos = is_blacks_turn() ? Moves::get_to(last_move) - 8
+                                              : Moves::get_to(last_move) + 8;
+
+            Move potential_move =
+               Moves::create(pos, target_pos, piece,
+                             Moves::get_piece(last_move), Moves::EN_PASSANT);
+               moves.push_back(potential_move);
+         }
+         break;
+      }
+      case Pieces::KNIGHT:
+         piece_moves = Pieces::get_knight_moves(pos, *this);
+         break;
+      case Pieces::BISHOP:
+         piece_moves = Pieces::get_bishop_moves(pos, *this);
+         break;
+      case Pieces::ROOK:
+         piece_moves = Pieces::get_rook_moves(pos, *this);
+         break;
+      case Pieces::QUEEN:
+         piece_moves = Pieces::get_queen_moves(pos, *this);
+         break;
+      case Pieces::KING:
+         piece_moves = Pieces::get_king_moves(pos, *this);
+         
+         if (can_castle_kingside()) {
+            Move potential_move =
+               Moves::create(pos, pos - 2, piece, Pieces::EMPTY, Moves::CASTLE);
+            moves.push_back(potential_move);
+         }
+
+         if (can_castle_queenside()) {
+            Move potential_move =
+               Moves::create(pos, pos + 2, piece, Pieces::EMPTY, Moves::CASTLE);
+            moves.push_back(potential_move);
+         }
+         break;
+      }
+
+      // omit capture of allied pieces
+      piece_moves &= ~ally_bitboard;
+
+      // convert set bits to individual moves
+      while (piece_moves != 0ULL) {
+         int target_pos = Bitboards::pop_lsb(piece_moves);
+         moves.push_back(
+            Moves::create(pos, target_pos, piece, board[target_pos]));
+      }
+   }
+}
 
 void Game::get_moves(std::vector<Move> &moves) {
    moves.reserve(Constants::MAX_CHESS_MOVES_PER_POSITION);
@@ -915,6 +1113,55 @@ bool Game::can_castle_kingside(Bitboard attacked_squares) {
    return true;
 }
 
+bool Game::is_square_attacked_by(int pos, Piece color) {
+   return (piece_bbs[color | Pieces::QUEEN] &
+              Pieces::get_queen_moves(pos, *this) ||
+           piece_bbs[color | Pieces::ROOK] &
+              Pieces::get_rook_moves(pos, *this) ||
+           piece_bbs[color | Pieces::BISHOP] &
+              Pieces::get_bishop_moves(pos, *this) ||
+           piece_bbs[color | Pieces::KNIGHT] &
+              Pieces::get_knight_moves(pos, *this) ||
+           piece_bbs[color | Pieces::PAWN] &
+              Pieces::get_pawn_captures(pos, *this) ||
+           piece_bbs[color | Pieces::KING] &
+              Pieces::get_king_moves(pos, *this));
+}
+
+bool Game::can_castle_kingside() {
+   if (is_blacks_turn()) {
+      if (has_black_king_moved || has_black_kingside_rook_moved)
+         return false;
+      if (Bitboards::BLACK_KINGSIDE_CASTLE_SPACES & game_bb)
+         return false;
+      
+      Bitboard i = Bitboards::BLACK_KINGSIDE_CASTLE_ATTACK_FREE;
+      while (i != 0) {
+         int pos = Bitboards::pop_lsb(i);
+         if (is_square_attacked_by(pos, Pieces::WHITE)) return false;
+      }
+
+      if (board[56] != (Pieces::BLACK | Pieces::ROOK))
+         return false; // maybe unneeded?
+   } else {
+      if (has_white_king_moved || has_white_kingside_rook_moved)
+         return false;
+      if (Bitboards::WHITE_KINGSIDE_CASTLE_SPACES & game_bb)
+         return false;
+      
+      Bitboard i = Bitboards::WHITE_KINGSIDE_CASTLE_ATTACK_FREE;
+      while (i != 0) {
+         int pos = Bitboards::pop_lsb(i);
+         if (is_square_attacked_by(pos, Pieces::BLACK)) return false;
+      }
+      
+      if (board[0] != (Pieces::WHITE | Pieces::ROOK))
+         return false;
+   }
+
+   return true;
+}
+
 bool Game::can_castle_queenside(Bitboard attacked_squares) {
    if (is_blacks_turn()) {
       if (has_black_king_moved || has_black_queenside_rook_moved)
@@ -932,6 +1179,40 @@ bool Game::can_castle_queenside(Bitboard attacked_squares) {
          return false;
       if (Bitboards::WHITE_QUEENSIDE_CASTLE_ATTACK_FREE & attacked_squares)
          return false;
+      if (board[7] != (Pieces::WHITE | Pieces::ROOK))
+         return false;
+   }
+
+   return true;
+}
+
+bool Game::can_castle_queenside() {
+   if (is_blacks_turn()) {
+      if (has_black_king_moved || has_black_queenside_rook_moved)
+         return false;
+      if (Bitboards::BLACK_QUEENSIDE_CASTLE_SPACES & game_bb)
+         return false;
+      
+      Bitboard i = Bitboards::BLACK_QUEENSIDE_CASTLE_ATTACK_FREE;
+      while (i != 0) {
+         int pos = Bitboards::pop_lsb(i);
+         if (is_square_attacked_by(pos, Pieces::WHITE)) return false;
+      }
+
+      if (board[63] != (Pieces::BLACK | Pieces::ROOK))
+         return false; // maybe unneeded?
+   } else {
+      if (has_white_king_moved || has_white_queenside_rook_moved)
+         return false;
+      if (Bitboards::WHITE_QUEENSIDE_CASTLE_SPACES & game_bb)
+         return false;
+      
+      Bitboard i = Bitboards::WHITE_QUEENSIDE_CASTLE_ATTACK_FREE;
+      while (i != 0) {
+         int pos = Bitboards::pop_lsb(i);
+         if (is_square_attacked_by(pos, Pieces::BLACK)) return false;
+      }
+
       if (board[7] != (Pieces::WHITE | Pieces::ROOK))
          return false;
    }

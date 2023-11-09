@@ -210,15 +210,18 @@ EXTERN EMSCRIPTEN_KEEPALIVE void load_fen(char *fen) {
 }
 
 EXTERN EMSCRIPTEN_KEEPALIVE void undo() {
+
+   if (!game.get_history().at_least_2_moves()) return;
+   if (game.is_blacks_turn() != is_player_black) return;
+
+   game.undo();
    game.undo();
    update_chessboard(game.get_board());
-   is_player_black = !is_player_black;
 
    if (game.is_history_empty()) {
       EM_ASM({board.remove_highlight_squares()});
    } else {
       Move last_move = game.get_last_move();
-      // Game game("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
       highlight_squares(Moves::get_from(last_move), Moves::get_to(last_move));
    }
 }

@@ -35,6 +35,7 @@ class History {
    Move pop_last_move(Hash zobrist_hash);
    bool check_threefold_repetition();
    bool is_empty();
+   bool at_least_2_moves() { return log.size() >= 2; }
 
    std::string get_as_pgn(std::string name, bool was_black, int result,
                           std::string starting_fen);

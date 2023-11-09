@@ -1,6 +1,6 @@
 # Alpha 0.7 
 Overall, v0.7 of Woodstock brings foundational changes important for future steps (Fully working transposition table & iterative deepening) as well as fixes to essential systems. This update updates the visuals of the game, making the interface more usable and communicating checks and end of game states better.
- - More accurate checkmate/draw evaluations 
+ - More accurate & faster checkmate/draw evaluations 
  - Prioritizes "faster" checkmates, making Woodstock better at closing games:
     - Previously woodstock would sometimes "stall" mate in ones if it kept seeing another checkmate one more move in the future.
  - Zobrist hashing is now incremental, vastly increasing performance
@@ -11,6 +11,8 @@ Overall, v0.7 of Woodstock brings foundational changes important for future step
     - Games can now be exported to PGN format
  - Options menu wraps properly based on resolution
  - "AI Move" option changed to "Switch"
+ - "Undo" button now undos bot move + player move rather than only undoing one and switching sides
+ - "Undo" button doesn't break when pressed with no previous moves
  - Fixed some GUI bugs
  - Added Check notification
  - Added Checkmate and Draw notification as well as windows that alert the closing of a game

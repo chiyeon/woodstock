@@ -65,8 +65,8 @@ std::string History::get_date() {
    return buf;
 }
 
-std::string History::get_as_pgn(std::string name, bool was_black, int result) {
-   Game g; // game to simulate
+std::string History::get_as_pgn(std::string name, bool was_black, int result, std::string starting_fen) {
+   Game g(starting_fen); // game to simulate
    std::string str_res;
    switch (result) {
    case 0:
@@ -117,6 +117,7 @@ std::string History::get_as_pgn(std::string name, bool was_black, int result) {
             ss << "0-0-0";
          else
             ss << "0-0";
+         g.move(move);
       } else {
 
          // check ambiguity

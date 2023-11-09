@@ -17,7 +17,7 @@ std::string Game::get_pgn(std::string name, bool was_black) {
       result = 1;
    if (bcm)
       result = 2;
-   return history.get_as_pgn(name, was_black, result);
+   return history.get_as_pgn(name, was_black, result, starting_fen);
 }
 
 void Game::reset() {
@@ -38,6 +38,7 @@ void Game::reset() {
 
 void Game::read_fen(std::string fen) {
    reset();
+   starting_fen = fen;
    std::istringstream ss(fen);
 
    std::string next;
@@ -205,7 +206,7 @@ int Game::is_square_ambiguous(int index) {
    get_moves(moves);
 
    for (auto &move : moves) {
-      Piece p = (Moves::get_piece(move) & Pieces::FILTER_PIECE);
+      Piece p = Moves::get_piece(move);
       int to = Moves::get_to(move);
       if (p == Pieces::KING)
          continue;
@@ -213,7 +214,7 @@ int Game::is_square_ambiguous(int index) {
          continue;
 
       for (auto &_move : moves) {
-         Piece _p = (Moves::get_piece(_move) & Pieces::FILTER_PIECE);
+         Piece _p = Moves::get_piece(_move);
          if (p != _p)
             continue; // only check moves of same piece
          if (move == _move)
@@ -222,6 +223,8 @@ int Game::is_square_ambiguous(int index) {
          int _to = Moves::get_to(_move);
 
          if (to == _to) {
+            printf("we have acollision! ");
+            printf("%s and %s\n", Utils::move_to_lan(move).c_str(), Utils::move_to_lan(_move).c_str());
             // we have a collision!
             // check if we are on same row or same column
 

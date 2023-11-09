@@ -38,6 +38,7 @@ class Game {
    MoveMasks movemasks;
    ZobristHasher hasher;
 
+   std::string starting_fen;
    bool draw = false;
    bool wcm = false; // white checkmate = white has checkmated black
    bool bcm = false; // black checkmate = black has checkmated white

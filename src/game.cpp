@@ -223,8 +223,6 @@ int Game::is_square_ambiguous(int index) {
          int _to = Moves::get_to(_move);
 
          if (to == _to) {
-            printf("we have acollision! ");
-            printf("%s and %s\n", Utils::move_to_lan(move).c_str(), Utils::move_to_lan(_move).c_str());
             // we have a collision!
             // check if we are on same row or same column
 

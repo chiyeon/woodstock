@@ -3,3 +3,4 @@ build/
 .vscode
 .firebase
 .firebaserc
+firebase.json

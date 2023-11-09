@@ -1,5 +1,7 @@
 > **Woodstock is a work in progress! Expect issues.**
 
+[You can play against Woodstock here.](https://chess.benjiwong.com)
+
 # About
 This branch contains the woodstock chess engine and AI in C++, to be compiled to web assembly for running in the browser.
 

@@ -52,10 +52,9 @@ bool is_player_black = false;
 
 std::vector<Move> selected_piece_moves;
 
-void mark_checks()
-{
+void mark_checks() {
    if (game.is_king_in_check()) {
-      int status = game.is_blacks_turn() ? 5 : 4; 
+      int status = game.is_blacks_turn() ? 5 : 4;
       EM_ASM({set_status($0)}, status);
    }
 }
@@ -147,8 +146,9 @@ EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char **argv) {
 }
 
 EXTERN EMSCRIPTEN_KEEPALIVE void click_square(int index) {
-   
-   if (game.is_gameover()) return;
+
+   if (game.is_gameover())
+      return;
    std::vector<Move> moves = game.get_moves_at_square(index);
    int moves_size = moves.size();
 

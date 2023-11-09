@@ -36,7 +36,8 @@ class History {
    bool check_threefold_repetition();
    bool is_empty();
 
-   std::string get_as_pgn(std::string name, bool was_black, int result, std::string starting_fen);
+   std::string get_as_pgn(std::string name, bool was_black, int result,
+                          std::string starting_fen);
 
    History(History &h) = delete;
    History() : RepetitionTable(new RepetitionTableEntry[HASHTABLE_SIZE]) {

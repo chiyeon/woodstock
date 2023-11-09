@@ -86,11 +86,9 @@ class ZobristHasher {
    }
 
  public:
-   Hash get_zobrist_key() {
-      return zobrist_key;
-   }
+   Hash get_zobrist_key() { return zobrist_key; }
 
-   Hash calculate_zobrist_key(Piece * board) {
+   Hash calculate_zobrist_key(Piece *board) {
       return compute_zobrist_key(board);
    }
 
@@ -104,8 +102,10 @@ class ZobristHasher {
       return ZobristTable[pos][piece_to_index[piece]];
    }
 
-   void store_entry(int depth, int eval, Move best_move, bool wcm, bool bcm, bool draw) {
-      HashTable[zobrist_key % hashtable_size] = TranspositionEntry(zobrist_key, depth, eval, best_move, wcm, bcm, draw);
+   void store_entry(int depth, int eval, Move best_move, bool wcm, bool bcm,
+                    bool draw) {
+      HashTable[zobrist_key % hashtable_size] = TranspositionEntry(
+         zobrist_key, depth, eval, best_move, wcm, bcm, draw);
    }
 
    /*
@@ -123,11 +123,11 @@ class ZobristHasher {
       return HashTable[key];
    }*/
 
-   TranspositionEntry & get_entry() {
+   TranspositionEntry &get_entry() {
       return HashTable[zobrist_key % hashtable_size];
    }
 
-   void set_initial_key(Piece *board) { 
+   void set_initial_key(Piece *board) {
       zobrist_key = compute_zobrist_key(board);
    }
 
@@ -141,64 +141,61 @@ class ZobristHasher {
 
       // get ou rnext that that is promotion, castle, or en passant
       flags &= ~Moves::FIRST_MOVE;
-   
+
       switch (flags) {
-         default:
-         {
-            apply_to_key(from, piece);
-            apply_to_key(to, piece);
+      default: {
+         apply_to_key(from, piece);
+         apply_to_key(to, piece);
 
-            if (captured != 0) {
-               apply_to_key(to, captured);
-            }
-
-            break;
-         }
-         case Moves::EN_PASSANT:
-         {
-            int ep_square = is_blacks_turn ? to + 8 : to - 8;
-
-            apply_to_key(from, piece);
-            apply_to_key(to, piece);
-            apply_to_key(ep_square, captured);
-            break;
-         }
-         case Moves::CASTLE:
-         {
-            apply_to_key(from, piece);
-            apply_to_key(to, piece);
-
-            int rook_to, rook_from;
-            Piece rook = Pieces::ROOK | (is_blacks_turn ? Pieces::BLACK : Pieces::WHITE);
-
-            if (to > from) {
-               rook_to = to - 1;
-               rook_from = to + 2;
-            } else {
-               rook_to = to + 1;
-               rook_from = to - 1;
-            }
-
-            apply_to_key(rook_from, rook);
-            apply_to_key(rook_to, rook);
-            break;
+         if (captured != 0) {
+            apply_to_key(to, captured);
          }
 
-         case Moves::PROMOTION:
-         {
-            Piece pawn = Pieces::PAWN | (piece & Pieces::FILTER_COLOR);
-            apply_to_key(from, pawn);
-            apply_to_key(to, piece);
+         break;
+      }
+      case Moves::EN_PASSANT: {
+         int ep_square = is_blacks_turn ? to + 8 : to - 8;
 
-            if (captured != 0) {
-               apply_to_key(to, captured);
-            }
-            break;
+         apply_to_key(from, piece);
+         apply_to_key(to, piece);
+         apply_to_key(ep_square, captured);
+         break;
+      }
+      case Moves::CASTLE: {
+         apply_to_key(from, piece);
+         apply_to_key(to, piece);
+
+         int rook_to, rook_from;
+         Piece rook =
+            Pieces::ROOK | (is_blacks_turn ? Pieces::BLACK : Pieces::WHITE);
+
+         if (to > from) {
+            rook_to = to - 1;
+            rook_from = to + 2;
+         } else {
+            rook_to = to + 1;
+            rook_from = to - 1;
          }
+
+         apply_to_key(rook_from, rook);
+         apply_to_key(rook_to, rook);
+         break;
       }
 
-      if (is_blacks_turn) zobrist_key ^= ZobristSwitchSides;
-      
+      case Moves::PROMOTION: {
+         Piece pawn = Pieces::PAWN | (piece & Pieces::FILTER_COLOR);
+         apply_to_key(from, pawn);
+         apply_to_key(to, piece);
+
+         if (captured != 0) {
+            apply_to_key(to, captured);
+         }
+         break;
+      }
+      }
+
+      if (is_blacks_turn)
+         zobrist_key ^= ZobristSwitchSides;
    }
 
    ~ZobristHasher() { delete[] HashTable; }

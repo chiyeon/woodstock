@@ -7,9 +7,7 @@
 #include <stdio.h>
 #include <vector>
 
-Game::Game(std::string fen) { 
-   read_fen(fen);
-}
+Game::Game(std::string fen) { read_fen(fen); }
 
 std::string Game::get_pgn(std::string name, bool was_black) {
    int result = 0;
@@ -391,8 +389,8 @@ bool Game::is_king_in_check() {
               Pieces::get_knight_moves(king_pos, *this) ||
            piece_bbs[not_turn | Pieces::PAWN] &
               Pieces::get_pawn_captures(king_pos, *this) ||
-            piece_bbs[not_turn | Pieces::KING] &
-               Pieces::get_king_moves(king_pos, *this));
+           piece_bbs[not_turn | Pieces::KING] &
+              Pieces::get_king_moves(king_pos, *this));
 }
 
 bool Game::no_moves_left() {

@@ -21,7 +21,7 @@ void History::record(Move move, Hash zobrist_key) {
    int table_index = zobrist_key % HASHTABLE_SIZE;
 
    // find first empty space if our space is occupied
-   
+
    while (RepetitionTable[table_index].key != zobrist_key &&
           RepetitionTable[table_index].count != 0) {
       table_index = (table_index + 1) % HASHTABLE_SIZE;
@@ -36,9 +36,9 @@ void History::record(Move move, Hash zobrist_key) {
 Move History::pop_last_move(Hash zobrist_key) {
    Move last_move = log.back();
    log.pop_back();
-   
+
    int table_index = zobrist_key % HASHTABLE_SIZE;
-   
+
    while (RepetitionTable[table_index].key != zobrist_key) {
       table_index = (table_index + 1) % HASHTABLE_SIZE;
    }
@@ -65,7 +65,8 @@ std::string History::get_date() {
    return buf;
 }
 
-std::string History::get_as_pgn(std::string name, bool was_black, int result, std::string starting_fen) {
+std::string History::get_as_pgn(std::string name, bool was_black, int result,
+                                std::string starting_fen) {
    Game g(starting_fen); // game to simulate
    std::string str_res;
    switch (result) {

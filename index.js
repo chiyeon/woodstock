@@ -24,7 +24,21 @@ app.use(body_parser.json())
 
 app.post("/upload", async (req, res) => {
    let pgn = req.body.pgn;
-   await set_doc("games", "sldkfj", {"pgn": pgn})
+   let name = req.body.name;
+   let id = Math.floor(Math.random() * 1000)
+
+   let today = new Date()
+   let dd = String(today.getDate()).padStart(2, '0');
+   let mm = String(today.getMonth() + 1).padStart(2, '0');
+   let yyyy = today.getFullYear();
+
+   let date = `${mm}-${dd}-${yyyy}`
+
+   await set_doc("games", `${name}_${date}_${id}`, {
+      "pgn": pgn,
+      "name": name,
+      "date": date
+   })
 })
 
 server.listen(PORT, async () => {

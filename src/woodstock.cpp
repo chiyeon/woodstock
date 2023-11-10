@@ -28,11 +28,11 @@ void run_game_simulation(int depth1, int depth2) {
    game.print();
 
    if (game.bcm) {
-       printf("Black wins!\n");
+      printf("Black wins!\n");
    } else if (game.wcm) {
-       printf("White wins!\n");
+      printf("White wins!\n");
    } else {
-       printf("Draw.\n");
+      printf("Draw.\n");
    }
 }
 
@@ -210,8 +210,10 @@ EXTERN EMSCRIPTEN_KEEPALIVE void load_fen(char *fen) {
 
 EXTERN EMSCRIPTEN_KEEPALIVE void undo() {
 
-   if (!game.get_history().at_least_2_moves()) return;
-   if (game.is_blacks_turn() != is_player_black) return;
+   if (!game.get_history().at_least_2_moves())
+      return;
+   if (game.is_blacks_turn() != is_player_black)
+      return;
 
    game.undo();
    game.undo();

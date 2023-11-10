@@ -23,18 +23,17 @@ void run_game_simulation(int depth1, int depth2) {
    do {
       Move move = search.get_best_move(game.is_whites_turn() ? depth1 : depth2);
       game.move(move);
-      printf("Move Made\n");
    } while (!game.is_gameover());
 
    game.print();
 
-   // if (game.bcm) {
-   //     printf("Black wins!\n");
-   // } else if (game.wcm) {
-   //     printf("White wins!\n");
-   // } else {
-   //     printf("Draw.\n");
-   // }
+   if (game.bcm) {
+       printf("Black wins!\n");
+   } else if (game.wcm) {
+       printf("White wins!\n");
+   } else {
+       printf("Draw.\n");
+   }
 }
 
 #ifdef EMSCRIPTEN
@@ -254,6 +253,10 @@ int main() {
 #else
 
 int main() {
+
+   run_game_simulation(6, 3);
+   return 0;
+
    run_perft_suite_mini();
    std::string input;
    std::cin >> input;

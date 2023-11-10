@@ -4,3 +4,6 @@ build/
 .firebase
 .firebaserc
 firebase.json
+.env
+package-lock.json
+node_modules/

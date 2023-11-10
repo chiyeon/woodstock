@@ -1,0 +1,26 @@
+{
+  "name": "pgn-server",
+  "version": "1.0.0",
+  "description": "This branch contains the web server that takes and records PGNs.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chiyeon/woodstock.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chiyeon/woodstock/issues"
+  },
+  "homepage": "https://github.com/chiyeon/woodstock#readme",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "firebase": "^10.6.0"
+  }
+}

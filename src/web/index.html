@@ -24,10 +24,20 @@
       <div id="board"></div>
 
       <div id="game-export" class="hidden">
-         <input placeholder="Name" id="game-export-name" />
-         <p>By pressing 'submit' below, you are sending a record of this chess game to me in standard PGN format. This is purely for fun and isn't required, nor does it carry any sensitive data.</p>
-         <button id="game-export-button">Submit</button>
-         <button id="game-export-cancel-button">Cancel</button>
+         <div class="form">
+            <label for="game-export-name">Your Name</label>
+            <input placeholder="Santa Clause" id="game-export-name" />
+            <br />
+            <!--label for="game-export-title">Title</label>
+            <input placeholder="N. Pole Battle" id="game-export-title" /-->
+         </div>
+         <p>By pressing 'Submit' below, you are sending a record of this chess game to me in standard PGN format. This is purely for fun and isn't required, nor does it carry any sensitive data. If you want a PGN WITHOUT sending anything, just press 'Generate' below.</p>
+         <div class="buttons">
+            <button id="game-export-cancel-button" class="unimportant">Cancel</button>
+            <button id="game-export-generate-button" class="unimportant" onclick="generate()">Generate</button>
+            <button id="game-export-button">Submit</button>
+         </div>
+         <p id="pgn">Your PGN will be written here!</p>
       </div>
 
       <div class="options">
@@ -68,6 +78,8 @@
       var update_pgn;
       var set_status;
 
+      var generate;
+
       let board = new Chessboard("board");
       let pgn = "";
 
@@ -84,6 +96,9 @@
       let status_el = document.querySelector("#status");
       let status_box_el = document.querySelector("#status-box");
       let status_close_button_el = document.querySelector("#status-close-button");
+      let pgn_el = document.querySelector("#pgn");
+
+      let upload_after = false; // upload after we're done getting pgn
 
       status_close_button_el.addEventListener("click", () => {
          status_box_el.classList.add("hidden");
@@ -96,6 +111,15 @@
 
       document.addEventListener("DOMContentLoaded", async () => {
          const woodstock = await WoodstockModule();
+
+         generate = () => {
+            if (pgn == "") {
+               pgn_el.textContent = "Loading PGN...";
+               setTimeout(() => {
+                  call_set_pgn();
+               }, 10);
+            }
+         }
 
          undo_button_el.addEventListener("click", () => {
             woodstock.ccall(
@@ -132,26 +156,47 @@
          })
 
          export_button_el.addEventListener("click", () => {
+            pgn = "";
+            pgn_el.textContent = "Your PGN will be written here!"
             game_export_el.classList.remove("hidden");
+            console.log("uh");
          })
 
          document.querySelector("#game-export-cancel-button").addEventListener("click", () => {
             game_export_el.classList.add("hidden");
          })
 
-         export_submit_button_el.addEventListener("click", () => {
+         call_set_pgn = () => {
             let name_str = name_input_el.value;
             let buffer = woodstock._malloc(name_str.length + 1);
 
             woodstock.stringToUTF8(name_str, buffer, name_str.length + 1);
             woodstock.ccall("set_pgn", null, [], [buffer]);
             woodstock._free(buffer);
+         }
 
+         export_submit_button_el.addEventListener("click", () => {
+            if (pgn == "") {
+               pgn_el.textContent = "Loading PGN...";
+               setTimeout(() => { call_set_pgn() }, 10);
+               upload_after = true;
+            } else {
+               upload_pgn()
+            }
          })
 
          update_pgn = (ptr, len) => {
             pgn = woodstock.UTF8ToString(ptr, len);
             console.log(pgn);
+            pgn_el.textContent = pgn;
+
+            if (upload_after) {
+               upload_pgn();
+            }
+         }
+
+         upload_pgn = () => {
+            console.log("puloading pgn");
          }
 
          set_status = (s) => {

@@ -2,7 +2,7 @@ body {
    background-color: #272827;
 }
 
-p, a, button, ul, li, h1, h2, h3, input {
+p, a, button, ul, li, h1, h2, h3, input, label {
    font-family: Helvetica, sans-serif;
 }
 
@@ -10,6 +10,34 @@ p, a, button, ul, li, h1, h2, h3, input {
   .king::before {
       font-size: 3.35vw !important;
   }
+}
+
+button.unimportant {
+   background-color: #5b5b5b;
+}
+
+button.unimportant:hover {
+   background-color: #2d2d2d;
+}
+
+.form {
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+}
+
+.form label {
+   margin-top: 20px;
+   margin-bottom: 10px;
+   margin-right: auto;
+
+   color: #e5e5e5;
+}
+
+.buttons {
+   display: flex;
+   gap: 10px;
 }
 
 .hidden {
@@ -62,11 +90,33 @@ p, a, button, ul, li, h1, h2, h3, input {
    display: none;
 }
 
-#game-export {
-   z-index: 100;
+#game-export::before {
    position: fixed;
    width: 100vw;
    height: 100vh;
+   background-color: #3f3f3f;
+   left: 0;
+   top: 0;
+   z-index: -1;
+   content: "";
+}
+
+#pgn {
+   max-width: 450px !important;
+   padding: 15px !important;
+   background-color: #2f2f2f;
+   border-radius: 10px;
+   border: 2px solid gray;
+   width: 100%;
+   white-space: pre-line;
+   line-height: 25px;
+}
+
+#game-export {
+   z-index: 100;
+   position: absolute;
+   width: 100vw;
+   height: 100%;
    max-width: 100%;
    max-height: 100%;
 
@@ -75,7 +125,6 @@ p, a, button, ul, li, h1, h2, h3, input {
    align-items: center;
    flex-direction: column;
 
-   background-color: #3f3f3f;
    color: white;
    left: 0;
    top: 0;

@@ -33,27 +33,27 @@
          </div>
          <p>By pressing 'Submit' below, you are sending a record of this chess game to me in standard PGN format. This is purely for fun and isn't required, nor does it carry any sensitive data. If you want a PGN WITHOUT sending anything, just press 'Generate' below.</p>
          <div class="buttons">
-            <button id="game-export-cancel-button" class="unimportant">Cancel</button>
-            <button id="game-export-generate-button" class="unimportant" onclick="generate()">Generate</button>
-            <button id="game-export-button">Submit</button>
+            <button class="unimportant" onclick="hide_element('#game-export')">Cancel</button>
+            <button class="unimportant" onclick="pgn_generate()">Generate</button>
+            <button onclick="pgn_generate_and_export()">Submit</button>
          </div>
          <p id="pgn">Your PGN will be written here!</p>
       </div>
 
       <div class="options">
-         <button id="undo-button">Undo</button>
-         <button id="ai-move-button">Switch</button>
-         <button id="flip-board-button">Flip</button>
-         <button id="reset-button">Reset</button>
-         <button id="export-button">Export</button>
-         <select name="theme" id="theme-select">
+         <button onclick="game_undo()">Undo</button>
+         <button onclick="game_switch()">Switch</button>
+         <button onclick="game_flip()">Flip</button>
+         <button onclick="game_reset()">Reset</button>
+         <button onclick="game_export()">Export</button>
+         <select name="theme" onchange="(e) => change_theme">
             <option value="john_pablok_improved" selected>John Pablok Improved</option>
             <option value="wikipedia">Wikipedia</option>
             <option value="pixels">Pixelated</option>
             <option value="chalked">Chalked</option>
          </select>
          <input type="text" placeholder="FEN String" id="fen-input" />
-         <button id="load-fen-button">Load</button>
+         <button onclick="game_load()">Load</button>
       </div>
 
       <!--div class="about">
@@ -64,196 +64,7 @@
 
    <script src="index.js"></script>
    <script src="board.js"></script>
-   <script>
-      const set_board = (b) => {
-         board.set_board(b)
-         board.update_chessboard()
-      }
-
-      const hide_loading_hint = () => {
-         document.querySelector("#loading-hint").classList.add("hidden");
-      }
-
-      var make_ai_move;
-      var update_pgn;
-      var set_status;
-
-      var generate;
-
-      let board = new Chessboard("board");
-      let pgn = "";
-
-      let undo_button_el = document.querySelector("#undo-button")
-      let ai_button_el = document.querySelector("#ai-move-button");
-      let flip_button_el = document.querySelector("#flip-board-button");
-      let load_fen_el = document.querySelector("#load-fen-button");
-      let fen_input_el = document.querySelector("#fen-input");
-      let export_submit_button_el = document.querySelector("#game-export-button");
-      let name_input_el = document.querySelector("#game-export-name");
-      let reset_button_el = document.querySelector("#reset-button");
-      let export_button_el = document.querySelector("#export-button");
-      let game_export_el = document.querySelector("#game-export");
-      let status_el = document.querySelector("#status");
-      let status_box_el = document.querySelector("#status-box");
-      let status_close_button_el = document.querySelector("#status-close-button");
-      let pgn_el = document.querySelector("#pgn");
-
-      let upload_after = false; // upload after we're done getting pgn
-
-      status_close_button_el.addEventListener("click", () => {
-         status_box_el.classList.add("hidden");
-      })
-
-      document.querySelector("#theme-select").addEventListener("change", (e) => {
-         board.theme = e.target.value;
-         board.update_chessboard();
-      })
-
-      document.addEventListener("DOMContentLoaded", async () => {
-         const woodstock = await WoodstockModule();
-
-         generate = () => {
-            if (pgn == "") {
-               pgn_el.textContent = "Loading PGN...";
-               setTimeout(() => {
-                  call_set_pgn();
-               }, 10);
-            }
-         }
-
-         undo_button_el.addEventListener("click", () => {
-            woodstock.ccall(
-               "undo",
-               null,
-               null,
-               null
-            )
-         })
-
-         ai_button_el.addEventListener("click", () => {
-            woodstock.ccall(
-               "switch_sides", // name of C function
-               null, // return type
-               null, // argument types
-               null, // arguments
-            );
-         })
-
-         flip_button_el.addEventListener("click", () => {
-            board.flip();
-         })
-
-         load_fen_el.addEventListener("click", () => {
-            let fen_str = fen_input_el.value;
-            let buffer = woodstock._malloc(fen_str.length + 1);
-            woodstock.stringToUTF8(fen_str, buffer, fen_str.length + 1);
-            woodstock.ccall("load_fen", null, [ "number" ], [ buffer ]);
-            woodstock._free(buffer);
-         })
-
-         reset_button_el.addEventListener("click", () => {
-            woodstock.ccall("reset_game", null, null, null);
-         })
-
-         export_button_el.addEventListener("click", () => {
-            pgn = "";
-            pgn_el.textContent = "Your PGN will be written here!"
-            game_export_el.classList.remove("hidden");
-            console.log("uh");
-         })
-
-         document.querySelector("#game-export-cancel-button").addEventListener("click", () => {
-            game_export_el.classList.add("hidden");
-         })
-
-         call_set_pgn = () => {
-            let name_str = name_input_el.value;
-            let buffer = woodstock._malloc(name_str.length + 1);
-
-            woodstock.stringToUTF8(name_str, buffer, name_str.length + 1);
-            woodstock.ccall("set_pgn", null, [], [buffer]);
-            woodstock._free(buffer);
-         }
-
-         export_submit_button_el.addEventListener("click", () => {
-            if (pgn == "") {
-               pgn_el.textContent = "Loading PGN...";
-               setTimeout(() => { call_set_pgn() }, 10);
-               upload_after = true;
-            } else {
-               upload_pgn()
-            }
-         })
-
-         update_pgn = (ptr, len) => {
-            pgn = woodstock.UTF8ToString(ptr, len);
-            console.log(pgn);
-            pgn_el.textContent = pgn;
-
-            if (upload_after) {
-               upload_pgn();
-            }
-         }
-
-         upload_pgn = () => {
-            console.log("puloading pgn");
-         }
-
-         set_status = (s) => {
-            switch(s) {
-               case 0:
-                  status_el.innerHTML = "Draw.";
-                  document.querySelector(".king.black").classList.add("draw");
-                  document.querySelector(".king.white").classList.add("draw");
-                  status_box_el.classList.remove("hidden");
-                  break;
-               case 1:
-                  status_el.innerHTML = "White Wins!";
-                  document.querySelector(".king.black").classList.add("checkmated");
-                  status_box_el.classList.remove("hidden");
-                  break;
-               case 2:
-                  status_el.innerHTML = "Black Wins!";
-                  document.querySelector(".king.white").classList.add("checkmated");
-                  status_box_el.classList.remove("hidden");
-                  break;
-               case 4:
-                  document.querySelector(".king.white").classList.add("checked");
-                  break;
-               case 5:
-                  document.querySelector(".king.black").classList.add("checked");
-                  break;
-               default:
-                  status_el.innerHTML = "";
-                  status_box_el.classList.add("hidden");
-                  break;
-            }
-         }
-
-         make_ai_move = () => {
-            setTimeout(() => {
-               woodstock.ccall(
-               "make_best_move", // name of C function
-               null, // return type
-               null, // argument types
-               null, // arguments
-            );
-            }, 10)
-         }
-
-         for (let i = 0; i < 64; i++) {
-            let square = document.getElementById(`sq-${i}`)
-            square.addEventListener("click", () => {
-               woodstock.ccall(
-                  "click_square",
-                  null,
-                  [ "number" ],
-                  [ board.flipped ? 63 - i : i ]
-               )
-            })
-         }
-      });
-   </script>
+   <script src="game.js"></script>
    {{{ SCRIPT }}}
 </body>
 </html>

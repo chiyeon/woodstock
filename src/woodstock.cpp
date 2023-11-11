@@ -250,7 +250,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void reset_game() {
 
 int main() {
    printf("woodstock!\n");
-   EM_ASM({hide_loading_hint()});
+   EM_ASM({hide_element("#loading-hint")});
    return 0;
 }
 #else

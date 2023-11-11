@@ -241,8 +241,6 @@ button:hover, select:hover {
    grid-template-rows: repeat(8, 1fr);
    
    border-radius: 4px;
-
-   overflow: hidden;
 }
 
 .board .row {

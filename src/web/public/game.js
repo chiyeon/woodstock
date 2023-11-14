@@ -46,6 +46,8 @@ var id = Math.random().toString(24).slice(2)
 
 var change_color, change_board_color
 
+var choose_promotion;
+
  let board = new Chessboard("board");
 
  let status_el = document.querySelector("#status");
@@ -56,6 +58,11 @@ var change_color, change_board_color
 
  document.addEventListener("DOMContentLoaded", async () => {
     const woodstock = await WoodstockModule();
+
+    choose_promotion = (piece) => {
+      woodstock.ccall("choose_promotion", null, ["number"], [piece]);
+       hide_element("#promotions")
+    }
 
     change_color = (e) => { woodstock.ccall("set_player_color", null, ["boolean"], [e.value == "black"]) }
 

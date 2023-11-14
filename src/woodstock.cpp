@@ -48,6 +48,8 @@ Search search(game);
 int search_depth = 6;
 int num_threads = 4;
 bool is_player_black = false;
+bool is_promoting = false; // pause while wiating for player to select promotion
+std::vector<Move> promotion_moves; // moves corresponding to promotion
 
 std::vector<Move> selected_piece_moves;
 
@@ -88,7 +90,7 @@ EM_JS(void, update_chessboard, (Piece * board_data), {
 });
 
 EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char **argv) {
-   if (game.is_gameover()) {
+   if (game.is_gameover() || is_promoting) {
       return;
    }
 
@@ -144,9 +146,42 @@ EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char **argv) {
    }
 }
 
+EXTERN EMSCRIPTEN_KEEPALIVE void choose_promotion(Piece piece) {
+   if (!is_promoting)
+      return;
+   is_promoting = false;
+
+   for (auto &move : promotion_moves) {
+      if ((Moves::get_piece(move) & Pieces::FILTER_PIECE) == piece) {
+         game.move(move);
+         update_chessboard(game.get_board());
+         highlight_squares(Moves::get_from(move), Moves::get_to(move));
+
+         if (game.is_gameover()) {
+            if (game.wcm) {
+               printf("White checkmate\n");
+               EM_ASM({set_status(1)});
+            } else if (game.bcm) {
+               printf("Black checkmate\n");
+               EM_ASM({set_status(2)});
+            } else if (game.draw) {
+               printf("Draw\n");
+               EM_ASM({set_status(0)});
+            }
+         } else {
+            mark_checks();
+         }
+
+         EM_ASM({make_ai_move()});
+
+         break;
+      }
+   }
+}
+
 EXTERN EMSCRIPTEN_KEEPALIVE void click_square(int index) {
 
-   if (game.is_gameover())
+   if (game.is_gameover() || is_promoting)
       return;
    std::vector<Move> moves = game.get_moves_at_square(index);
    int moves_size = moves.size();
@@ -156,6 +191,18 @@ EXTERN EMSCRIPTEN_KEEPALIVE void click_square(int index) {
 
       for (auto &move : selected_piece_moves) {
          if (Moves::get_to(move) == index) {
+            if (Moves::get_flags(move) & Moves::PROMOTION) {
+               promotion_moves.clear();
+               for (auto &move : selected_piece_moves) {
+                  if (Moves::get_to(move) == index &&
+                      Moves::get_flags(move) & Moves::PROMOTION) {
+                     promotion_moves.push_back(move);
+                  }
+               }
+               is_promoting = true;
+               EM_ASM({show_element("#promotions")});
+               return;
+            }
             game.move(move);
             update_chessboard(game.get_board());
             highlight_squares(Moves::get_from(move), Moves::get_to(move));

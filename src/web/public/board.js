@@ -150,6 +150,18 @@ class Chessboard {
       let root = document.getElementById(id)
       root.classList.add("board")
 
+      let promotions = [ "knight", "bishop", "rook", "queen" ]
+      let name_to_img = {
+         "knight": Piece.KNIGHT,
+         "bishop": Piece.BISHOP,
+         "rook": Piece.ROOK,
+         "queen": Piece.QUEEN
+      }
+      let color = Piece.WHITE;
+      promotions.forEach(piece => {
+         document.querySelector(".promotion-option." + piece).style = "background-image: url(" + this.get_piece_image(color | name_to_img[piece]) + ")"
+      })
+
       for (let y = 7; y >= 0; y--) {
          let row_el = document.createElement("div")
          row_el.classList.add("row")
@@ -174,6 +186,18 @@ class Chessboard {
    }
 
    update_chessboard = () => {
+      let promotions = [ "knight", "bishop", "rook", "queen" ]
+      let name_to_img = {
+         "knight": Piece.KNIGHT,
+         "bishop": Piece.BISHOP,
+         "rook": Piece.ROOK,
+         "queen": Piece.QUEEN
+      }
+      let color = Piece.WHITE;
+      promotions.forEach(piece => {
+         document.querySelector(".promotion-option." + piece).style = "background-image: url(" + this.get_piece_image(color | name_to_img[piece]) + ")"
+      })
+    
       for (let y = 7; y >= 0; y--) {
          for (let x = 7; x >= 0; x--) {
             let index = y * 8 + x

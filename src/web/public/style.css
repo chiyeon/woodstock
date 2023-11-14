@@ -15,12 +15,12 @@ hr {
    width: 100%;
 }
 
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 700px) {
   .king::before {
       font-size: 3.35vw !important;
   }
   .game-buttons button {
-      width: 10% !important;
+      width: 12% !important;
   }
 }
 
@@ -140,7 +140,7 @@ button.blue {
    justify-content: center;
    align-items: center;
 
-    min-width: 450px;
+    min-width: 350px;
    width: 60%;
 }
 
@@ -192,6 +192,7 @@ button.blue {
 
 #pgn {
    max-width: 450px !important;
+   width: 80%;
    padding: 15px !important;
    background-color: #2f2f2f;
    border-radius: 10px;
@@ -220,7 +221,7 @@ button.blue {
 
 #game-export p {
    max-width: 600px;
-   padding: 10px;
+   padding-top: 10px;
 }
 
 #game-export button {

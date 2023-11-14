@@ -23,7 +23,47 @@
       </div>
       <div id="board"></div>
 
-      <div id="game-export" class="hidden">
+      <div id="game-options" class="popup hidden">
+         <h1>Options</h1>
+         <div class="options-box">
+            <div class="option">
+               <label>Skin</label>
+               <select name="theme" onchange="change_theme(this)">
+                  <option value="john_pablok_improved" selected>John Pablok</option>
+                  <option value="wikipedia">Wikipedia</option>
+                  <option value="pixels">Pixelated</option>
+                  <option value="chalked">Chalked</option>
+               </select>
+            </div>
+            <div class="option">
+               <label>Play as</label>
+               <select name="play-as" onchange="change_color(this)">
+                  <option value="white" selected>White</option>
+                  <option value="black">Black</option>
+               </select>
+            </div>
+            <div class="option">
+               <label>Board Side</label>
+               <select name="board-side" onchange="change_board_color(this)">
+                  <option value="white" selected>White</option>
+                  <option value="black">Black</option>
+               </select>
+            </div>
+
+            <hr />
+
+            <div class="option">
+               <label>Load FEN</label>
+               <div class="fen-loader">
+                  <input type="text" placeholder="FEN String" id="fen-input" />
+                  <button onclick="game_load()">Load</button>
+               </div>
+            </div>
+         </div>
+         <button onclick="hide_element('#game-options')">Close</button>
+      </div>
+
+      <div id="game-export" class="popup hidden">
          <div class="form">
             <label for="game-export-name">Your Name</label>
             <input placeholder="Santa Clause" id="game-export-name" />
@@ -40,20 +80,11 @@
          <p id="pgn">Your PGN will be written here!</p>
       </div>
 
-      <div class="options">
-         <button onclick="game_undo()">Undo</button>
-         <button onclick="game_switch()">Switch</button>
-         <button onclick="game_flip()">Flip</button>
-         <button onclick="game_reset()">Reset</button>
-         <button onclick="game_export()">Export</button>
-         <select name="theme" onchange="(e) => change_theme">
-            <option value="john_pablok_improved" selected>John Pablok Improved</option>
-            <option value="wikipedia">Wikipedia</option>
-            <option value="pixels">Pixelated</option>
-            <option value="chalked">Chalked</option>
-         </select>
-         <input type="text" placeholder="FEN String" id="fen-input" />
-         <button onclick="game_load()">Load</button>
+      <div class="game-buttons">
+         <button onclick="game_undo()"><img src="imgs/icons/back.png" /></button>
+         <button onclick="game_reset()"><img src="imgs/icons/reset.png" /></button>
+         <button onclick="game_export()" class="right-partition"><img src="imgs/icons/share.png" /></button>
+         <button onclick="show_element('#game-options')"><img src="imgs/icons/options.png" /></button>
       </div>
 
       <!--div class="about">

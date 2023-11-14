@@ -241,6 +241,10 @@ class Chessboard {
       }
    }
 
+    set_color = (is_black) => {
+      if (this.flipped != is_black) this.flip();
+   }
+
    select_piece = (piece) => {
       this.selected_piece = this.flipped ? 63 - piece : piece;
    }

@@ -6,6 +6,10 @@ p, a, button, ul, li, h1, h2, h3, input, label {
    font-family: Helvetica, sans-serif;
 }
 
+hr {
+   width: 100%;
+}
+
 @media screen and (max-width: 800px) {
   .king::before {
       font-size: 3.35vw !important;
@@ -94,13 +98,67 @@ button.blue {
    display: none;
 }
 
-#game-export::before {
+.popup {
+   max-width: 500px;
+   padding: 15px;
+   background-color: gray;
+   border-radius: 10px;
+   border: 2px solid lightgray;
+
+   position: fixed;
+   left: 50%;
+   top: 50%;
+   transform: translate(-50%, -50%);
+
+   color: white;
+   z-index: 100;
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+}
+
+#game-options {
+   min-width: 30%;
+   width: 75%;
+}
+
+#game-options > button {
+   margin-top: 20px;
+}
+
+.options-box {
+   gap: 15px;
+   display: flex;
+   flex-direction: column;
+}
+
+.options-box .option {
+   display: flex;
+}
+
+.options-box .option label {
+   flex: 1;
+}
+
+.options-box .option > *:nth-child(2) {
+   flex: 2;
+}
+
+.options-box .fen-loader input {
+   width: 60%;
+}
+
+.options-box .fen-loader button {
+   float: right;
+}
+
+.popup::before {
    position: fixed;
    width: 100vw;
    height: 100vh;
-   background-color: #3f3f3f;
-   left: 0;
-   top: 0;
+   background-color: black;
+   opacity: 75%;
    z-index: -1;
    content: "";
 }
@@ -117,20 +175,12 @@ button.blue {
 
 #game-export {
    z-index: 100;
-   position: absolute;
-   width: 100vw;
-   height: 100%;
-   max-width: 100%;
-   max-height: 100%;
-
    display: flex;
    justify-content: center;
    align-items: center;
    flex-direction: column;
 
    color: white;
-   left: 0;
-   top: 0;
 }
 
 #game-export p {
@@ -322,8 +372,28 @@ button:hover, select:hover {
    filter: drop-shadow(2px 4px 2px #00000040);
 }
 
-.options {
+.game-buttons {
    display: flex;
    gap: 10px;
    flex-wrap: wrap;
+}
+
+.game-buttons button {
+   aspect-ratio: 1;
+   padding: 2px;
+
+   display: flex;
+   justify-content: center;
+   align-items: center;
+
+   width: 60px;
+}
+
+.game-buttons img {
+   filter: invert(1);
+   width: 70%;
+}
+
+.game-buttons button.right-partition {
+   margin-left: auto;
 }

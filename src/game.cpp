@@ -62,14 +62,15 @@ void Game::read_fen(std::string fen) {
    hasher.set_initial_key(board);
 
    ss >> next; // next is current turn
-   if (next == "w") {
-      turn = Pieces::WHITE;
-      not_turn = Pieces::BLACK;
-      black_turn = false;
-   } else {
+               // default is white
+   if (next == "b") {
       turn = Pieces::BLACK;
       not_turn = Pieces::WHITE;
       black_turn = true;
+   } else {
+      turn = Pieces::WHITE;
+      not_turn = Pieces::BLACK;
+      black_turn = false;
    }
 
    ss >> next; // then castling rights

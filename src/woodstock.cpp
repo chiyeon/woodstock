@@ -239,6 +239,13 @@ EXTERN EMSCRIPTEN_KEEPALIVE void switch_sides() {
    EM_ASM({make_ai_move()});
 }
 
+EXTERN EMSCRIPTEN_KEEPALIVE void set_player_color(bool is_black) {
+   EM_ASM({board.remove_highlight_squares()});
+   is_player_black = is_black;
+   if ((is_black && !game.is_blacks_turn())
+         || (!is_black && game.is_blacks_turn())) EM_ASM({make_ai_move()});
+}
+
 EXTERN EMSCRIPTEN_KEEPALIVE void reset_game() {
    game.reset();
    is_player_black = false;

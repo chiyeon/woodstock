@@ -28,9 +28,11 @@ const set_board = (b) => {
  var pgn = ""
 
  var change_theme = (e) => {
-    board.theme = e.target.value;
+    board.theme = e.value;
     board.update_chessboard();
  }
+
+var change_color, change_board_color
 
  let board = new Chessboard("board");
 
@@ -42,6 +44,10 @@ const set_board = (b) => {
 
  document.addEventListener("DOMContentLoaded", async () => {
     const woodstock = await WoodstockModule();
+
+    change_color = (e) => { woodstock.ccall("set_player_color", null, ["boolean"], [e.value == "black"]) }
+
+    change_board_color = (e) => { board.set_color(e.value == "black") }
 
     game_undo = () => { woodstock.ccall("undo", null, null, null) }
     game_switch = () => { woodstock.ccall("switch_sides", null, null, null) }
@@ -58,6 +64,7 @@ const set_board = (b) => {
        woodstock.stringToUTF8(fen_str, buffer, fen_str.length + 1);
        woodstock.ccall("load_fen", null, [ "number" ], [ buffer ]);
        woodstock._free(buffer);
+       hide_element("#game-options")
     }
 
     // call to WASM to generate PGN

@@ -13,9 +13,7 @@ const firebaseConfig = {
 };
 const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-const id = Math.random().toString(24).slice(2)
-
-
+var id = Math.random().toString(24).slice(2)
 
  const hide_element = (selector) => {
     document.querySelector(selector).classList.add("hidden")
@@ -126,10 +124,13 @@ var change_color, change_board_color
 
     upload_pgn = () => {
        upload_after = false
-          
+      
       db.collection("games").doc(id).set({
          pgn: pgn
       })
+
+       //refresh our id
+      id = Math.random().toString(24).slice(2)
 
        status_el.innerHTML = "Upload submitted. Thank You!"
        show_element("#status-box")

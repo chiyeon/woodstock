@@ -63,7 +63,7 @@ button.blue {
    top: 0;
    left: 0;
 
-   z-index: 10;
+   z-index: 200;
 
    display: flex;
    justify-content: center;

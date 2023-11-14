@@ -3,6 +3,20 @@ const set_board = (b) => {
     board.update_chessboard()
  }
 
+const firebaseConfig = {
+    apiKey: "AIzaSyDGcF7ZloMazDNkorPIZL1Equ1OvymJ6Mw",
+    authDomain: "woodstock-chess.firebaseapp.com",
+    projectId: "woodstock-chess",
+    storageBucket: "woodstock-chess.appspot.com",
+    messagingSenderId: "323843313184",
+    appId: "1:323843313184:web:2ba35d9b63c2512f5ff645"
+};
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const id = Math.random().toString(24).slice(2)
+
+
+
  const hide_element = (selector) => {
     document.querySelector(selector).classList.add("hidden")
  }
@@ -112,7 +126,13 @@ var change_color, change_board_color
 
     upload_pgn = () => {
        upload_after = false
-       console.log("puloading pgn");
+          
+      db.collection("games").doc(id).set({
+         pgn: pgn
+      })
+
+       status_el.innerHTML = "Upload submitted. Thank You!"
+       show_element("#status-box")
     }
 
     set_status = (s) => {

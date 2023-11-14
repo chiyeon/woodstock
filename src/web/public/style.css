@@ -19,9 +19,12 @@ hr {
   .king::before {
       font-size: 3.35vw !important;
   }
-  .game-buttons button {
+}
+
+@media screen and (max-width: 450px) {
+   .game-buttons button {
       width: 12% !important;
-  }
+   }
 }
 
 button.unimportant {

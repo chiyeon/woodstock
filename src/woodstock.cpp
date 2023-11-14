@@ -89,7 +89,7 @@ EM_JS(void, update_chessboard, (Piece * board_data), {
    board.update_chessboard();
 });
 
-EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char **argv) {
+EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move() {
    if (game.is_gameover() || is_promoting) {
       return;
    }
@@ -103,7 +103,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move(int argc, char **argv) {
    // int time_elapsed_search = 0;
 
    auto make_best_move = [&]() {
-      search.start_search_timer();
+      //search.start_search_timer();
       Move best_move = search.get_best_move(search_depth);
       depth_searched = search_depth;
       // Move best_move =
@@ -172,9 +172,10 @@ EXTERN EMSCRIPTEN_KEEPALIVE void choose_promotion(Piece piece) {
             mark_checks();
          }
 
-         EM_ASM({make_ai_move()});
+         //EM_ASM({make_ai_move()});
+         EM_ASM({make_ai_move_fast()});
 
-         break;
+         return;
       }
    }
 }

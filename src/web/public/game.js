@@ -23,7 +23,7 @@ var id = Math.random().toString(24).slice(2)
     document.querySelector(selector).classList.remove("hidden")
  }
 
- var make_ai_move;
+ var make_ai_move, make_ai_move_fast;
  var update_pgn;
  var set_status;
 
@@ -183,6 +183,10 @@ var choose_promotion;
           null,
        );
        }, 10)
+    }
+
+    make_ai_move_fast = () => {
+      woodstock.ccall("make_best_move", null, null, null)
     }
 
     for (let i = 0; i < 64; i++) {

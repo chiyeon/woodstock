@@ -40,6 +40,10 @@ button.unimportant:hover {
    gap: 10px;
 }
 
+button.blue {
+   background-color: #145DA0;
+}
+
 .hidden {
    display: none !important;
 }
@@ -107,7 +111,6 @@ button.unimportant:hover {
    background-color: #2f2f2f;
    border-radius: 10px;
    border: 2px solid gray;
-   width: 100%;
    white-space: pre-line;
    line-height: 25px;
 }

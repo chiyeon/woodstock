@@ -18,7 +18,7 @@
          
          <div class="status-window">
             <h1 id="status"></h1>
-            <button id="status-close-button">Close</button>
+            <button onclick="hide_element('#status-box')">Close</button>
          </div>
       </div>
       <div id="board"></div>
@@ -34,8 +34,8 @@
          <p>By pressing 'Submit' below, you are sending a record of this chess game to me in standard PGN format. This is purely for fun and isn't required, nor does it carry any sensitive data. If you want a PGN WITHOUT sending anything, just press 'Generate' below.</p>
          <div class="buttons">
             <button class="unimportant" onclick="hide_element('#game-export')">Cancel</button>
-            <button class="unimportant" onclick="pgn_generate()">Generate</button>
-            <button onclick="pgn_generate_and_export()">Submit</button>
+            <button onclick="pgn_generate()">Generate</button>
+            <button class="blue" onclick="pgn_generate_and_export()">Submit</button>
          </div>
          <p id="pgn">Your PGN will be written here!</p>
       </div>

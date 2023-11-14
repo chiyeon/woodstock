@@ -172,8 +172,8 @@ EXTERN EMSCRIPTEN_KEEPALIVE void choose_promotion(Piece piece) {
             mark_checks();
          }
 
-         //EM_ASM({make_ai_move()});
-         EM_ASM({make_ai_move_fast()});
+         EM_ASM({make_ai_move()});
+         //EM_ASM({make_ai_move_fast()});
 
          return;
       }
@@ -201,7 +201,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void click_square(int index) {
                   }
                }
                is_promoting = true;
-               EM_ASM({show_element("#promotions")});
+               EM_ASM({show_promotions($0)}, game.is_blacks_turn());
                return;
             }
             game.move(move);

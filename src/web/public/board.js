@@ -185,7 +185,7 @@ class Chessboard {
       }
    }
 
-   update_chessboard = () => {
+   update_chessboard = (is_black = false) => {
       let promotions = [ "knight", "bishop", "rook", "queen" ]
       let name_to_img = {
          "knight": Piece.KNIGHT,
@@ -193,7 +193,7 @@ class Chessboard {
          "rook": Piece.ROOK,
          "queen": Piece.QUEEN
       }
-      let color = Piece.WHITE;
+      let color = is_black ? Piece.BLACK : Piece.WHITE;
       promotions.forEach(piece => {
          document.querySelector(".promotion-option." + piece).style = "background-image: url(" + this.get_piece_image(color | name_to_img[piece]) + ")"
       })

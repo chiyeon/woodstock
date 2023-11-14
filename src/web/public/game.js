@@ -47,6 +47,10 @@ var id = Math.random().toString(24).slice(2)
 var change_color, change_board_color
 
 var choose_promotion;
+var show_promotions = (is_black) => {
+   show_element("#promotions")
+   board.update_chessboard(is_black)
+}
 
  let board = new Chessboard("board");
 

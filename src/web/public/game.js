@@ -118,7 +118,7 @@ var change_color, change_board_color
        pgn = woodstock.UTF8ToString(ptr, len);
        console.log(pgn);
        pgn_el.textContent = pgn;
-
+       
        if (upload_after) {
           upload_pgn();
        }

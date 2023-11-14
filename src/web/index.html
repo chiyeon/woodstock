@@ -64,20 +64,23 @@
       </div>
 
       <div id="game-export" class="popup hidden">
+         <h1>Export</h1>
          <div class="form">
-            <label for="game-export-name">Your Name</label>
-            <input placeholder="Santa Clause" id="game-export-name" />
-            <br />
+            <div class="name-export">
+               <label for="game-export-name">Your Name</label>
+               <input placeholder="Santa Clause" id="game-export-name" />
+            </div>
             <!--label for="game-export-title">Title</label>
             <input placeholder="N. Pole Battle" id="game-export-title" /-->
-         </div>
-         <p>By pressing 'Submit' below, you are sending a record of this chess game to me in standard PGN format. This is purely for fun and isn't required, nor does it carry any sensitive data. If you want a PGN WITHOUT sending anything, just press 'Generate' below.</p>
-         <div class="buttons">
-            <button class="unimportant" onclick="hide_element('#game-export')">Cancel</button>
-            <button onclick="pgn_generate()">Generate</button>
-            <button class="blue" onclick="pgn_generate_and_export()">Submit</button>
+            <div class="buttons">
+               <button class="unimportant" onclick="hide_element('#game-export')">Cancel</button>
+               <button onclick="pgn_generate()">Generate</button>
+               <button class="blue" onclick="pgn_generate_and_export()">Submit</button>
+            </div>
          </div>
          <p id="pgn">Your PGN will be written here!</p>
+         <hr />
+         <p class="subtitle">Press 'Generate' to generate a PGN of your game. Press 'Submit' to generate and save a copy in Woodstock's database.</p>
       </div>
 
       <div class="game-buttons">

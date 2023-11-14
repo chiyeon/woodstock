@@ -6,6 +6,11 @@ p, a, button, ul, li, h1, h2, h3, input, label {
    font-family: Helvetica, sans-serif;
 }
 
+p.subtitle {
+   font-style: italic;
+   color: #a0a0a0;
+}
+
 hr {
    width: 100%;
 }
@@ -13,6 +18,9 @@ hr {
 @media screen and (max-width: 800px) {
   .king::before {
       font-size: 3.35vw !important;
+  }
+  .game-buttons button {
+      width: 10% !important;
   }
 }
 
@@ -25,23 +33,34 @@ button.unimportant:hover {
 }
 
 .form {
-   display: flex;
-   flex-direction: column;
-   justify-content: center;
-   align-items: center;
 }
 
 .form label {
-   margin-top: 20px;
-   margin-bottom: 10px;
-   margin-right: auto;
-
    color: #e5e5e5;
+}
+
+.form .name-export {
+   display: flex;
+   align-items: center;
+   gap: 10px;
+}
+
+.form .name-export label {
+   flex: 1;
+}
+
+.form .name-export input {
+   flex: 2;
 }
 
 .buttons {
    display: flex;
    gap: 10px;
+   margin-top: 20px;
+}
+
+.buttons button {
+   flex: 1;
 }
 
 button.blue {
@@ -98,6 +117,10 @@ button.blue {
    display: none;
 }
 
+#game-export .subtitle {
+   margin-top: 0;
+}
+
 .popup {
    max-width: 500px;
    padding: 15px;
@@ -116,15 +139,19 @@ button.blue {
    flex-direction: column;
    justify-content: center;
    align-items: center;
+
+    min-width: 450px;
+   width: 60%;
 }
 
 #game-options {
-   min-width: 30%;
-   width: 75%;
+  
 }
 
 #game-options > button {
    margin-top: 20px;
+   width: 50%;
+   height: 40px;
 }
 
 .options-box {
@@ -181,6 +208,14 @@ button.blue {
    flex-direction: column;
 
    color: white;
+   width: 40%;
+
+   min-width: 350px;
+}
+
+.popup > * {
+   width: 90%;
+   padding: 0 5%;
 }
 
 #game-export p {

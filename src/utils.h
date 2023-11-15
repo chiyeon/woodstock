@@ -99,7 +99,8 @@ struct Utils {
 
       bool promoting = Moves::get_flags(move) & Moves::PROMOTION;
 
-      if ((Moves::get_piece(move) & Pieces::FILTER_PIECE) != Pieces::PAWN && !promoting) {
+      if ((Moves::get_piece(move) & Pieces::FILTER_PIECE) != Pieces::PAWN &&
+          !promoting) {
          // always capitalize
          ss << Pieces::name_short(
             (Moves::get_piece(move) & Pieces::FILTER_PIECE) | Pieces::WHITE);
@@ -113,11 +114,74 @@ struct Utils {
 
       ss << index_to_square(Moves::get_to(move));
       if (promoting) {
-          ss << Pieces::name_short(
+         ss << Pieces::name_short(
             (Moves::get_piece(move) & Pieces::FILTER_PIECE) | Pieces::WHITE);
-
       }
       return ss.str();
+   }
+
+   template <typename Game>
+   static Move lan_to_move(std::string lan, Game & game) {
+      int from = 0, to = 0;
+      Piece piece, captured;
+      Flag flags = 0;
+      int piece_boost = 0;
+      int capture_boost = 0;
+
+      switch (lan[0]) {
+         case 'b':
+         case 'B':
+         case 'n':
+         case 'N':
+         case 'r':
+         case 'R':
+         case 'q':
+         case 'Q':
+         case 'k':
+         case 'K':
+            piece_boost = 1;
+            break;
+      }
+
+      for (auto & c : lan) {
+         if (c == 'x') {
+            capture_boost = 1;
+            break;
+         }
+      }
+
+      char from_sq[3] = {lan[piece_boost+0], lan[piece_boost+1]};
+      char to_sq[3] = {lan[piece_boost+2+capture_boost], lan[piece_boost+3+capture_boost]};
+
+      from += square_to_index(from_sq);
+      to += square_to_index(to_sq);
+      captured = game.get(to);
+   
+      switch (piece & Pieces::FILTER_PIECE) {
+         case Pieces::KING:
+            if (abs(from % 8 - to % 8) >= 2) {
+               flags |= Moves::FIRST_MOVE | Moves::CASTLE;
+            }
+
+            if (game.can_castle_kingside() || game.can_castle_queenside()) {
+               flags |= Moves::FIRST_MOVE;
+            }
+            break;
+         case Pieces::ROOK:
+            if (game.can_castle_kingside() || game.can_castle_queenside()) {
+               flags |= Moves::FIRST_MOVE;
+            }
+            break;
+         case Pieces::PAWN:
+            if (to / 8 == 0 || to / 8 == 7) {
+               flags |= Moves::PROMOTION;
+            } else if (abs(from - to) >= 2) {
+               flags |= Moves::EN_PASSANT;
+            }
+            break;
+      }
+
+      return Moves::create(from, to, piece, captured, flags);
    }
 };
 

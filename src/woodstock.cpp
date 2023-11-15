@@ -103,7 +103,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void make_best_move() {
    // int time_elapsed_search = 0;
 
    auto make_best_move = [&]() {
-      //search.start_search_timer();
+      // search.start_search_timer();
       Move best_move = search.get_best_move(search_depth);
       depth_searched = search_depth;
       // Move best_move =
@@ -173,7 +173,7 @@ EXTERN EMSCRIPTEN_KEEPALIVE void choose_promotion(Piece piece) {
          }
 
          EM_ASM({make_ai_move()});
-         //EM_ASM({make_ai_move_fast()});
+         // EM_ASM({make_ai_move_fast()});
 
          return;
       }
@@ -313,8 +313,8 @@ int main() {
 
 int main() {
 
-   //run_game_simulation(6, 3);
-   //return 0;
+   // run_game_simulation(6, 3);
+   // return 0;
 
    std::string input;
    std::cin >> input;
@@ -356,6 +356,10 @@ int main() {
          }
       } else if (curr == "isready") {
          std::cout << "readyok" << std::endl;
+      } else if (curr == "move") {
+         ss >> curr;
+         g.move(Utils::lan_to_move(curr, g));
+         g.print();
       }
    }
 

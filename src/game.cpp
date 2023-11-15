@@ -41,7 +41,7 @@ void Game::read_fen(std::string fen) {
 
    std::string next;
    std::string prev_next; // keep track
-   ss >> next; // first 'word' is the board pieces
+   ss >> next;            // first 'word' is the board pieces
 
    int fen_length = next.size();
    int index = 63;

@@ -156,6 +156,7 @@ struct Utils {
       from += square_to_index(from_sq);
       to += square_to_index(to_sq);
       captured = game.get(to);
+      piece = game.get(from);
    
       switch (piece & Pieces::FILTER_PIECE) {
          case Pieces::KING:
@@ -175,8 +176,10 @@ struct Utils {
          case Pieces::PAWN:
             if (to / 8 == 0 || to / 8 == 7) {
                flags |= Moves::PROMOTION;
+               piece = Pieces::piece_from_name_short(lan[4+capture_boost]);
             } else if (abs(from - to) >= 2) {
                flags |= Moves::EN_PASSANT;
+               captured = Pieces::PAWN | game.get_not_turn();
             }
             break;
       }

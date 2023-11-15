@@ -316,7 +316,6 @@ int main() {
    //run_game_simulation(6, 3);
    //return 0;
 
-   run_perft_suite_mini();
    std::string input;
    std::cin >> input;
    Game g;
@@ -329,7 +328,7 @@ int main() {
       std::cout << "uciok" << std::endl;
    }
 
-   while (uci_mode && (std::cin >> input)) {
+   while (uci_mode && (getline(std::cin, input))) {
       std::stringstream ss(input);
       std::string curr;
 
@@ -348,15 +347,15 @@ int main() {
          }
       } else if (curr == "go") {
          ss >> curr;
-         // next arg
          if (curr == "depth") {
             int depth;
-            ss >> curr;
-            std::cout << curr << std::endl;
+            ss >> depth;
             Move best_move = s.get_best_move(depth);
             std::cout << "bestmove " << Utils::move_to_lan(best_move)
                       << std::endl;
          }
+      } else if (curr == "isready") {
+         std::cout << "readyok" << std::endl;
       }
    }
 

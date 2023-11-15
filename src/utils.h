@@ -97,7 +97,9 @@ struct Utils {
    static std::string move_to_lan(Move move) {
       std::stringstream ss;
 
-      if ((Moves::get_piece(move) & Pieces::FILTER_PIECE) != Pieces::PAWN) {
+      bool promoting = Moves::get_flags(move) & Moves::PROMOTION;
+
+      if ((Moves::get_piece(move) & Pieces::FILTER_PIECE) != Pieces::PAWN && !promoting) {
          // always capitalize
          ss << Pieces::name_short(
             (Moves::get_piece(move) & Pieces::FILTER_PIECE) | Pieces::WHITE);
@@ -110,6 +112,11 @@ struct Utils {
       }
 
       ss << index_to_square(Moves::get_to(move));
+      if (promoting) {
+          ss << Pieces::name_short(
+            (Moves::get_piece(move) & Pieces::FILTER_PIECE) | Pieces::WHITE);
+
+      }
       return ss.str();
    }
 };

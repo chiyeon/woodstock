@@ -5,15 +5,22 @@
 # About
 This branch contains the woodstock chess engine and AI in C++, to be compiled to web assembly for running in the browser.
 
+Currently, Woodstock searches 
+
 ## Features
 - Magic Bitboards for sliding pieces
+- Playable as White/Black
 - Minimaxing/Negamaxing/Negascouting with Alpha-Beta pruning
 - Playable on Browser with WebAssembly
+- Interactable Chessboard
 - Load from FEN string
 - PGN Export
+- Different Mid/Endgame evaluations (WIP)
 - Transposition Table with Zobrist Hashing (WIP)
 - Iterative Deepening Search (WIP)
+- Follows all Chess Rules (Only missing insufficient material & 50 move)
 - UCI Compliant (WIP)
+- Opening Book (TODO)
 
 ## Dependencies
 - `make`

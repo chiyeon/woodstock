@@ -6,6 +6,7 @@
     - UI scales properly with mobile devices
  - Users can now upload PGNs to the Woodstock database from the Export menu
  - Promotions can now be selected
+ - Various bug fixes & performance enhancements
 
 # Alpha 0.7 
 Overall, v0.7 of Woodstock brings foundational changes important for future steps (Fully working transposition table & iterative deepening) as well as fixes to essential systems. This update updates the visuals of the game, making the interface more usable and communicating checks and end of game states better.

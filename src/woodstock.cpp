@@ -313,8 +313,8 @@ int main() {
 
 int main() {
 
-   run_game_simulation(6, 3);
-   return 0;
+   //run_game_simulation(6, 3);
+   //return 0;
 
    run_perft_suite_mini();
    std::string input;

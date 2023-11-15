@@ -81,7 +81,6 @@ void Game::read_fen(std::string fen) {
    ss >> next; // then castling rights
    if (prev_next != next) {
       int cr_size = next.size();
-      printf("castling rights: %s\n", next.c_str());
       for (int i = 0; i < cr_size; ++i) {
          switch (next[i]) {
          case 'k':

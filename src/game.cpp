@@ -40,6 +40,7 @@ void Game::read_fen(std::string fen) {
    std::istringstream ss(fen);
 
    std::string next;
+   std::string prev_next; // keep track
    ss >> next; // first 'word' is the board pieces
 
    int fen_length = next.size();
@@ -61,38 +62,45 @@ void Game::read_fen(std::string fen) {
    // set initial key
    hasher.set_initial_key(board);
 
+   prev_next = next;
    ss >> next; // next is current turn
                // default is white
-   if (next == "b") {
-      turn = Pieces::BLACK;
-      not_turn = Pieces::WHITE;
-      black_turn = true;
-   } else {
-      turn = Pieces::WHITE;
-      not_turn = Pieces::BLACK;
-      black_turn = false;
+   if (prev_next != next) {
+      if (next == "b") {
+         turn = Pieces::BLACK;
+         not_turn = Pieces::WHITE;
+         black_turn = true;
+      } else {
+         turn = Pieces::WHITE;
+         not_turn = Pieces::BLACK;
+         black_turn = false;
+      }
    }
 
+   prev_next = next;
    ss >> next; // then castling rights
-   int cr_size = next.size();
-   for (int i = 0; i < cr_size; ++i) {
-      switch (next[i]) {
-      case 'k':
-         has_black_king_moved = false;
-         has_black_kingside_rook_moved = false;
-         break;
-      case 'q':
-         has_black_king_moved = false;
-         has_black_queenside_rook_moved = false;
-         break;
-      case 'K':
-         has_white_king_moved = false;
-         has_white_kingside_rook_moved = false;
-         break;
-      case 'Q':
-         has_white_king_moved = false;
-         has_white_queenside_rook_moved = false;
-         break;
+   if (prev_next != next) {
+      int cr_size = next.size();
+      printf("castling rights: %s\n", next.c_str());
+      for (int i = 0; i < cr_size; ++i) {
+         switch (next[i]) {
+         case 'k':
+            has_black_king_moved = false;
+            has_black_kingside_rook_moved = false;
+            break;
+         case 'q':
+            has_black_king_moved = false;
+            has_black_queenside_rook_moved = false;
+            break;
+         case 'K':
+            has_white_king_moved = false;
+            has_white_kingside_rook_moved = false;
+            break;
+         case 'Q':
+            has_white_king_moved = false;
+            has_white_queenside_rook_moved = false;
+            break;
+         }
       }
    }
 

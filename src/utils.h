@@ -121,6 +121,66 @@ struct Utils {
    }
 
    template <typename Game>
+   static Move an_to_move(std::string an, Game & game) {
+      int from = 0, to = 0;
+      Piece piece = game.turn, captured;
+      Flags flags = 0;
+      int an_size = an.size();
+
+      // skip num of chars sometimes
+      int piece_boost = 0;
+      int ambiguous_boost = 0;
+      
+      switch (an[0]) {
+         case 'B':
+            piece |= Pieces::BISHOP;
+            piece_boost = 1;
+            break;
+         case 'N':
+            piece |= Pieces::KNIGHT;
+            piece_boost = 1;
+            break;
+         case 'R':
+            piece |= Pieces::ROOK;
+            piece_boost = 1;
+            break;
+         case 'Q':
+            piece |= Pieces::QUEEN;
+            piece_boost = 1;
+            break;
+         case 'K':
+            piece |= Pieces::KING;
+            piece_boost = 1;
+            break;
+         case 'O':
+            piece |= Pieces::KING;
+
+            // handle castling
+            return 0;
+            break;
+         default:
+            piece |= Pieces::PAWN;
+            break;
+      }
+
+      if (piece & Pieces::FILTER_PIECE == Pieces::PAWN) {
+         
+         // dont count extra + at the end for checks or checkmates
+         if (an[an_size - 1] != '+' && an[an_size - 1] != '#') {
+            // we must have an ambiguous piece
+            ambiguous_boost = 1;
+         }
+      } else {
+         
+      }
+
+      char to_sq[3] = { an[piece_boost], an[piece_boost + 1] };
+
+      to = square_to_index(to_sq);
+      captured = game.get(to);
+   }
+
+   template <typename Game>
    static Move lan_to_move(std::string lan, Game & game) {
       int from = 0, to = 0;
       Piece piece, captured;

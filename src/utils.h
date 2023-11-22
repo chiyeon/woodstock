@@ -124,7 +124,7 @@ struct Utils {
    static Move an_to_move(std::string an, Game & game) {
       int from = 0, to = 0;
       Piece piece = game.turn, captured;
-      Flags flags = 0;
+      Flag flags = 0;
       int an_size = an.size();
 
       // skip num of chars sometimes
@@ -163,7 +163,7 @@ struct Utils {
             break;
       }
 
-      if (piece & Pieces::FILTER_PIECE == Pieces::PAWN) {
+      if ((piece & Pieces::FILTER_PIECE) == Pieces::PAWN) {
          
          // dont count extra + at the end for checks or checkmates
          if (an[an_size - 1] != '+' && an[an_size - 1] != '#') {

@@ -312,9 +312,18 @@ int main() {
 #else
 
 int main() {
+   int games = 10;
+   auto fn2 = [&]() {
+      for (int i = 0; i < games; i++) {
+         run_game_simulation(5, 3);
+      }
+   };
 
-   // run_game_simulation(6, 3);
-   // return 0;
+   int ms = measure(fn2);
+
+   std::cout << "Simulating " << games << " games took: " << ms << "ms" << std::endl;
+   return 0;
+
 
    std::string input;
    std::cin >> input;

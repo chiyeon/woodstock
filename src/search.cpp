@@ -2,6 +2,7 @@
 #include "bitboard.h"
 #include "constants.h"
 #include <algorithm>
+#include <thread>
 
 Search::Search(Game &game) : game(game) {}
 
@@ -160,22 +161,42 @@ Move Search::get_best_move(int depth) {
             std::swap(moves[i], moves[j]);
          }
       }
+   }
+
+   for (int i = 0; i < num_moves; ++i) {
+      /*
+      for (int j = i; j < num_moves; ++j) {
+         if (move_scores[j] > move_scores[i]) {
+            std::swap(move_scores[i], move_scores[j]);
+            std::swap(moves[i], moves[j]);
+         }
+      }
+      */
 
       Move move = moves[i];
-      game.move(move);
-      float eval = -negamax(depth - 1, -beta, -alpha);
-      // float eval = alphabeta(depth - 1, alpha, beta, false);
-      game.undo();
+      float eval = -1;
+
+      auto rn = [&](Move move, Game game) {
+         game.move(move);
+         eval = -negamax(depth - 1, -beta, -alpha, game);
+         // float eval = alphabeta(depth - 1, alpha, beta, false);
+         game.undo();
+      };
+
+      std::thread th(rn, move, std::ref(game));
+
+      th.join();
+      printf("%f\n", eval);
 
       if (eval > best_move_eval) {
-         best_move = move;
-         best_move_eval = eval;
+            best_move = move;
+            best_move_eval = eval;
 
-         alpha = std::max(alpha, best_move_eval);
-      }
+            alpha = std::max(alpha, best_move_eval);
+         }
 
-      if (eval >= beta)
-         break;
+         if (eval >= beta)
+            break;
    }
    /*
    for (auto & move : moves)
@@ -204,7 +225,7 @@ Move Search::get_best_move(int depth) {
    return best_move;
 }
 
-float Search::negamax(int depth, float alpha, float beta) {
+float Search::negamax(int depth, float alpha, float beta, Game & game) {
    num_positions_evaluated++;
    // if (depth == 0) return (game.is_blacks_turn() ? -1 : 1) *
    // evaluate_position(game);
@@ -226,7 +247,7 @@ float Search::negamax(int depth, float alpha, float beta) {
       }
 
       game.move(moves[i]);
-      eval = -negamax(depth - 1, -beta, -alpha);
+      eval = -negamax(depth - 1, -beta, -alpha, game);
       game.undo();
 
       if (eval >= beta)

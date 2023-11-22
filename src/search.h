@@ -129,7 +129,7 @@ class Search {
    // int alphabeta(int depth, int alpha, int beta, bool maximizing_player);
    float alphabeta(int depth, float alpha, float beta, bool maximizing_player);
    float negascout(int depth, float alpha, float beta);
-   float negamax(int depth, float alpha, float beta);
+   float negamax(int depth, float alpha, float beta, Game & game);
 
    std::vector<int> get_move_scores(const std::vector<Move> &moves);
    void swap(std::vector<int> &vec, int i, int j);

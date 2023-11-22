@@ -52,7 +52,26 @@ class Game {
 
    Game(std::string fen =
            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-   Game(Game &g) = delete;
+   //Game(Game &g) = delete;
+   Game(Game & g) {
+      for (int i = 0; i < 64; i++) {
+         board[i] = g.board[i];
+      }
+      for (int i = 0; i < 23; i++) {
+         piece_bbs[i] = g.piece_bbs[i];
+      }
+      game_bb = g.game_bb;
+      if (turn != g.turn) switch_turns();
+      has_white_king_moved = g.has_white_king_moved;
+      has_white_queenside_rook_moved = g.has_white_queenside_rook_moved;
+      has_white_kingside_rook_moved = g.has_white_kingside_rook_moved;
+      has_black_king_moved = g.has_black_king_moved;
+      has_black_queenside_rook_moved = g.has_black_queenside_rook_moved;
+      has_black_kingside_rook_moved = g.has_black_kingside_rook_moved;
+      //movemasks = g.movemasks;
+      //hasher = g.hasher;
+
+   }
    std::string get_pgn(std::string name, bool was_black);
    void read_fen(std::string fen =
                     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");

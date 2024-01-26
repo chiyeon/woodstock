@@ -206,6 +206,33 @@ Move Search::get_best_move(int depth) {
 
 float Search::negamax(int depth, float alpha, float beta) {
    num_positions_evaluated++;
+
+   float alpha_orig = alpha;
+   float eval = -FLT_MAX;
+
+   /* transposition table */
+
+   if (depth == 0 || game.is_gameover()) return (game.is_blacks_turn() ? -1 : 1) * evaluate_position(game, depth);
+
+   std::vector<Move> moves;
+   game.get_moves(moves);
+   std::vector<int> move_scores = get_move_scores(moves);
+   int num_moves = moves.size();
+
+   for (int i = 0; i < num_moves; ++i) {
+      game.move(moves[i]);
+      eval = std::max(eval, -negamax(depth - 1, -beta, -alpha));
+      game.undo();
+
+      alpha = std::max(alpha, eval);
+      if (alpha >= beta) break;
+   }
+
+   /* store transpsiition */
+
+   return eval;
+
+   /*
    // if (depth == 0) return (game.is_blacks_turn() ? -1 : 1) *
    // evaluate_position(game);
    if (depth == 0 || game.is_gameover())
@@ -239,6 +266,7 @@ float Search::negamax(int depth, float alpha, float beta) {
    }
 
    return max;
+   */
 }
 
 float Search::negascout(int depth, float alpha, float beta) {

@@ -313,6 +313,22 @@ int main() {
 
 int main() {
 
+   run_perft_suite();
+   return 0;
+   
+   int num_games = 10;
+   auto fn = []() {
+      run_game_simulation(5, 3);
+   };
+
+   int ms_total = 0;
+   for (int i = 0; i < num_games; i++) {
+      ms_total += measure(fn);
+   }
+
+   int avg = ms_total / num_games;
+   std::cout << "Average Time: " << avg << "ms (" << num_games << " total games)" << std::endl;
+
    // run_game_simulation(6, 3);
    // return 0;
 

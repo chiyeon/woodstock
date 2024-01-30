@@ -16,15 +16,16 @@ void Search::swap(std::vector<int> &vec, int i, int j) {
 
 float Search::evaluate_position(Game &game, int depth) {
    float white_score = 0, black_score = 0;
-   // TranspositionEntry & e = hasher.get_entry(game.zobrist_key);
-   // if (e.key != 0ULL) return e.eval;
-
+   
    if (game.wcm)
       return 1 * (9999999 + depth);
    else if (game.bcm)
       return -1 * (9999999 + depth);
    else if (game.draw)
       return 0;
+
+   TranspositionEntry & e = game.hasher.get_entry(); 
+   if (e.key != 0ULL) return e.eval;
 
    Bitboard white_bitboard = game.get_piece_bb(Pieces::WHITE);
    while (white_bitboard != 0ULL) {
@@ -84,12 +85,12 @@ float Search::evaluate_position(Game &game, int depth) {
       }
    }
 
-   /*
-   e.key = game.zobrist_key;
+   
+   e.key = game.hasher.get_zobrist_key();
    e.eval = white_score - black_score;
    e.wcm = game.wcm;
    e.bcm = game.bcm;
-   e.draw = game.draw;*/
+   e.draw = game.draw;
 
    // mobility
    return white_score - black_score;
